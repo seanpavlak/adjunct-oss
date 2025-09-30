@@ -1,0 +1,64 @@
+{
+    "announcements": [
+      {
+        "week": 1,
+        "title": "Week 1 - Welcome!",
+        "content": "<p>Welcome to PHYS 100! I'm Mr. Pavlak, and I'm excited to guide you on this journey.</p><p>This course will take us from the smallest particles to the vast expanse of the cosmos. We will explore classical mechanics, electricity and magnetism, waves, light, and relativity. These are tools for understanding how the world around us works.</p><p>Remember, learning physics is a team effort. Support one another, ask questions, and stay curious.</p><p><strong>Action Item:</strong> Introduce yourself in the discussion board and review the course syllabus.</p>"
+      },
+      {
+        "week": 1,
+        "title": "Week 1 - Course Policies and Getting Started",
+        "content": "<p>Let's begin with some important details. Please read the syllabus carefully and familiarize yourself with Canvas.</p><p><strong>Key Policy Update:</strong> All graded work may be submitted late with a 5 point per day penalty. Extensions are not needed, as late work is always accepted.</p><p>This week we will review math skills, the metric system, and the foundations of physics as a science.</p><ul><li><a href=\"https://www.mheducation.com/highered/connect.html\" target=\"_blank\" rel=\"noopener\">McGraw-Hill Connect</a></li></ul><p><strong>Action Item:</strong> Confirm your McGraw-Hill Connect access and complete this week's introductory assignments.</p>"
+      },
+      {
+        "week": 1,
+        "title": "Week 1 - A Taste of Physics",
+        "content": "<p>We are starting the semester with a simple experiment.</p><p>Please watch the short video below and jot down your observations about what you see. At the end of the term, you will revisit this video to reflect on how your understanding has grown.</p><ul><li><a href=\"https://youtu.be/ErMSHiQRnc8?si=BCWAKNpzLrrvQ3UE\" target=\"_blank\" rel=\"noopener\">Physics Animation</a></li></ul><p><strong>Action Item:</strong> Write down your initial thoughts after watching the video and keep them for later comparison.</p>"
+      },
+      {
+        "week": 2,
+        "title": "Week 2 - Motion and Gravity",
+        "content": "<p>Great job completing the first week. Let's build on that momentum.</p><p>This week we will study Newtonian physics: distance, velocity, acceleration, and gravity. We will also connect these ideas to projectiles and free-falling objects.</p><p>Resources:</p><ul><li><a href=\"https://phet.colorado.edu/sims/html/projectile-motion/latest/projectile-motion_all.html\" target=\"_blank\" rel=\"noopener\">Projectile Motion Simulation</a></li><li><a href=\"https://www.youtube.com/shorts/hZlHVwVM1a0?feature=share\" target=\"_blank\" rel=\"noopener\">Projectile Motion Demo (Walter Lewin)</a></li></ul><p><strong>Action Item:</strong> Try the simulation and share one key observation in the discussion post.</p>"
+      },
+      {
+        "week": 2,
+        "title": "Week 2 - Vectors and Acceleration",
+        "content": "<p>Some of the math this week can feel challenging, but it will get easier with practice.</p><p>To strengthen your understanding, use the following resources:</p><ul><li><a href=\"https://www.youtube.com/watch?v=ihNZlp7iUHE\" target=\"_blank\" rel=\"noopener\">Scalars and Vectors</a></li><li><a href=\"https://www.youtube.com/watch?v=MAS6mBRZZXA\" target=\"_blank\" rel=\"noopener\">Acceleration</a></li></ul><p><strong>Action Item:</strong> Review the videos and post one question or insight to help your classmates.</p>"
+      },
+      {
+        "week": 3,
+        "title": "Week 3 - Newton's Laws",
+        "content": "<p>This week we focus on the foundations of classical mechanics.</p><p>We will study Newton's Three Laws of Motion and the Theory of Gravitation, exploring why objects move, stay still, or fall toward Earth.</p><p><strong>Action Item:</strong> Begin the discussion post early. It is more challenging than previous weeks and may take extra time.</p>"
+      },
+      {
+        "week": 4,
+        "title": "Week 4 - Waves and Fluids",
+        "content": "<p>We are at the midpoint of the course. Well done.</p><p>This week we will study waves and oscillations, with a focus on the relationship between kinetic and potential energy. Later in the week, we will cover the physics of fluids, including Pascal's Principle, Boyle's Law, Bernoulli's Principle, and Archimedes' Principle.</p><p>Resources:</p><ul><li><a href=\"https://www.youtube.com/watch?v=77ZF50ve6rs\" target=\"_blank\" rel=\"noopener\">Walter Lewin's Pendulum Experiment</a></li><li><a href=\"https://www.youtube.com/watch?v=ijj58xD5fDI\" target=\"_blank\" rel=\"noopener\">TED Talk: Archimedes Myth</a></li><li><a href=\"https://phet.colorado.edu/sims/html/energy-skate-park/latest/energy-skate-park_all.html\" target=\"_blank\" rel=\"noopener\">Energy Skate Park Simulation</a></li></ul><p><strong>Action Item:</strong> Experiment with the Energy Skate Park simulation and note the relationship between KE and PE.</p>"
+      },
+      {
+        "week": 5,
+        "title": "Week 5 - Circuits and Electricity",
+        "content": "<p>You have made it through the first half of the course. Great work.</p><p>This week we will introduce circuits and focus on Ohm's Law, exploring the relationship between current, voltage, and resistance.</p><p>Resources:</p><ul><li><a href=\"https://phet.colorado.edu/sims/html/ohms-law/latest/ohms-law_all.html\" target=\"_blank\" rel=\"noopener\">Ohm's Law Simulation</a></li><li><a href=\"https://www.youtube.com/watch?v=GP-KWqKvv9I&feature=youtu.be\" target=\"_blank\" rel=\"noopener\">Ohm's Law Demo Video</a></li></ul><p><strong>Action Item:</strong> Complete the simulation and share one real-world example of Ohm's Law in the discussion.</p>"
+      },
+      {
+        "week": 6,
+        "title": "Week 6 - Light and Waves",
+        "content": "<p>This week we move into modern physics.</p><p>We will explore the nature of waves, with a focus on light and the phenomena it creates. One of the central questions we will address: Is light a particle or a wave?</p><ul><li><a href=\"https://www.youtube.com/watch?v=J1yIApZtLos&feature=youtu.be\" target=\"_blank\" rel=\"noopener\">Is Light a Particle or a Wave?</a></li></ul><p><strong>Action Item:</strong> Watch the video and write down one example of light behaving as a wave and one as a particle.</p>"
+      },
+      {
+        "week": 7,
+        "title": "Week 7 - Atomic Physics",
+        "content": "<p>This week we turn our attention to atomic physics.</p><p>We will review the structure of the atom, study the Bohr Model, and reflect on how insights at the microscopic level shaped our understanding of the macroscopic world.</p><p><strong>Action Item:</strong> Summarize in your own words why the Bohr Model was a breakthrough in physics.</p>"
+      },
+      {
+        "week": 8,
+        "title": "Week 8 - Relativity",
+        "content": "<p>You have reached the final week. Congratulations.</p><p>We will study Einstein's theories of special and general relativity, exploring how mass and energy shape spacetime and redefining our understanding of the universe.</p><p><strong>Action Item:</strong> Reflect on one way relativity affects modern technology, such as GPS systems, and share in the discussion.</p>"
+      },
+      {
+        "week": 8,
+        "title": "Week 8 - Final Reflection",
+        "content": "<p>Congratulations on completing PHYS 100. Your effort and persistence have paid off.</p><p>On the first day, we began a term-long experiment. Please re-watch the video below and compare your new insights with the notes you made in Week 1.</p><ul><li><a href=\"https://youtu.be/ErMSHiQRnc8?si=BCWAKNpzLrrvQ3UE\" target=\"_blank\" rel=\"noopener\">Final Reflection Video</a></li></ul><p><strong>Action Item:</strong> Post your reflections on how your understanding of physics has grown since the start of the course.</p>"
+      }
+    ]
+  }
