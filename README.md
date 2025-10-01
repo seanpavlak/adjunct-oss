@@ -5,7 +5,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Tested with pytest](https://img.shields.io/badge/tested%20with-pytest-blue.svg)](https://github.com/pytest-dev/pytest/)
-[![Coverage](https://img.shields.io/badge/coverage-36%25-yellow.svg)](htmlcov/index.html)
+![Coverage](https://img.shields.io/badge/coverage-36%25-yellow.svg)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-☕-yellow.svg?style=flat&logo=buy-me-a-coffee)](https://buymeacoffee.com/seanpavlak)
 
