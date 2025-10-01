@@ -166,7 +166,7 @@ def select_from_list(options, title="Select an option", default=0):
 
 def get_course_selector():
     """Get course selector from user"""
-    from utils import load_courses_config
+    from course_utils import load_courses_config
 
     config = load_courses_config()
     courses = config.get('courses', {})
@@ -268,7 +268,7 @@ def get_llm_provider():
 
 def run_discussion_action(args=None):
     """Run the discussion scraping action"""
-    from discussion_action import run_discussion_action
+    from discussions import run_discussion_action
     
     username = os.getenv('CANVAS_USERNAME')
     password = os.getenv('CANVAS_PASSWORD')
@@ -317,7 +317,7 @@ def run_discussion_action(args=None):
 
 def run_announcement_action(args=None):
     """Run the announcement scheduling action"""
-    from announcement_scheduler import schedule_announcements
+    from announcements import schedule_announcements
     
     username = os.getenv('CANVAS_USERNAME')
     password = os.getenv('CANVAS_PASSWORD')
@@ -363,7 +363,8 @@ def show_main_menu():
         # Create menu options
         menu_options = [
             "discussion - Scrape discussions and generate AI responses",
-            "announcement - Schedule course announcements", 
+            "announcement - Schedule course announcements",
+            "donate - Support the project ☕",
             "exit - Exit the application"
         ]
         
@@ -380,6 +381,22 @@ def show_main_menu():
                 run_discussion_action()
             elif action == "announcement":
                 run_announcement_action()
+            elif action == "donate":
+                console.print()
+                console.print(Panel.fit(
+                    "[bold cyan]☕ Support Canvas CLI[/bold cyan]\n\n"
+                    "Thank you for considering supporting this project!\n\n"
+                    "Your donation helps maintain and improve this tool\n"
+                    "for educators everywhere.\n\n"
+                    "[bold green]Visit:[/bold green] [link=https://buymeacoffee.com/seanpavlak]https://buymeacoffee.com/seanpavlak[/link]\n\n"
+                    "[dim]Opening in your browser...[/dim]",
+                    title="Donation"
+                ))
+                import webbrowser
+                webbrowser.open("https://buymeacoffee.com/seanpavlak")
+                console.print("\n[green]Press Enter to return to menu...[/green]")
+                input()
+                show_main_menu()  # Return to menu
             elif action == "exit":
                 console.print("[green]Goodbye![/green]")
         else:
@@ -405,6 +422,9 @@ Examples:
   python main.py discussion --course A --week 3
   python main.py announcement --course B
   python main.py  (interactive mode)
+
+---
+💡 Find this tool helpful? Support the project: https://buymeacoffee.com/seanpavlak
             """
         )
         

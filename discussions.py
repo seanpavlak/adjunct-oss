@@ -1,11 +1,11 @@
 """
-Canvas Discussion Action - Handles discussion scraping and response generation
+Canvas Discussion Handler - Manages discussion scraping and response generation
 """
 
 import os
 import time
 from dotenv import load_dotenv
-from utils import (
+from course_utils import (
     load_courses_config, 
     calculate_current_week, 
     resolve_course_and_topic, 
@@ -118,7 +118,10 @@ def main():
     """Main entry point for discussion action"""
     import argparse
     
-    parser = argparse.ArgumentParser(description='Canvas Discussion Scraper')
+    parser = argparse.ArgumentParser(
+        description='Canvas Discussion Handler',
+        epilog='💡 Find this helpful? https://buymeacoffee.com/seanpavlak'
+    )
     parser.add_argument('--provider', choices=['openai', 'anthropic', 'deepseek'], 
                        help='LLM provider to use (auto-detected if not specified)')
     parser.add_argument('--course', default='A', 
@@ -145,3 +148,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

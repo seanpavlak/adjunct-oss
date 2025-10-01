@@ -1,11 +1,11 @@
 """
-Canvas Announcement Scheduler - Refactored to use utils and service classes
+Canvas Announcement Scheduler - Automates scheduling of course announcements
 """
 
 import os
 import argparse
 from dotenv import load_dotenv
-from utils import (
+from course_utils import (
     load_courses_config, 
     load_announcements_config, 
     resolve_course, 
@@ -56,7 +56,10 @@ def schedule_announcements(email: str, password: str, course_selector: str) -> N
 
 def main():
     """Main entry point with CLI argument support"""
-    parser = argparse.ArgumentParser(description='Canvas Announcement Scheduler')
+    parser = argparse.ArgumentParser(
+        description='Canvas Announcement Scheduler',
+        epilog='💡 Find this helpful? https://buymeacoffee.com/seanpavlak'
+    )
     parser.add_argument('--course', default='A', 
                        help='Course selector (default: A)')
     
@@ -74,9 +77,11 @@ def main():
         
     try:
         schedule_announcements(username, password, args.course)
+        print("\n💡 Saved you time? Consider supporting: https://buymeacoffee.com/seanpavlak")
     except Exception as e:
         print(f"Error: {e}")
 
 
 if __name__ == "__main__":
     main()
+

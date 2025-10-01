@@ -1,3 +1,7 @@
+"""
+LLM-based response generator for Canvas discussions
+"""
+
 import os
 import json
 import difflib
@@ -15,7 +19,7 @@ class Response(BaseModel):
     value: str
 
 @dataclass
-class DiscussionParser:
+class ResponseGenerator:
     week: int = field(init=True, repr=False)
     course_selector: str = field(init=True, repr=False, default="A")
     provider: Literal["openai", "anthropic", "deepseek"] = field(init=True, repr=False, default="openai")
@@ -223,3 +227,4 @@ class DiscussionParser:
             "preferred_phrases": preferred_phrases,
         })
         return response['value']
+

@@ -5,7 +5,7 @@ Canvas Service for browser automation and Canvas LMS operations
 import time
 from typing import List, Optional, Tuple
 from playwright.sync_api import Page, Playwright, sync_playwright
-from discussion_parser import DiscussionParser
+from response_generator import ResponseGenerator
 
 
 class CanvasService:
@@ -69,7 +69,7 @@ class CanvasService:
         Returns:
             bool: True if processing completed successfully, False if browser was closed
         """
-        parser = DiscussionParser(
+        generator = ResponseGenerator(
             week=week_id,
             course_selector=course_selector,
             provider=llm_config['provider'],
@@ -92,7 +92,7 @@ class CanvasService:
                     time.sleep(2)
                     
                     # Generate and type response
-                    response = parser.reply(content)
+                    response = generator.reply(content)
                     self.page.keyboard.type(response)
                 else:
                     print("Reply button not found for this author.")

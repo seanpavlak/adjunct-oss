@@ -1,27 +1,76 @@
 """
-Utility functions for Canvas automation and course management
+Course and date utilities for Canvas automation
 """
 
 import os
 import json
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, Tuple
+from logger import logger
+from config import course_config
+from schemas import validate_courses_config, validate_announcements_config
 
 
-def load_courses_config(config_path: Optional[str] = None) -> Dict[str, Any]:
-    """Load course configuration from courses.json"""
+def load_courses_config(config_path: Optional[str] = None, validate: bool = True) -> Dict[str, Any]:
+    """
+    Load and optionally validate course configuration from courses.json
+    
+    Args:
+        config_path: Optional path to courses.json (defaults to ./courses.json)
+        validate: Whether to validate configuration with Pydantic schemas
+        
+    Returns:
+        Course configuration dictionary
+        
+    Raises:
+        FileNotFoundError: If courses.json doesn't exist
+        ValidationError: If validation is enabled and config is invalid
+    """
     base_dir = os.path.dirname(__file__)
     path = config_path or os.path.join(base_dir, 'courses.json')
+    
+    logger.debug(f"Loading courses config from: {path}")
+    
     with open(path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+        config = json.load(f)
+    
+    if validate:
+        logger.debug("Validating courses configuration")
+        validate_courses_config(config)
+    
+    logger.info(f"Loaded {len(config.get('courses', {}))} course(s)")
+    return config
 
 
-def load_announcements_config(config_path: Optional[str] = None) -> Dict[str, Any]:
-    """Load announcements configuration from announcements.json"""
+def load_announcements_config(config_path: Optional[str] = None, validate: bool = True) -> Dict[str, Any]:
+    """
+    Load and optionally validate announcements configuration
+    
+    Args:
+        config_path: Optional path to announcements.json
+        validate: Whether to validate configuration with Pydantic schemas
+        
+    Returns:
+        Announcements configuration dictionary
+        
+    Raises:
+        FileNotFoundError: If announcements.json doesn't exist
+        ValidationError: If validation is enabled and config is invalid
+    """
     base_dir = os.path.dirname(__file__)
     path = config_path or os.path.join(base_dir, 'announcements.json')
+    
+    logger.debug(f"Loading announcements config from: {path}")
+    
     with open(path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+        config = json.load(f)
+    
+    if validate:
+        logger.debug("Validating announcements configuration")
+        validate_announcements_config(config)
+    
+    logger.info(f"Loaded {len(config.get('announcements', []))} announcement(s)")
+    return config
 
 
 def resolve_course(course_selector: str, config: Dict[str, Any]) -> Dict[str, Any]:
@@ -37,9 +86,17 @@ def resolve_course(course_selector: str, config: Dict[str, Any]) -> Dict[str, An
 
 
 def calculate_current_week(course_start_date: str) -> int:
-    """Calculate the current week number based on course start date.
-    Week boundaries are Monday-Sunday, so any day within a week counts as that week."""
-    start_date = datetime.strptime(course_start_date, '%Y-%m-%d')
+    """
+    Calculate the current week number based on course start date.
+    Week boundaries are Monday-Sunday, so any day within a week counts as that week.
+    
+    Args:
+        course_start_date: Course start date in YYYY-MM-DD format
+        
+    Returns:
+        Current week number (1-8)
+    """
+    start_date = datetime.strptime(course_start_date, course_config.DATE_FORMAT)
     current_date = datetime.now()
     
     start_monday = start_date - timedelta(days=start_date.weekday())
@@ -53,14 +110,27 @@ def calculate_current_week(course_start_date: str) -> int:
     
     current_week = weeks_elapsed + 1
     
-    current_week = max(1, min(current_week, 8))
+    # Clamp to valid range
+    current_week = max(course_config.MIN_WEEK, min(current_week, course_config.MAX_WEEK))
+    
+    logger.debug(f"Calculated week {current_week} from start date {course_start_date}")
     
     return current_week
 
 
 def calculate_announcement_dates(course_start_date: str, announcements: list) -> Dict[int, str]:
-    """Calculate specific dates for each announcement based on course start date, rounded to nearest Monday"""
-    start_date = datetime.strptime(course_start_date, '%Y-%m-%d')
+    """
+    Calculate specific dates for each announcement based on course start date.
+    Rounds to nearest Monday for each week.
+    
+    Args:
+        course_start_date: Course start date in YYYY-MM-DD format
+        announcements: List of announcement dictionaries with 'week' field
+        
+    Returns:
+        Dictionary mapping week numbers to formatted date strings
+    """
+    start_date = datetime.strptime(course_start_date, course_config.DATE_FORMAT)
     announcement_dates = {}
     
     for announcement in announcements:
@@ -76,7 +146,10 @@ def calculate_announcement_dates(course_start_date: str, announcements: list) ->
             days_until_monday = 7 - announcement_date.weekday()
         
         announcement_date = announcement_date + timedelta(days=days_until_monday)
-        announcement_dates[week] = announcement_date.strftime('%B %d %Y')
+        formatted_date = announcement_date.strftime(course_config.ANNOUNCEMENT_DATE_FORMAT)
+        announcement_dates[week] = formatted_date
+        
+        logger.debug(f"Week {week} announcement scheduled for {formatted_date}")
     
     return announcement_dates
 
@@ -106,3 +179,4 @@ def get_week_prompt(course_selector: str, week_id: int, config: Dict[str, Any]) 
             return f"No week {week_id} data found"
     except Exception as e:
         return f"<Prompt not available: {e}>"
+
