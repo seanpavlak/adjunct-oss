@@ -3,6 +3,7 @@ Canvas Announcement Scheduler - Refactored to use utils and service classes
 """
 
 import os
+import argparse
 from dotenv import load_dotenv
 from utils import (
     load_courses_config, 
@@ -54,21 +55,25 @@ def schedule_announcements(email: str, password: str, course_selector: str) -> N
 
 
 def main():
-    """Main entry point"""
-    # Configuration - update these values as needed
+    """Main entry point with CLI argument support"""
+    parser = argparse.ArgumentParser(description='Canvas Announcement Scheduler')
+    parser.add_argument('--course', default='A', 
+                       help='Course selector (default: A)')
+    
+    args = parser.parse_args()
+    
     username = os.getenv('CANVAS_USERNAME')
     password = os.getenv('CANVAS_PASSWORD')
-    course_selector = 'A'  # Use course key from courses.json
     
     if not username or not password:
         raise ValueError("CANVAS_USERNAME and CANVAS_PASSWORD environment variables must be set")
     
     print("=== Canvas Announcement Scheduler ===")
-    print(f"Course: {course_selector}")
+    print(f"Course: {args.course}")
     print(f"Username: {username}")
         
     try:
-        schedule_announcements(username, password, course_selector)
+        schedule_announcements(username, password, args.course)
     except Exception as e:
         print(f"Error: {e}")
 

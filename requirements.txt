@@ -1,0 +1,12 @@
+# Core dependencies
+python-dotenv>=1.0.0
+playwright>=1.40.0
+
+# LangChain dependencies (latest versions)
+langchain>=0.3.0
+langchain-core>=0.3.0
+langchain-openai>=0.2.0
+langchain-anthropic>=0.2.0
+
+# Pydantic for data validation
+pydantic>=2.0.0

@@ -2,12 +2,14 @@ import os
 import json
 import difflib
 import random
-from typing import List, Tuple
+from typing import List, Tuple, Literal
 from dataclasses import dataclass, field
 from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
-from langchain_core.pydantic_v1 import BaseModel, Field
+from langchain_core.language_models import BaseChatModel
+from pydantic import BaseModel, Field
 
 class Response(BaseModel):
     value: str
@@ -15,9 +17,12 @@ class Response(BaseModel):
 @dataclass
 class DiscussionParser:
     week: int = field(init=True, repr=False)
-    key: str = field(init=True, repr=False)
     course_selector: str = field(init=True, repr=False, default="A")
-    llm: ChatOpenAI = field(init=False)
+    provider: Literal["openai", "anthropic", "deepseek"] = field(init=True, repr=False, default="openai")
+    openai_key: str = field(init=True, repr=False, default="")
+    anthropic_key: str = field(init=True, repr=False, default="")
+    deepseek_key: str = field(init=True, repr=False, default="")
+    llm: BaseChatModel = field(init=False)
     prompt: PromptTemplate = field(init=False, default=None)
 
 
@@ -54,10 +59,8 @@ class DiscussionParser:
         return prompt
 
     def __post_init__(self):
-        self.llm = ChatOpenAI(model="gpt-4o",
-                              temperature=0.8,
-                              openai_api_key=self.key,
-                              verbose=True)
+        # Initialize LLM based on provider
+        self.llm = self._initialize_llm()
         self.parser = JsonOutputParser(pydantic_object=Response)
         dq_prompt_text = self._get_week_prompt()
         base_template = ('I need you to analyze this CSV, column "Post" is the students initial reply to the prompt, and column "Response" is my feedback. Then understand how it relates to this prompt:\n{dq_prompt}\n\n'
@@ -88,6 +91,40 @@ class DiscussionParser:
                 "format_instructions": self.parser.get_format_instructions()
             },
         )
+
+    def _initialize_llm(self) -> BaseChatModel:
+        """Initialize the appropriate LLM based on the provider"""
+        if self.provider == "openai":
+            if not self.openai_key:
+                raise ValueError("OpenAI API key is required when using OpenAI provider")
+            return ChatOpenAI(
+                model="gpt-4o",
+                temperature=0.8,
+                openai_api_key=self.openai_key,
+                verbose=True
+            )
+        elif self.provider == "anthropic":
+            if not self.anthropic_key:
+                raise ValueError("Anthropic API key is required when using Anthropic provider")
+            return ChatAnthropic(
+                model="claude-3-5-sonnet-20241022",
+                temperature=0.8,
+                anthropic_api_key=self.anthropic_key,
+                verbose=True
+            )
+        elif self.provider == "deepseek":
+            if not self.deepseek_key:
+                raise ValueError("DeepSeek API key is required when using DeepSeek provider")
+            # DeepSeek uses OpenAI-compatible API
+            return ChatOpenAI(
+                model="deepseek-chat",
+                temperature=0.8,
+                openai_api_key=self.deepseek_key,
+                base_url="https://api.deepseek.com/v1",
+                verbose=True
+            )
+        else:
+            raise ValueError(f"Unsupported provider: {self.provider}")
 
     def _load_discussion_examples(self) -> List[Tuple[str, str]]:
         """Load discussion examples from courses.json instead of CSV files"""

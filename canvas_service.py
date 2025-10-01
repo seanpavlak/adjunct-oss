@@ -54,38 +54,79 @@ class CanvasService:
                 content += p.text_content().strip() + " "
         return content if content else "Content not found or not loaded."
     
-    def process_discussion_authors(self, authors: List, week_id: int, openai_key: str, course_selector: str = "A") -> None:
-        """Process discussion authors and generate responses"""
-        parser = DiscussionParser(week_id, openai_key, course_selector)
+    def _is_browser_alive(self) -> bool:
+        """Check if the browser/page is still accessible"""
+        try:
+            # Try to access a simple property to test if browser is alive
+            self.page.url
+            return True
+        except Exception:
+            return False
+    
+    def process_discussion_authors(self, authors: List, week_id: int, llm_config: dict, course_selector: str = "A") -> bool:
+        """Process discussion authors and generate responses
+        
+        Returns:
+            bool: True if processing completed successfully, False if browser was closed
+        """
+        parser = DiscussionParser(
+            week=week_id,
+            course_selector=course_selector,
+            provider=llm_config['provider'],
+            openai_key=llm_config.get('openai_key', ''),
+            anthropic_key=llm_config.get('anthropic_key', ''),
+            deepseek_key=llm_config.get('deepseek_key', '')
+        )
         
         for author in authors:
-            author_id = author.get_attribute('data-authorid')
-            name = author.query_selector('[data-testid="author_name"]').text_content()
-            content = self.extract_content(author)
-            
-            print(f"Author ID: {author_id}, Name: {name}, Content: {content}")
-            
             try:
+                author_id = author.get_attribute('data-authorid')
+                name = author.query_selector('[data-testid="author_name"]').text_content()
+                content = self.extract_content(author)
+                
+                print(f"Author ID: {author_id}, Name: {name}, Content: {content}")
+                
                 reply_button = author.query_selector('[data-testid="threading-toolbar-reply"]')
                 if reply_button:
                     reply_button.click()
                     time.sleep(2)
+                    
+                    # Generate and type response
                     response = parser.reply(content)
                     self.page.keyboard.type(response)
                 else:
                     print("Reply button not found for this author.")
             except Exception as e:
-                print("Error: ", e)
+                if "Target page, context or browser has been closed" in str(e):
+                    # Browser was closed, return False to signal this
+                    return False
+                else:
+                    print("Error: ", e)
+        
+        return True
     
-    def run_discussion_loop(self, week_id: int, openai_key: str, course_selector: str = "A") -> None:
+    def run_discussion_loop(self, week_id: int, llm_config: dict, course_selector: str = "A") -> None:
         """Run the main discussion processing loop"""
         while True:
-            authors = self.page.query_selector_all('[data-authorid]')
-            self.process_discussion_authors(authors, week_id, openai_key, course_selector)
-            
-            stop = input("Press 'y' to stop or any other key to continue: ").lower()
-            if stop == 'y':
-                break
+            try:
+                authors = self.page.query_selector_all('[data-authorid]')
+                success = self.process_discussion_authors(authors, week_id, llm_config, course_selector)
+                
+                # Only show the browser closed message at the natural stopping point
+                if not success or not self._is_browser_alive():
+                    print("Browser window closed, stopping processing...")
+                    return
+                
+                stop = input("Press 'y' to stop or any other key to continue: ").lower()
+                if stop == 'y':
+                    break
+            except Exception as e:
+                if "Target page, context or browser has been closed" in str(e):
+                    print("Browser window closed, stopping processing...")
+                    return
+                else:
+                    print(f"Error in discussion loop: {e}")
+                    break
     
     def navigate_to_discussion(self, course_id: str, topic_id: str) -> None:
         """Navigate to a specific discussion topic"""
