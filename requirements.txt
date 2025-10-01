@@ -15,3 +15,7 @@ pydantic-settings>=2.0.0
 
 # Retry logic for network operations
 tenacity>=8.0.0
+
+# Development tools
+ruff>=0.1.0
+black>=24.0.0
