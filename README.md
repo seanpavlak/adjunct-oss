@@ -1,5 +1,13 @@
 # Canvas LMS Automation Tool
 
+[![Python Version](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Tested with pytest](https://img.shields.io/badge/tested%20with-pytest-blue.svg)](https://github.com/pytest-dev/pytest/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-☕-yellow.svg?style=flat&logo=buy-me-a-coffee)](https://buymeacoffee.com/seanpavlak)
+
 Automate Canvas LMS tasks including AI-powered discussion responses and announcement scheduling using browser automation.
 
 ## ✨ Features
@@ -290,7 +298,9 @@ black .
 
 ## 📄 License
 
-This project is for educational purposes. Ensure compliance with Canvas LMS terms of service.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+**Note:** Ensure compliance with your institution's Canvas LMS terms of service when using this tool.
 
 ## 🤝 Contributing
 
