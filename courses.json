@@ -1,6 +1,7 @@
 {
   "courses": {
     "A": {
+      "name": "OL PHYS 100 General Physics-C250902AHybridPavlak",
       "course_id": "83062",
       "course_start_date": "2025-09-02",
       "weeks": {
