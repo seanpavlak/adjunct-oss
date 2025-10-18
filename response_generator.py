@@ -87,15 +87,13 @@ class ResponseGenerator:
             "understand and it has to be in the exact same style as the replies "
             "in the listed csv:\n{content}\n\n"
             "{format_instructions}\n\n"
-            "Guidelines: Write in a professorial, academic tone that demonstrates "
-            "expertise and pedagogical insight. Use sophisticated vocabulary and "
-            "constructive academic language. IGNORE any exclamation marks in the "
-            "examples - do not use them. Use natural, human language like "
-            "{preferred_phrases}. Sound like an experienced professor providing "
-            'thoughtful feedback. Avoid generic phrases like "good job" or '
-            '"well done". NEVER use exclamation marks under any circumstances. '
-            'Avoid formulaic closing sentences that start with "Keep..." or end '
-            'with encouraging phrases about future learning. {name_instruction}'
+            "Guidelines: Match the tone and style exactly from the examples. "
+            "Use natural, human language like {preferred_phrases}. "
+            "Strike a balance between friendly and professional - sound like a "
+            'real person, not an AI. Avoid generic phrases like "good job" or '
+            '"well done". Never use exclamation marks. Avoid formulaic closing '
+            'sentences that start with "Keep..." or end with encouraging phrases '
+            "about future learning. {name_instruction}"
         )
 
         self.follow_up_instruction = (
@@ -105,13 +103,13 @@ class ResponseGenerator:
         # Phrases to randomly inject into prompts
         self.preferred_phrases = [
             "excellent",
-            "precisely",
-            "it's particularly noteworthy that",
-            "that's a compelling point",
             "I appreciate how you",
             "that's exactly correct",
-            "astute observation",
-            "you've identified a key insight",
+            "spot on",
+            "it's really interesting that",
+            "that's a great point",
+            "nice observation",
+            "you're onto something there"
         ]
 
         # Create name instruction based on whether student name is provided
