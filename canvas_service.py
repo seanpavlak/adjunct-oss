@@ -56,6 +56,21 @@ class CanvasService:
                 content += p.text_content().strip() + " "
         return content if content else "Content not found or not loaded."
 
+    def _extract_first_name(self, full_name: str) -> str:
+        """Extract first name from 'Last Name, First Name' format"""
+        if not full_name or not full_name.strip():
+            return ""
+        
+        # Split by comma and get the second part (first name)
+        parts = full_name.strip().split(',')
+        if len(parts) >= 2:
+            # Get the second part (first name) and strip whitespace
+            first_name = parts[1].strip()
+            return first_name
+        else:
+            # If no comma found, assume it's already just the first name
+            return full_name.strip()
+
     def _is_browser_alive(self) -> bool:
         """Check if the browser/page is still accessible"""
         try:
@@ -85,10 +100,13 @@ class CanvasService:
         for author in authors:
             try:
                 author_id = author.get_attribute("data-authorid")
-                name = author.query_selector('[data-testid="author_name"]').text_content()
+                full_name = author.query_selector('[data-testid="author_name"]').text_content()
                 content = self.extract_content(author)
 
-                print(f"Author ID: {author_id}, Name: {name}, Content: {content}")
+                # Extract first name from "Last Name, First Name" format
+                first_name = self._extract_first_name(full_name)
+
+                print(f"Author ID: {author_id}, Full Name: {full_name}, First Name: {first_name}, Content: {content}")
 
                 reply_button = author.query_selector('[data-testid="threading-toolbar-reply"]')
                 if reply_button:
@@ -96,7 +114,7 @@ class CanvasService:
                     time.sleep(2)
 
                     # Generate and type response
-                    response = generator.reply(content)
+                    response = generator.reply(content, student_name=first_name)
                     self.page.keyboard.type(response)
                 else:
                     print("Reply button not found for this author.")

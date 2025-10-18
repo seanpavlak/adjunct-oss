@@ -31,6 +31,7 @@ class ResponseGenerator:
     openai_key: str = field(init=True, repr=False, default="")
     anthropic_key: str = field(init=True, repr=False, default="")
     deepseek_key: str = field(init=True, repr=False, default="")
+    student_name: str = field(init=True, repr=False, default="")
     llm: BaseChatModel = field(init=False)
     prompt: PromptTemplate = field(init=False, default=None)
 
@@ -86,13 +87,15 @@ class ResponseGenerator:
             "understand and it has to be in the exact same style as the replies "
             "in the listed csv:\n{content}\n\n"
             "{format_instructions}\n\n"
-            "Guidelines: Match the tone and style exactly from the examples. "
-            "Use natural, human language like {preferred_phrases}. "
-            "Strike a balance between friendly and professional - sound like a "
-            'real person, not an AI. Avoid generic phrases like "good job" or '
-            '"well done". Never use exclamation marks. Avoid formulaic closing '
-            'sentences that start with "Keep..." or end with encouraging phrases '
-            "about future learning."
+            "Guidelines: Write in a professorial, academic tone that demonstrates "
+            "expertise and pedagogical insight. Use sophisticated vocabulary and "
+            "constructive academic language. IGNORE any exclamation marks in the "
+            "examples - do not use them. Use natural, human language like "
+            "{preferred_phrases}. Sound like an experienced professor providing "
+            'thoughtful feedback. Avoid generic phrases like "good job" or '
+            '"well done". NEVER use exclamation marks under any circumstances. '
+            'Avoid formulaic closing sentences that start with "Keep..." or end '
+            'with encouraging phrases about future learning. {name_instruction}'
         )
 
         self.follow_up_instruction = (
@@ -101,15 +104,22 @@ class ResponseGenerator:
 
         # Phrases to randomly inject into prompts
         self.preferred_phrases = [
-            "awesome",
-            "spot on",
-            "it's really interesting that",
-            "that's a great point",
-            "I like how you",
-            "that's exactly right",
-            "nice observation",
-            "you're onto something there",
+            "excellent",
+            "precisely",
+            "it's particularly noteworthy that",
+            "that's a compelling point",
+            "I appreciate how you",
+            "that's exactly correct",
+            "astute observation",
+            "you've identified a key insight",
         ]
+
+        # Create name instruction based on whether student name is provided
+        name_instruction = ""
+        if self.student_name:
+            name_instruction = f"Always address the student by their name '{self.student_name}' in your response."
+        else:
+            name_instruction = "If a student name is provided, use it naturally in your response."
 
         self.prompt = PromptTemplate(
             template=base_template,
@@ -117,6 +127,7 @@ class ResponseGenerator:
             partial_variables={
                 "dq_prompt": dq_prompt_text,
                 "format_instructions": self.parser.get_format_instructions(),
+                "name_instruction": name_instruction,
             },
         )
 
@@ -229,25 +240,46 @@ class ResponseGenerator:
         else:
             return f'"{", ".join(selected_phrases[:-1])}" and "{selected_phrases[-1]}"'
 
-    def reply(self, content) -> str:
+    def reply(self, content, student_name: str = None) -> str:
         if not self.llm:
             print("Error: No LLM Init'd")
             return None
+        
+        # Use provided student_name or fall back to instance student_name
+        name_to_use = student_name or self.student_name
+        
         examples = self._load_discussion_examples()
         few_shots = self._select_few_shots(content, examples, k=3)
         examples_text = self._format_examples(few_shots)
         preferred_phrases = self._generate_preferred_phrases()
 
-        if random.random() < 0.05:
-            modified_template = self.prompt.template + self.follow_up_instruction
+        # Create name instruction based on whether student name is available
+        name_instruction = ""
+        if name_to_use:
+            name_instruction = f"Always address the student by their name '{name_to_use}' in your response."
+        else:
+            name_instruction = "If a student name is provided, use it naturally in your response."
+
+        # Create dynamic prompt with name instruction
+        dynamic_prompt = PromptTemplate(
+            template=self.prompt.template,
+            input_variables=self.prompt.input_variables,
+            partial_variables={
+                **self.prompt.partial_variables,
+                "name_instruction": name_instruction,
+            },
+        )
+
+        if random.random() < 0.40:
+            modified_template = dynamic_prompt.template + self.follow_up_instruction
             modified_prompt = PromptTemplate(
                 template=modified_template,
-                input_variables=self.prompt.input_variables,
-                partial_variables=self.prompt.partial_variables,
+                input_variables=dynamic_prompt.input_variables,
+                partial_variables=dynamic_prompt.partial_variables,
             )
             chain = modified_prompt | self.llm | self.parser
         else:
-            chain = self.prompt | self.llm | self.parser
+            chain = dynamic_prompt | self.llm | self.parser
 
         response = chain.invoke(
             {
@@ -256,4 +288,10 @@ class ResponseGenerator:
                 "preferred_phrases": preferred_phrases,
             }
         )
-        return response["value"]
+        
+        # Post-process to ensure no exclamation marks slip through
+        response_text = response["value"]
+        response_text = response_text.replace("!", ".")
+        response_text = response_text.replace("—", ",")
+        
+        return response_text
