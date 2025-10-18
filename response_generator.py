@@ -135,7 +135,7 @@ class ResponseGenerator:
             if not self.openai_key:
                 raise ValueError("OpenAI API key is required when using OpenAI provider")
             return ChatOpenAI(
-                model="gpt-4o", temperature=0.8, openai_api_key=self.openai_key, verbose=True
+                model="gpt-5-nano", temperature=0.8, openai_api_key=self.openai_key, verbose=True
             )
         elif self.provider == "anthropic":
             if not self.anthropic_key:
