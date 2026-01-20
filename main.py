@@ -174,38 +174,34 @@ def select_from_list(options, title="Select an option", default=0):
 
 
 def get_course_selector():
-    """Get course selector from user"""
+    """Get course selector from user via interactive selection"""
     from course_utils import load_courses_config
 
-    config = load_courses_config()
-    courses = config.get("courses", {})
+    try:
+        config = load_courses_config()
+        courses = config.get("courses", {})
+    except Exception as e:
+        console.print(f"[red]Error loading courses config: {e}[/red]")
+        return None
 
     if not courses:
         console.print("[red]No courses found in courses.json[/red]")
         return None
 
-    # Create options with display names
+    # Build mapping of display names to course keys
+    display_to_key = {}
     course_options = []
-    course_keys = []
+    
     for key, course in courses.items():
         course_id = course.get("course_id", "N/A")
         name = course.get("name", "Unnamed Course")
         display_name = f"{key} - {name} (ID: {course_id})"
+        display_to_key[display_name] = key
         course_options.append(display_name)
-        course_keys.append(key)
-
-    # Show course info first
-    console.print("\n[bold blue]Available Courses:[/bold blue]")
-    for i, option in enumerate(course_options):
-        console.print(f"  {option}")
 
     # Use arrow key selection
     selected_display = select_from_list(course_options, "Select a Course")
-    if selected_display:
-        # Extract the key from the selected display name
-        selected_index = course_options.index(selected_display)
-        return course_keys[selected_index]
-    return None
+    return display_to_key.get(selected_display) if selected_display else None
 
 
 def get_week_selector():
