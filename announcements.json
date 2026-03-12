@@ -2,8 +2,8 @@
     "announcements": [
       {
         "week": 1,
-        "title": "Week 1 - Welcome!",
-        "content": "<p>Welcome to PHYS 100! I'm Mr. Pavlak, and I'm excited to guide you on this journey.</p><p>This course will take us from the smallest particles to the vast expanse of the cosmos. We will explore classical mechanics, electricity and magnetism, waves, light, and relativity. These are tools for understanding how the world around us works.</p><p>Remember, learning physics is a team effort. Support one another, ask questions, and stay curious.</p><p><strong>Action Item:</strong> Introduce yourself in the discussion board and review the course syllabus.</p>"
+        "title": "Week 1 - Welcome Video",
+        "content": "<p>Welcome to PHYS 100! I'm Mr. Pavlak, and I am excited to get started with you.</p><p>Please begin the course by watching this short welcome video.</p><p><a href=\"Pavlak_PHY_Welcome.mp4\" target=\"_blank\" rel=\"noopener\">Click here to watch the Pavlak PHYS 100 Welcome Video</a></p><p>After you watch, introduce yourself in the discussion board and review the course syllabus.</p>"
       },
       {
         "week": 1,
