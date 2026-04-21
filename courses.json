@@ -1,9 +1,9 @@
 {
   "courses": {
     "A": {
-      "name": "OL PHYS 100 General Physics-C260120AHybridPavlak",
-      "course_id": "88474",
-      "course_start_date": "2026-01-20",
+      "name": "OL PHYS 100 General Physics-C260511AHybridPavlak",
+      "course_id": "93374",
+      "course_start_date": "2026-05-11",
       "weeks": {
         "1": {
           "topic_id": "1094234",
@@ -200,9 +200,9 @@
       }
     },
     "B": {
-      "name": "OL PHYS 100 General Physics-C260120BHybridPavlak",
-      "course_id": "88475",
-      "course_start_date": "2026-01-20",
+      "name": "OL PHYS 100 General Physics-C260511BHybridPavlak",
+      "course_id": "93375",
+      "course_start_date": "2026-05-11",
       "weeks": {
         "1": {
           "topic_id": "1094245",
