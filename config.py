@@ -39,12 +39,18 @@ class CanvasConfig:
 
     # Speed Grader selectors (data-testid values)
     SUBMISSION_PREVIEW_IFRAME: Final[str] = "submission-preview-iframe"
+    NO_SUBMISSION_IFRAME: Final[str] = "no-submission-iframe"
     VIEW_RUBRIC_BUTTON: Final[str] = "view-rubric-button"
     SAVE_RUBRIC_BUTTON: Final[str] = "save-rubric-assessment-button"
     GRADE_INPUT: Final[str] = "grade-input"
     NEXT_STUDENT_BUTTON: Final[str] = "next-student-button"
     CURRENT_STUDENT_INDEX: Final[str] = "current-student-index"
-    SPEED_GRADER_WAIT_TIME: Final[int] = 2
+    SPEED_GRADER_WAIT_TIME: Final[int] = 4
+    RUBRIC_PANEL_OPEN_WAIT: Final[int] = 2
+    RUBRIC_RATING_CLICK_WAIT: Final[int] = 1
+    RUBRIC_SAVE_WAIT: Final[int] = 4
+    GRADE_INPUT_WAIT: Final[int] = 2
+    AFTER_GRADE_SAVE_WAIT: Final[int] = 3
 
 
 @dataclass(frozen=True)

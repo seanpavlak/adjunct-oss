@@ -3,7 +3,12 @@ Unit tests for LLM rubric grading helpers (no API calls)
 """
 
 from discussion_rubric import CRITERION_ORDER
-from rubric_grader import apply_leniency, assessment_to_levels, format_rubric_for_prompt
+from rubric_grader import (
+    apply_leniency,
+    apply_peer_engagement_rules,
+    assessment_to_levels,
+    format_rubric_for_prompt,
+)
 from rubric_models import CriterionGrade, RubricAssessment
 from submission_evaluator import parse_discussion_submission
 from submission_models import DiscussionSubmission
@@ -40,6 +45,20 @@ class TestApplyLeniency:
             self._submission(),
         )
         assert levels["Writing"] in ("meets", "exceeds")
+
+    def test_no_peer_replies_engagement_zero(self):
+        levels = apply_leniency(
+            {n: "exceeds" for n in CRITERION_ORDER},
+            self._submission(replies=[]),
+        )
+        assert levels["Engagement"] == "below"
+
+    def test_one_peer_reply_engagement_not_full_credit(self):
+        levels = apply_peer_engagement_rules(
+            {n: "exceeds" for n in CRITERION_ORDER},
+            self._submission(replies=["Hi Sue, " + "x" * 50]),
+        )
+        assert levels["Engagement"] == "needs"
 
 
 class TestAssessmentToLevels:

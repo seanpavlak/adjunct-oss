@@ -248,10 +248,33 @@ class CanvasService:
         self._wait_for_speed_grader_ready()
 
     def _wait_for_speed_grader_ready(self) -> None:
-        """Wait for Speed Grader UI to finish loading"""
-        self.page.get_by_test_id(canvas_config.GRADE_INPUT).wait_for(
+        """Wait for Speed Grader UI (submission preview or no-submission state)."""
+        ready_selector = (
+            f'[data-testid="{canvas_config.GRADE_INPUT}"], '
+            f'[data-testid="{canvas_config.NO_SUBMISSION_IFRAME}"]'
+        )
+        self.page.locator(ready_selector).first.wait_for(
             state="visible", timeout=canvas_config.DEFAULT_TIMEOUT
         )
+
+    def has_no_submission(self) -> bool:
+        """True when the student has no submission in Speed Grader."""
+        try:
+            return self.page.get_by_test_id(canvas_config.NO_SUBMISSION_IFRAME).is_visible(
+                timeout=3000
+            )
+        except Exception:
+            return False
+
+    def skip_no_submission_student(self) -> bool:
+        """Click the no-submission view and advance to the next student."""
+        try:
+            self.page.get_by_test_id(canvas_config.NO_SUBMISSION_IFRAME).click()
+            time.sleep(canvas_config.GRADE_INPUT_WAIT)
+            return self.advance_to_next_student()
+        except Exception as e:
+            print(f"Failed to skip no-submission student: {e}")
+            return False
 
     def _submission_preview_frame(self):
         """Frame locator for the Speed Grader submission preview iframe."""
@@ -315,20 +338,26 @@ class CanvasService:
         """Apply rubric selections and set the submission grade"""
         try:
             self._focus_submission_preview()
+            time.sleep(canvas_config.GRADE_INPUT_WAIT)
 
             if use_rubric and rubric_ratings:
                 self.page.get_by_test_id(canvas_config.VIEW_RUBRIC_BUTTON).click()
-                time.sleep(1)
+                time.sleep(canvas_config.RUBRIC_PANEL_OPEN_WAIT)
                 for i, rating_id in enumerate(rubric_ratings, start=1):
                     print(f"  Applying rubric rating {i}/{len(rubric_ratings)}: {rating_id}")
                     self.page.get_by_test_id(rating_id).click()
-                    time.sleep(0.3)
-                self.page.get_by_test_id(canvas_config.SAVE_RUBRIC_BUTTON).click()
-                time.sleep(1)
+                    time.sleep(canvas_config.RUBRIC_RATING_CLICK_WAIT)
+                save_btn = self.page.get_by_test_id(canvas_config.SAVE_RUBRIC_BUTTON)
+                save_btn.click()
+                time.sleep(canvas_config.RUBRIC_SAVE_WAIT)
 
             grade_input = self.page.get_by_test_id(canvas_config.GRADE_INPUT)
             grade_input.click()
+            time.sleep(0.5)
             grade_input.fill(grade)
+            time.sleep(0.5)
+            grade_input.press("Enter")
+            time.sleep(canvas_config.AFTER_GRADE_SAVE_WAIT)
             return True
         except Exception as e:
             print(f"Failed to grade submission: {e}")
@@ -340,7 +369,7 @@ class CanvasService:
             index_el = self.page.get_by_test_id(canvas_config.CURRENT_STUDENT_INDEX)
             index_el.wait_for(state="visible", timeout=5000)
             index_el.click()
-            time.sleep(0.3)
+            time.sleep(1)
             return parse_student_index(index_el.inner_text())
         except Exception:
             return None
@@ -401,6 +430,7 @@ class CanvasService:
 
         graded_count = 0
         failed_count = 0
+        skipped_count = 0
         student_index = 0
         counts = None
 
@@ -421,6 +451,22 @@ class CanvasService:
                 print(f"\nStudent on screen: {current}/{total}")
             elif not dry_run:
                 print(f"\nProcessing student {student_index}...")
+
+            if self.has_no_submission():
+                print("  No submission — skipping to next student")
+                skipped_count += 1
+                if dry_run:
+                    print("\n*** DRY RUN complete (no submission on screen) ***\n")
+                    break
+                if self.is_speed_grader_complete(counts):
+                    print("Speed Grader complete.")
+                    break
+                if not self.has_next_student(counts):
+                    print("No more students in Speed Grader.")
+                    break
+                if not self.skip_no_submission_student():
+                    break
+                continue
 
             submission = self.extract_discussion_submission()
 
@@ -476,4 +522,6 @@ class CanvasService:
             if not self.advance_to_next_student():
                 break
 
+        if skipped_count:
+            print(f"\nSkipped {skipped_count} student(s) with no submission.")
         return graded_count, failed_count

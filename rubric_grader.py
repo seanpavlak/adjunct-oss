@@ -59,22 +59,54 @@ def format_submission_for_prompt(submission: DiscussionSubmission) -> str:
     return "\n".join(parts)
 
 
+def count_meaningful_peer_replies(
+    submission: DiscussionSubmission, min_chars: int = 40
+) -> int:
+    """Count classmate replies that meet minimum length."""
+    return len([r for r in submission.peer_replies if len(r.strip()) >= min_chars])
+
+
+def apply_peer_engagement_rules(
+    levels: Dict[str, str],
+    submission: DiscussionSubmission,
+    min_peer_replies: int = 2,
+    min_peer_reply_chars: int = 40,
+) -> Dict[str, str]:
+    """
+    Hard Engagement rules (not lenient): required peer responses.
+
+    - 0 meaningful replies → below (0 pts on Engagement)
+    - Fewer than required → needs (partial credit)
+    """
+    result = dict(levels)
+    peer_count = count_meaningful_peer_replies(submission, min_peer_reply_chars)
+
+    if peer_count == 0:
+        result["Engagement"] = "below"
+    elif peer_count < min_peer_replies:
+        result["Engagement"] = "needs"
+
+    return result
+
+
 def apply_leniency(
     levels: Dict[str, str],
     submission: DiscussionSubmission,
+    requirements: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, str]:
     """
     Bump rubric levels toward leniency after LLM grading.
 
-    Rules:
-    - On-time submissions: Timeliness is at least 'meets'.
-    - Two or more peer replies: Engagement is at least 'meets', often 'exceeds'.
-    - Any citation present: Writing is at least 'meets'.
-    - Substantial initial post: Comprehension is at least 'meets'.
+    Lenient on Comprehension, Writing, and Timeliness when effort is shown.
+    Engagement is enforced separately — missing peer replies are not bumped up.
     """
+    requirements = requirements or {}
+    min_peer_replies = int(requirements.get("min_peer_replies", 2))
+    min_peer_reply_chars = int(requirements.get("min_peer_reply_chars", 40))
+
     result = dict(levels)
     is_late = submission.is_late or detect_late_submission(submission.raw_text)
-    peer_count = len(submission.peer_replies)
+    peer_count = count_meaningful_peer_replies(submission, min_peer_reply_chars)
     citations = count_citations(
         submission.initial_post + "\n" + "\n".join(submission.peer_replies)
     )
@@ -85,13 +117,12 @@ def apply_leniency(
     elif result.get("Timeliness") == "below":
         result["Timeliness"] = "needs"
 
-    if peer_count >= 2:
+    # Engagement leniency only when the student met the peer reply requirement
+    if peer_count >= min_peer_replies:
         if result.get("Engagement") in ("below", "needs"):
             result["Engagement"] = "meets"
         elif result.get("Engagement") == "meets":
             result["Engagement"] = "exceeds"
-    elif peer_count == 1 and result.get("Engagement") == "below":
-        result["Engagement"] = "needs"
 
     if citations >= 1 and result.get("Writing") in ("below", "needs"):
         result["Writing"] = "meets"
@@ -106,11 +137,13 @@ def apply_leniency(
     if initial_len < 30:
         result["Comprehension"] = "below"
     else:
-        for name in ("Comprehension", "Engagement", "Writing"):
-            if result.get(name) == "below" and name != "Timeliness":
+        for name in ("Comprehension", "Writing"):
+            if result.get(name) == "below":
                 result[name] = "needs"
 
-    return result
+    return apply_peer_engagement_rules(
+        result, submission, min_peer_replies, min_peer_reply_chars
+    )
 
 
 def _print_section(title: str, body: str) -> None:
@@ -170,7 +203,10 @@ class RubricGrader:
                 "two adjacent levels, choose the higher level. Reserve 'below' only "
                 "for missing or clearly inadequate work. For Timeliness, use 'meets' "
                 "for on-time work (do not use exceeds — it is N/A). Give 'exceeds' on "
-                "Engagement when the student has two or more thoughtful peer replies."
+                "Engagement when the student has two or more thoughtful peer replies. "
+                "Engagement MUST be 'below' (0 points) if there are no replies to "
+                "classmates, and 'needs' or lower if fewer than two meaningful "
+                "peer responses."
             ),
             input_variables=["discussion_prompt", "submission_text"],
             partial_variables={"rubric_text": format_rubric_for_prompt()},
@@ -274,7 +310,14 @@ class RubricGrader:
             _print_section("DRY RUN — Rubric levels (LLM only)", "\n".join(lines))
 
         if self.lenient or requirements.get("lenient", True):
-            levels = apply_leniency(levels, submission)
+            levels = apply_leniency(levels, submission, requirements)
+        else:
+            levels = apply_peer_engagement_rules(
+                levels,
+                submission,
+                int(requirements.get("min_peer_replies", 2)),
+                int(requirements.get("min_peer_reply_chars", 40)),
+            )
 
         if not submission.is_late and not detect_late_submission(submission.raw_text):
             levels["Timeliness"] = "meets"
@@ -305,7 +348,9 @@ class RubricGrader:
             if level in ("needs", "below"):
                 issues.append(f"{name} ({level}): {reason or 'see rubric'}")
 
-        peer_count = len(submission.peer_replies)
+        peer_count = count_meaningful_peer_replies(
+            submission, int(requirements.get("min_peer_reply_chars", 40))
+        )
         citation_count = count_citations(
             submission.initial_post + "\n" + "\n".join(submission.peer_replies)
         )
