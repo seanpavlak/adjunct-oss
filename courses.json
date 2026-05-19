@@ -7,6 +7,9 @@
       "weeks": {
         "1": {
           "topic_id": "1153568",
+          "speed_grader": {
+            "assignment_id": "3783916"
+          },
           "discussion_prompt": "It seems that the whole world except the Unites States has adopted the Metric System of measurement, The United States is the largest country in the world where the metric system is not in use. What do you think are some of the reasons why this is the case. Can you think of any areas where the metric system is widely used in the United States? What are your experiences with the metric system? What do you know about physics? WHat makes you curious about physics?",
           "discussion_data": [
             {
@@ -51,7 +54,10 @@
               "post": "I believe my biggest take away of last week was focusing on what does energy truly mean . What the definition of energy means when it comes down to understanding physics . I believe that energy in physics means a force that makes things move . There are also different definition of energy in physics , we have kinetic , potential. Also understanding the scientific method . To be able to understand what science can do\". In order to understand it to others you will have to prove how you know this information . This all has to do with physics and understanding physics . Motion especially is also a big take away from this chapter . This chapter we also learned how mathematics is used in physics. Math completes the structure of physics and also helps prove our scientific method.Physics for me is very complex and hard to understand . I am still re reading the chapter to truly have an understanding of it .\"",
               "response": "In the coming weeks, we will be covering kinetic and potential energy and those concepts may shake your definition a little bit. One of your classmates in the sister course this semester wrote mathematics is the language that physics uses to explain how the world works\" and I feel like that goes so well with your post.\""
             }
-          ]
+          ],
+          "speed_grader": {
+            "assignment_id": "3783914"
+          }
         },
         "3": {
           "topic_id": "1153567",
@@ -73,7 +79,10 @@
               "post": "1st law (Inertia): When a child is developing motor skills one of the first things they do is throw, pull, or push objects. A great game that will help children improve, is showing how they themselves have a force. That force when acted upon an object like a bowling ball will cause it to move. Without their external force on the bowling ball, the bowling ball will not move and be in a state called inertia. This shows Newton's first law that and how an object will stay at rest unless a force is applied to it. This helps children to gain strength and flexibility when force is being applied to the objects. \n\n2nd law (acceleration): Bowling also helps understand Newton's 2nd law; the force that is projected to the object will make it accelerate just as much. However it also depends on the objects mass, if the mass is greater you will need to apply more force to it to make it accelereate. When you throw a bowling ball it will accelerate if there is more force applied to it since the ball is also heavier than a regular soccer ball. If there is very little force the bowling ball will not accelerate. Knowing that it will help children's body and teach them not to overuse their force if not needed.  \n\n3rd law (action-reaction): If you put a child on a swing you will notice how the force they use will be pushed back, but in the opposite direction. This activity represents Newtons third law of action-reaction, how for every action there is an equal but opposite reaction. This is very beneficial for kids since it does help their core muscles and teaches them to balance.\n\nOverall I think Newton's laws are needed to help children not gain strength but help them learn techniques. If children just learn or worry about their strength they will not know how to use it. Hopefully the games I provided will help children understand the concepts while still keeping them active. \n\n",
               "response": "I totally agree learning techniques is just as important, if not more important, than raw strength. Especially when it comes to injury mitigation, without understanding Newton's third law action-reaction a child might not realize that the force they are using will be exerted back on them. This means that we need to lean on proper form and techniques to absorb this energy as to not over stress our biomechanical joints."
             }
-          ]
+          ],
+          "speed_grader": {
+            "assignment_id": "3783915"
+          }
         },
         "4": {
           "topic_id": "1153573",
@@ -107,7 +116,10 @@
               "post": "The two forces acting on a floating object, such as a log, is weight and buoyant force. The weight is proportional to the density and volume of the object",
               "response": " and the buoyant force depends on the density of the fluid and the volume of fluid displaced by the object.\" ( Griffith"
             }
-          ]
+          ],
+          "speed_grader": {
+            "assignment_id": "3783921"
+          }
         },
         "5": {
           "topic_id": "1153569",
@@ -129,7 +141,10 @@
               "post": "In my opinion, the three main components of a car battery are the positive terminal, the negative terminal, and the acid. The acid is a solution inside of the battery that causes the chemical reaction that gives off the power, or electrical energy. The positive terminal receives electrons and the negative terminal is where electrons originate. These components are all still present in AA and AAA batteries. Batteries have some energy when the car is not running because they are still able to power the lights and other small things. However the battery charges from the alternator while the car is running. Greater engine activity does not charge the battery faster.",
               "response": "Nice work identifying the main components and their roles in a car battery. You've made a good point about the acid being crucial for the chemical reaction. Just a small clarification: in a car battery, the positive terminal is actually where the electrons flow to, not from. So, it's more accurate to say that the electrons originate from the negative terminal and move towards the positive terminal. Also, while basic battery components like anode and cathode are similar in AA and AAA batteries, they don't have an acid electrolyte but usually a solid or gel-like substance.\n\n"
             }
-          ]
+          ],
+          "speed_grader": {
+            "assignment_id": "3783917"
+          }
         },
         "6": {
           "topic_id": "1153572",
@@ -151,7 +166,10 @@
               "post": "Color perception is a fascinating process that begins when light hits an object. The object absorbs some wavelengths and reflects others, and it's the reflected wavelengths that determine what color we see. For instance, a blue shirt appears blue because it reflects blue light while absorbing other colors. Our eyes have specialized cells called cones that are sensitive to three different ranges of wavelengths: red, green, and blue. These are the primary colors of light, and our brain combines the signals from these three types of cones to create the full spectrum of colors we can perceive. When we look at a computer screen, we're seeing light that's being emitted directly from the screen using red, green, and blue pixels. This is called additive color mixing. When we look at a printed image, we're seeing light that's being reflected off the paper using cyan, magenta, yellow, and black inks. This is called subtractive color mixing. The difference between these two systems explains why colors often look different on screen versus in print.",
               "response": "Excellent breakdown of the color perception process! You've clearly explained the physics of light interaction, the biology of human vision, and the practical differences between digital and print color systems. This understanding is crucial for anyone working with color in digital media or print design."
             }
-          ]
+          ],
+          "speed_grader": {
+            "assignment_id": "3783920"
+          }
         },
         "7": {
           "topic_id": "1153570",
@@ -173,7 +191,10 @@
               "post": "Atoms of the same element can differ in several ways. They can have different numbers of neutrons, creating isotopes with different atomic masses. They can have different numbers of electrons, creating ions with positive or negative charges. They can also be in different energy states, with electrons in higher or lower energy levels. Valence electrons are the electrons in the outermost energy shell of an atom. These electrons are crucial because they determine how an atom will interact with other atoms. Atoms bond to achieve stability, typically by having eight electrons in their outer shell (the octet rule). This can happen through ionic bonding, where electrons are transferred from one atom to another, or covalent bonding, where atoms share electrons. When atoms bond, they become more stable because they achieve a full outer shell, which is a lower energy state than having incomplete shells. This is why most elements exist as compounds rather than isolated atoms in nature.",
               "response": "Perfect explanation of atomic variations and bonding! You've clearly described isotopes, ions, energy states, and the role of valence electrons. Your understanding of the octet rule and the two main types of bonding (ionic and covalent) is excellent. The key insight that bonding leads to stability through achieving full outer shells is fundamental to understanding chemical behavior."
             }
-          ]
+          ],
+          "speed_grader": {
+            "assignment_id": "3783918"
+          }
         },
         "8": {
           "topic_id": "1153571",
@@ -195,7 +216,81 @@
               "post": "Black holes are fascinating objects in space that have such strong gravity that nothing can escape them, not even light. This is why they appear black - they don't emit any light for us to see. The boundary around a black hole where escape becomes impossible is called the event horizon. Once something crosses this boundary, it's pulled into the black hole and cannot escape. Scientists can't see black holes directly, but they can detect them by observing their effects on nearby matter. For example, they can see stars orbiting around what appears to be empty space, or detect radiation from matter that's being pulled into the black hole. The Event Horizon Telescope recently captured the first image of a black hole by photographing the shadow it casts against bright matter around it.",
               "response": "Perfect description of black holes and how we study them! You've correctly explained the event horizon as the boundary where escape becomes impossible, and how scientists detect black holes through their gravitational effects on surrounding matter. The mention of the Event Horizon Telescope's achievement in imaging a black hole's shadow is a great example of modern astronomical observation techniques."
             }
-          ]
+          ],
+          "speed_grader": {
+            "assignment_id": "3783919"
+          }
+        }
+      },
+      "discussion_rubric": {
+        "name": "Discussion Rubric (2021)",
+        "grade": "100",
+        "use_rubric": true,
+        "criteria": [
+          {
+            "name": "Comprehension",
+            "max_points": 40,
+            "rating": "Exceeds Expectations (100%)",
+            "description": "Well-organized initial post with critical thinking, analysis, or experiences using rich and significant detail."
+          },
+          {
+            "name": "Timeliness",
+            "max_points": 10,
+            "rating": "Meets Expectations (100%)",
+            "description": "Initial post submitted on time."
+          },
+          {
+            "name": "Engagement",
+            "max_points": 30,
+            "rating": "Exceeds Expectations (100%)",
+            "description": "Meaningful, on-topic peer responses with clarifying detail that advance the dialogue."
+          },
+          {
+            "name": "Writing",
+            "max_points": 20,
+            "rating": "Exceeds Expectations (100%)",
+            "description": "Posts are easily understood, clear, and concise with proper citation methods where applicable."
+          }
+        ],
+        "rubric_ratings": [
+          "traditional-criterion-_6629-ratings-0",
+          "traditional-criterion-_2232-ratings-1",
+          "traditional-criterion-_2213-ratings-0",
+          "traditional-criterion-61199_554-ratings-0"
+        ],
+        "grading_requirements": {
+          "min_peer_replies": 2,
+          "require_on_time": true,
+          "min_citations": 1,
+          "require_citation": true,
+          "min_initial_post_chars": 100,
+          "min_peer_reply_chars": 40
+        },
+        "rubric_rating_levels": {
+          "Comprehension": {
+            "exceeds": "traditional-criterion-_6629-ratings-0",
+            "meets": "traditional-criterion-_6629-ratings-1",
+            "needs": "traditional-criterion-_6629-ratings-2",
+            "below": "traditional-criterion-_6629-ratings-3"
+          },
+          "Timeliness": {
+            "exceeds": "traditional-criterion-_2232-ratings-0",
+            "meets": "traditional-criterion-_2232-ratings-1",
+            "needs": "traditional-criterion-_2232-ratings-2",
+            "below": "traditional-criterion-_2232-ratings-3"
+          },
+          "Engagement": {
+            "exceeds": "traditional-criterion-_2213-ratings-0",
+            "meets": "traditional-criterion-_2213-ratings-1",
+            "needs": "traditional-criterion-_2213-ratings-2",
+            "below": "traditional-criterion-_2213-ratings-3"
+          },
+          "Writing": {
+            "exceeds": "traditional-criterion-61199_554-ratings-0",
+            "meets": "traditional-criterion-61199_554-ratings-1",
+            "needs": "traditional-criterion-61199_554-ratings-2",
+            "below": "traditional-criterion-61199_554-ratings-3"
+          }
         }
       }
     },
@@ -228,7 +323,10 @@
               "post": "At this point, I think the US still doesn't use the metric system, because it'd be almost impossible to implement. We would have to change EVERYTHING. The US is one of three countries in the world that primarily use the imperial system, as their unit of measurement. Schools teach both imperial and metric, but metric isn't used in a day to day life as a kid. Places that use metric are more science based, medicine, auto production and dealing with international measurements.\n\nIn physics, the metric system is mainly used. NASA even switched to the metric system in 1990. I don't have much experience with the metric system, other than dosage calculations with medications. I vaguely remember physics from high school but i'm curious to get back to it. I know ultrasounds have a lot to do with physics and i'm curious to find out the specifics.\n\n",
               "response": "Exactly it comes down to time and money, the US is one of three countries but it is also absolutely massive and everything would need to be updated to do this on a wide enough scale to solidify it in the general population. Dosage calculations and unit conversions are mainly why medicine and the sciences have adopted the metric system. It's good that you have some exposure to physics, its always easier to learn something the second time around."
             }
-          ]
+          ],
+          "speed_grader": {
+            "assignment_id": "3783971"
+          }
         },
         "2": {
           "topic_id": "1153597",
@@ -250,7 +348,10 @@
               "post": "I believe my biggest take away of last week was focusing on what does energy truly mean . What the definition of energy means when it comes down to understanding physics . I believe that energy in physics means a force that makes things move . There are also different definition of energy in physics , we have kinetic , potential. Also understanding the scientific method . To be able to understand what science can do\". In order to understand it to others you will have to prove how you know this information . This all has to do with physics and understanding physics . Motion especially is also a big take away from this chapter . This chapter we also learned how mathematics is used in physics. Math completes the structure of physics and also helps prove our scientific method.Physics for me is very complex and hard to understand . I am still re reading the chapter to truly have an understanding of it .\"",
               "response": "In the coming weeks, we will be covering kinetic and potential energy and those concepts may shake your definition a little bit. One of your classmates in the sister course this semester wrote mathematics is the language that physics uses to explain how the world works\" and I feel like that goes so well with your post.\""
             }
-          ]
+          ],
+          "speed_grader": {
+            "assignment_id": "3783973"
+          }
         },
         "3": {
           "topic_id": "1153596",
@@ -272,7 +373,10 @@
               "post": "1st law (Inertia): When a child is developing motor skills one of the first things they do is throw, pull, or push objects. A great game that will help children improve, is showing how they themselves have a force. That force when acted upon an object like a bowling ball will cause it to move. Without their external force on the bowling ball, the bowling ball will not move and be in a state called inertia. This shows Newton's first law that and how an object will stay at rest unless a force is applied to it. This helps children to gain strength and flexibility when force is being applied to the objects. \n\n2nd law (acceleration): Bowling also helps understand Newton's 2nd law; the force that is projected to the object will make it accelerate just as much. However it also depends on the objects mass, if the mass is greater you will need to apply more force to it to make it accelereate. When you throw a bowling ball it will accelerate if there is more force applied to it since the ball is also heavier than a regular soccer ball. If there is very little force the bowling ball will not accelerate. Knowing that it will help children's body and teach them not to overuse their force if not needed.  \n\n3rd law (action-reaction): If you put a child on a swing you will notice how the force they use will be pushed back, but in the opposite direction. This activity represents Newtons third law of action-reaction, how for every action there is an equal but opposite reaction. This is very beneficial for kids since it does help their core muscles and teaches them to balance.\n\nOverall I think Newton's laws are needed to help children not gain strength but help them learn techniques. If children just learn or worry about their strength they will not know how to use it. Hopefully the games I provided will help children understand the concepts while still keeping them active. \n\n",
               "response": "I totally agree learning techniques is just as important, if not more important, than raw strength. Especially when it comes to injury mitigation, without understanding Newton's third law action-reaction a child might not realize that the force they are using will be exerted back on them. This means that we need to lean on proper form and techniques to absorb this energy as to not over stress our biomechanical joints."
             }
-          ]
+          ],
+          "speed_grader": {
+            "assignment_id": "3783972"
+          }
         },
         "4": {
           "topic_id": "1153599",
@@ -306,7 +410,10 @@
               "post": "The two forces acting on a floating object, such as a log, is weight and buoyant force. The weight is proportional to the density and volume of the object",
               "response": " and the buoyant force depends on the density of the fluid and the volume of fluid displaced by the object.\" ( Griffith"
             }
-          ]
+          ],
+          "speed_grader": {
+            "assignment_id": "3783975"
+          }
         },
         "5": {
           "topic_id": "1153594",
@@ -328,7 +435,10 @@
               "post": "In my opinion, the three main components of a car battery are the positive terminal, the negative terminal, and the acid. The acid is a solution inside of the battery that causes the chemical reaction that gives off the power, or electrical energy. The positive terminal receives electrons and the negative terminal is where electrons originate. These components are all still present in AA and AAA batteries. Batteries have some energy when the car is not running because they are still able to power the lights and other small things. However the battery charges from the alternator while the car is running. Greater engine activity does not charge the battery faster.",
               "response": "Nice work identifying the main components and their roles in a car battery. You've made a good point about the acid being crucial for the chemical reaction. Just a small clarification: in a car battery, the positive terminal is actually where the electrons flow to, not from. So, it's more accurate to say that the electrons originate from the negative terminal and move towards the positive terminal. Also, while basic battery components like anode and cathode are similar in AA and AAA batteries, they don't have an acid electrolyte but usually a solid or gel-like substance.\n\n"
             }
-          ]
+          ],
+          "speed_grader": {
+            "assignment_id": "3783970"
+          }
         },
         "6": {
           "topic_id": "1153598",
@@ -350,7 +460,10 @@
               "post": "Color perception is a fascinating process that begins when light hits an object. The object absorbs some wavelengths and reflects others, and it's the reflected wavelengths that determine what color we see. For instance, a blue shirt appears blue because it reflects blue light while absorbing other colors. Our eyes have specialized cells called cones that are sensitive to three different ranges of wavelengths: red, green, and blue. These are the primary colors of light, and our brain combines the signals from these three types of cones to create the full spectrum of colors we can perceive. When we look at a computer screen, we're seeing light that's being emitted directly from the screen using red, green, and blue pixels. This is called additive color mixing. When we look at a printed image, we're seeing light that's being reflected off the paper using cyan, magenta, yellow, and black inks. This is called subtractive color mixing. The difference between these two systems explains why colors often look different on screen versus in print.",
               "response": "Excellent breakdown of the color perception process! You've clearly explained the physics of light interaction, the biology of human vision, and the practical differences between digital and print color systems. This understanding is crucial for anyone working with color in digital media or print design."
             }
-          ]
+          ],
+          "speed_grader": {
+            "assignment_id": "3783974"
+          }
         },
         "7": {
           "topic_id": "1153593",
@@ -372,7 +485,10 @@
               "post": "Atoms of the same element can differ in several ways. They can have different numbers of neutrons, creating isotopes with different atomic masses. They can have different numbers of electrons, creating ions with positive or negative charges. They can also be in different energy states, with electrons in higher or lower energy levels. Valence electrons are the electrons in the outermost energy shell of an atom. These electrons are crucial because they determine how an atom will interact with other atoms. Atoms bond to achieve stability, typically by having eight electrons in their outer shell (the octet rule). This can happen through ionic bonding, where electrons are transferred from one atom to another, or covalent bonding, where atoms share electrons. When atoms bond, they become more stable because they achieve a full outer shell, which is a lower energy state than having incomplete shells. This is why most elements exist as compounds rather than isolated atoms in nature.",
               "response": "Perfect explanation of atomic variations and bonding! You've clearly described isotopes, ions, energy states, and the role of valence electrons. Your understanding of the octet rule and the two main types of bonding (ionic and covalent) is excellent. The key insight that bonding leads to stability through achieving full outer shells is fundamental to understanding chemical behavior."
             }
-          ]
+          ],
+          "speed_grader": {
+            "assignment_id": "3783969"
+          }
         },
         "8": {
           "topic_id": "1153592",
@@ -394,7 +510,81 @@
               "post": "Black holes are fascinating objects in space that have such strong gravity that nothing can escape them, not even light. This is why they appear black - they don't emit any light for us to see. The boundary around a black hole where escape becomes impossible is called the event horizon. Once something crosses this boundary, it's pulled into the black hole and cannot escape. Scientists can't see black holes directly, but they can detect them by observing their effects on nearby matter. For example, they can see stars orbiting around what appears to be empty space, or detect radiation from matter that's being pulled into the black hole. The Event Horizon Telescope recently captured the first image of a black hole by photographing the shadow it casts against bright matter around it.",
               "response": "Perfect description of black holes and how we study them! You've correctly explained the event horizon as the boundary where escape becomes impossible, and how scientists detect black holes through their gravitational effects on surrounding matter. The mention of the Event Horizon Telescope's achievement in imaging a black hole's shadow is a great example of modern astronomical observation techniques."
             }
-          ]
+          ],
+          "speed_grader": {
+            "assignment_id": "3783968"
+          }
+        }
+      },
+      "discussion_rubric": {
+        "name": "Discussion Rubric (2021)",
+        "grade": "100",
+        "use_rubric": true,
+        "criteria": [
+          {
+            "name": "Comprehension",
+            "max_points": 40,
+            "rating": "Exceeds Expectations (100%)",
+            "description": "Well-organized initial post with critical thinking, analysis, or experiences using rich and significant detail."
+          },
+          {
+            "name": "Timeliness",
+            "max_points": 10,
+            "rating": "Meets Expectations (100%)",
+            "description": "Initial post submitted on time."
+          },
+          {
+            "name": "Engagement",
+            "max_points": 30,
+            "rating": "Exceeds Expectations (100%)",
+            "description": "Meaningful, on-topic peer responses with clarifying detail that advance the dialogue."
+          },
+          {
+            "name": "Writing",
+            "max_points": 20,
+            "rating": "Exceeds Expectations (100%)",
+            "description": "Posts are easily understood, clear, and concise with proper citation methods where applicable."
+          }
+        ],
+        "rubric_ratings": [
+          "traditional-criterion-_6629-ratings-0",
+          "traditional-criterion-_2232-ratings-1",
+          "traditional-criterion-_2213-ratings-0",
+          "traditional-criterion-61199_554-ratings-0"
+        ],
+        "grading_requirements": {
+          "min_peer_replies": 2,
+          "require_on_time": true,
+          "min_citations": 1,
+          "require_citation": true,
+          "min_initial_post_chars": 100,
+          "min_peer_reply_chars": 40
+        },
+        "rubric_rating_levels": {
+          "Comprehension": {
+            "exceeds": "traditional-criterion-_6629-ratings-0",
+            "meets": "traditional-criterion-_6629-ratings-1",
+            "needs": "traditional-criterion-_6629-ratings-2",
+            "below": "traditional-criterion-_6629-ratings-3"
+          },
+          "Timeliness": {
+            "exceeds": "traditional-criterion-_2232-ratings-0",
+            "meets": "traditional-criterion-_2232-ratings-1",
+            "needs": "traditional-criterion-_2232-ratings-2",
+            "below": "traditional-criterion-_2232-ratings-3"
+          },
+          "Engagement": {
+            "exceeds": "traditional-criterion-_2213-ratings-0",
+            "meets": "traditional-criterion-_2213-ratings-1",
+            "needs": "traditional-criterion-_2213-ratings-2",
+            "below": "traditional-criterion-_2213-ratings-3"
+          },
+          "Writing": {
+            "exceeds": "traditional-criterion-61199_554-ratings-0",
+            "meets": "traditional-criterion-61199_554-ratings-1",
+            "needs": "traditional-criterion-61199_554-ratings-2",
+            "below": "traditional-criterion-61199_554-ratings-3"
+          }
         }
       }
     }

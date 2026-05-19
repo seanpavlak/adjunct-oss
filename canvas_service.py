@@ -2,12 +2,28 @@
 Canvas Service for browser automation and Canvas LMS operations
 """
 
+import re
 import time
-from typing import List, Tuple
+from typing import Any, List, Optional, Tuple
 
 from playwright.sync_api import sync_playwright
 
+from config import canvas_config
 from response_generator import ResponseGenerator
+from submission_evaluator import detect_late_submission, parse_discussion_submission
+from submission_models import DiscussionSubmission, SubmissionEvaluation
+
+STUDENT_INDEX_PATTERN = re.compile(r"(\d+)\s*/\s*(\d+)")
+
+
+def parse_student_index(text: str) -> Optional[Tuple[int, int]]:
+    """Parse '3/10' or '3/10 Students' from Speed Grader progress text."""
+    if not text:
+        return None
+    match = STUDENT_INDEX_PATTERN.search(text)
+    if not match:
+        return None
+    return int(match.group(1)), int(match.group(2))
 
 
 class CanvasService:
@@ -220,3 +236,244 @@ class CanvasService:
                 failed_announcements += 1
 
         return successful_announcements, failed_announcements
+
+    def navigate_to_speed_grader(self, course_id: str, assignment_id: str) -> None:
+        """Navigate to Speed Grader for a discussion assignment"""
+        url = (
+            f"{canvas_config.BASE_URL}/courses/{course_id}/gradebook/speed_grader"
+            f"?assignment_id={assignment_id}"
+        )
+        self.page.goto(url)
+        time.sleep(canvas_config.SPEED_GRADER_WAIT_TIME)
+        self._wait_for_speed_grader_ready()
+
+    def _wait_for_speed_grader_ready(self) -> None:
+        """Wait for Speed Grader UI to finish loading"""
+        self.page.get_by_test_id(canvas_config.GRADE_INPUT).wait_for(
+            state="visible", timeout=canvas_config.DEFAULT_TIMEOUT
+        )
+
+    def _submission_preview_frame(self):
+        """Frame locator for the Speed Grader submission preview iframe."""
+        return self.page.frame_locator(
+            f'[data-testid="{canvas_config.SUBMISSION_PREVIEW_IFRAME}"]'
+        )
+
+    def _focus_submission_preview(self) -> None:
+        """Click submission preview so the iframe content is active"""
+        try:
+            frame = self._submission_preview_frame()
+            frame.locator("body").click(timeout=5000)
+            time.sleep(0.5)
+        except Exception:
+            pass
+
+    def extract_discussion_submission(self) -> DiscussionSubmission:
+        """
+        Extract initial post and peer replies from the submission preview iframe.
+
+        Reads #content in the iframe (including the initial post body and each
+        classmate follow-up), matching the Speed Grader discussion layout.
+        """
+        frame = self._submission_preview_frame()
+        content = frame.locator("#content")
+        content.wait_for(state="attached", timeout=canvas_config.DEFAULT_TIMEOUT)
+
+        raw_text = content.inner_text()
+        is_late = detect_late_submission(raw_text)
+
+        # Focus initial post region (header area about submissions for this assignment)
+        try:
+            content.locator("motion.fs-mask p, .discussion-entry-content p, p").first.wait_for(
+                state="attached", timeout=5000
+            )
+        except Exception:
+            pass
+
+        submission = parse_discussion_submission(raw_text, is_late=is_late)
+
+        # Fallback: collect paragraph texts directly from iframe if split failed
+        if not submission.initial_post:
+            paragraphs = [
+                t.strip()
+                for t in frame.locator("#content p").all_inner_texts()
+                if t and len(t.strip()) >= 20
+            ]
+            if paragraphs:
+                submission = parse_discussion_submission(
+                    "\n".join(paragraphs), is_late=is_late
+                )
+
+        return submission
+
+    def apply_rubric_and_grade(
+        self,
+        rubric_ratings: List[str],
+        grade: str,
+        use_rubric: bool = True,
+    ) -> bool:
+        """Apply rubric selections and set the submission grade"""
+        try:
+            self._focus_submission_preview()
+
+            if use_rubric and rubric_ratings:
+                self.page.get_by_test_id(canvas_config.VIEW_RUBRIC_BUTTON).click()
+                time.sleep(1)
+                for i, rating_id in enumerate(rubric_ratings, start=1):
+                    print(f"  Applying rubric rating {i}/{len(rubric_ratings)}: {rating_id}")
+                    self.page.get_by_test_id(rating_id).click()
+                    time.sleep(0.3)
+                self.page.get_by_test_id(canvas_config.SAVE_RUBRIC_BUTTON).click()
+                time.sleep(1)
+
+            grade_input = self.page.get_by_test_id(canvas_config.GRADE_INPUT)
+            grade_input.click()
+            grade_input.fill(grade)
+            return True
+        except Exception as e:
+            print(f"Failed to grade submission: {e}")
+            return False
+
+    def get_student_index_counts(self) -> Optional[Tuple[int, int]]:
+        """Read current/total student counts from the Speed Grader progress indicator."""
+        try:
+            index_el = self.page.get_by_test_id(canvas_config.CURRENT_STUDENT_INDEX)
+            index_el.wait_for(state="visible", timeout=5000)
+            index_el.click()
+            time.sleep(0.3)
+            return parse_student_index(index_el.inner_text())
+        except Exception:
+            return None
+
+    def is_speed_grader_complete(
+        self, counts: Optional[Tuple[int, int]] = None
+    ) -> bool:
+        """True when progress shows X/X (e.g. last student on the final submission)."""
+        if counts is None:
+            counts = self.get_student_index_counts()
+        if counts is None:
+            return False
+        current, total = counts
+        return total > 0 and current >= total
+
+    def has_next_student(self, counts: Optional[Tuple[int, int]] = None) -> bool:
+        """Check if Speed Grader can advance to another student"""
+        if self.is_speed_grader_complete(counts):
+            return False
+        try:
+            button = self.page.get_by_test_id(canvas_config.NEXT_STUDENT_BUTTON)
+            return button.is_visible() and button.is_enabled()
+        except Exception:
+            return False
+
+    def advance_to_next_student(self) -> bool:
+        """Move to the next student in Speed Grader"""
+        try:
+            self.page.get_by_test_id(canvas_config.NEXT_STUDENT_BUTTON).click()
+            time.sleep(canvas_config.SPEED_GRADER_WAIT_TIME)
+            self._wait_for_speed_grader_ready()
+            return True
+        except Exception as e:
+            print(f"Failed to advance to next student: {e}")
+            return False
+
+    def run_speed_grader_loop(
+        self,
+        rubric_ratings: List[str],
+        grade: str,
+        use_rubric: bool = True,
+        max_students: Optional[int] = None,
+        dry_run: bool = False,
+        grading_requirements: Optional[dict] = None,
+        rubric_rating_levels: Optional[dict] = None,
+        llm_grader: Optional[Any] = None,
+        discussion_prompt: str = "",
+    ) -> Tuple[int, int]:
+        """Grade each student submission in Speed Grader"""
+        from submission_evaluator import evaluate_submission
+        from submission_models import grading_requirements_from_config
+
+        requirements = grading_requirements or grading_requirements_from_config({})
+        if llm_grader:
+            print("  Using LLM rubric grading (lenient)")
+        if dry_run:
+            print("\n*** DRY RUN — current student on screen only; nothing saved to Canvas ***\n")
+
+        graded_count = 0
+        failed_count = 0
+        student_index = 0
+        counts = None
+
+        while True:
+            if not self._is_browser_alive():
+                print("Browser window closed, stopping speed grader...")
+                break
+
+            if not dry_run:
+                student_index += 1
+                if max_students is not None and student_index > max_students:
+                    print(f"Reached max students limit ({max_students}).")
+                    break
+
+            counts = self.get_student_index_counts()
+            if counts:
+                current, total = counts
+                print(f"\nStudent on screen: {current}/{total}")
+            elif not dry_run:
+                print(f"\nProcessing student {student_index}...")
+
+            submission = self.extract_discussion_submission()
+
+            if dry_run and submission.raw_text:
+                print("\n--- Raw text from submission preview iframe ---")
+                print(submission.raw_text)
+                print("--- End raw iframe text ---\n")
+
+            print("  Parsed submission:")
+            print(f"    Initial post ({len(submission.initial_post)} chars):")
+            print(submission.initial_post or "(empty)")
+            for i, reply in enumerate(submission.peer_replies, start=1):
+                print(f"    Peer reply {i} ({len(reply)} chars):")
+                print(reply)
+
+            evaluation: SubmissionEvaluation = evaluate_submission(
+                submission,
+                requirements,
+                rubric_rating_levels=rubric_rating_levels,
+                discussion_prompt=discussion_prompt,
+                llm_grader=llm_grader,
+                dry_run=dry_run,
+            )
+            for line in evaluation.summary_lines():
+                print(line)
+
+            if dry_run:
+                print("\n*** DRY RUN complete — no grades or rubric saved ***\n")
+                break
+
+            student_rubric = evaluation.rubric_ratings or rubric_ratings
+            student_grade = evaluation.grade
+            if self.apply_rubric_and_grade(student_rubric, student_grade, use_rubric):
+                graded_count += 1
+                print(f"✓ Graded student {student_index} with {student_grade} points")
+            else:
+                failed_count += 1
+                print(f"✗ Failed to grade student {student_index}")
+
+            if self.is_speed_grader_complete(counts):
+                done_counts = counts or self.get_student_index_counts()
+                if done_counts:
+                    current, total = done_counts
+                    print(f"Speed Grader complete: {current}/{total} students.")
+                else:
+                    print("Speed Grader complete.")
+                break
+
+            if not self.has_next_student(counts):
+                print("No more students in Speed Grader.")
+                break
+
+            if not self.advance_to_next_student():
+                break
+
+        return graded_count, failed_count

@@ -14,6 +14,7 @@ Automate Canvas LMS tasks including AI-powered discussion responses and announce
 ## ✨ Features
 
 - 🤖 **AI-Powered Discussion Responses** - Generate contextual responses using OpenAI, Anthropic, or DeepSeek
+- ✅ **Speed Grader Automation** - Auto-apply rubrics and full credit for discussion assignments
 - 📢 **Automated Announcement Scheduling** - Schedule announcements for entire course with calculated dates
 - 🎯 **Interactive CLI** - Rich terminal interface with arrow key navigation
 - ⚙️ **Flexible Configuration** - JSON-based course and announcement configuration
@@ -94,6 +95,15 @@ Edit `courses.json` to configure your courses:
       "weeks": {
         "1": {
           "topic_id": "67890",
+          "speed_grader": {
+            "assignment_id": "123456",
+            "grade": "100",
+            "use_rubric": true,
+            "rubric_ratings": [
+              "traditional-criterion-_6629-ratings-0",
+              "traditional-criterion-_2232-ratings-1"
+            ]
+          },
           "discussion_prompt": "Your week 1 discussion prompt...",
           "discussion_data": [
             {
@@ -112,7 +122,40 @@ Edit `courses.json` to configure your courses:
 - `course_id`: Canvas course ID (found in URL)
 - `course_start_date`: First day of course (YYYY-MM-DD format)
 - `topic_id`: Canvas discussion topic ID
+- `speed_grader`: Optional Speed Grader settings (`assignment_id`, `grade`, `rubric_ratings`)
 - `discussion_data`: Example posts/responses for AI training
+
+**Discussion Rubric (2021)** — all discussion posts use the same rubric (100 pts). Auto-grading selects:
+
+| Criterion | Points | Auto rating |
+|-----------|--------|-------------|
+| Comprehension | 40 | Exceeds Expectations (100%) |
+| Timeliness | 10 | Meets Expectations (100%) — on-time |
+| Engagement | 30 | Exceeds Expectations (100%) |
+| Writing | 20 | Exceeds Expectations (100%) |
+
+Configure once per course under `discussion_rubric` in `courses.json`. Each week only needs `speed_grader.assignment_id`.
+
+If Canvas changes rubric button IDs, update `rubric_ratings` in the course `discussion_rubric` block (DevTools → `data-testid` on each rating).
+
+**Submission verification** (before grading each student in Speed Grader):
+
+The tool reads the submission preview iframe (`#content`): initial post body plus each classmate follow-up. It then checks:
+
+| Rule | Default |
+|------|---------|
+| Meaningful peer replies | At least 2 (e.g. "Hi Lidia, I agree…") |
+| On time | No "late submission" in preview |
+| Citations | At least 1 URL, DOI, in-text cite, or reference |
+
+**LLM rubric grading (lenient):** An LLM reads the full Discussion Rubric (2021), assigns each criterion (`exceeds` / `meets` / `needs` / `below`), then applies leniency rules (e.g. on-time → Timeliness `meets`, 2+ peer replies → Engagement at least `meets`). Requires an API key in `.env`.
+
+```bash
+python main.py grade --course A --week 1 --dry-run   # log full LLM I/O for student on screen
+python main.py grade --course A --week 1             # verify + apply rubric in Canvas
+```
+
+Override rules in `courses.json` → `discussion_rubric.grading_requirements`.
 
 ### 3. Announcement Configuration
 
@@ -141,7 +184,7 @@ python main.py
 ```
 
 Use arrow keys to:
-1. Select action (discussion, announcement, or donate)
+1. Select action (discussion, grade, announcement, or donate)
 2. Choose course
 3. Select LLM provider (if applicable)
 4. Specify week (if applicable)
@@ -161,6 +204,22 @@ python main.py discussion --course A --week 3 --provider anthropic
 
 # Use course ID directly
 python main.py discussion --course 12345 --week 2
+```
+
+#### Auto-Grade Discussion Posts (Speed Grader)
+
+```bash
+# Auto-detect week from course start date
+python main.py grade --course A
+
+# Grade a specific week
+python main.py grade --course A --week 1
+
+# Preview first student without saving grades
+python main.py grade --course A --week 1 --dry-run
+
+# Limit how many students to process
+python main.py grade --course A --week 1 --max-students 5
 ```
 
 #### Schedule Announcements
@@ -183,6 +242,9 @@ python discussions.py --course A --week 3
 
 # Run announcement scheduler directly
 python announcements.py --course A
+
+# Run speed grader directly
+python speed_grader.py --course A --week 1
 ```
 
 ## 📁 Project Structure
@@ -194,6 +256,7 @@ chcp/
 ├── .env                       # Environment variables (create from .env.example)
 │
 ├── discussions.py             # Discussion handler
+├── speed_grader.py            # Speed Grader automation
 ├── announcements.py          # Announcement scheduler
 ├── response_generator.py     # LLM response generation
 ├── canvas_service.py         # Browser automation service

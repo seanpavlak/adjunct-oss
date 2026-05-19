@@ -322,6 +322,66 @@ def run_discussion_action(args=None):
             console.print("[green]Goodbye![/green]")
 
 
+def run_speed_grader_action_cli(args=None):
+    """Run the Speed Grader auto-grading action"""
+    from speed_grader import run_speed_grader_action
+
+    username = os.getenv("CANVAS_USERNAME")
+    password = os.getenv("CANVAS_PASSWORD")
+
+    if not username or not password:
+        raise ValueError("CANVAS_USERNAME and CANVAS_PASSWORD environment variables must be set")
+
+    if args:
+        course_selector = args.course
+        week_id = args.week
+        grade_override = args.grade
+        max_students = args.max_students
+        dry_run = args.dry_run
+        llm_provider = getattr(args, "provider", None)
+    else:
+        console.print(Panel.fit("[bold blue]Speed Grader Setup[/bold blue]"))
+        course_selector = get_course_selector()
+        if not course_selector:
+            return
+        week_id = get_week_selector()
+        grade_override = Prompt.ask(
+            "Override grade points (press Enter to use courses.json)", default=""
+        )
+        grade_override = grade_override.strip() or None
+        max_students_input = Prompt.ask(
+            "Max students to grade (press Enter for all)", default=""
+        )
+        max_students = int(max_students_input) if max_students_input.strip() else None
+        dry_run = (
+            Prompt.ask("Dry run? (preview only, no saves)", choices=["y", "n"], default="n")
+            == "y"
+        )
+        llm_provider = None
+
+    browser_monitor = threading.Thread(target=monitor_browser_window, daemon=True)
+    browser_monitor.start()
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    try:
+        run_speed_grader_action(
+            email=username,
+            password=password,
+            course_selector=course_selector,
+            week_id=week_id,
+            grade_override=grade_override,
+            max_students=max_students,
+            dry_run=dry_run,
+            llm_provider=llm_provider,
+        )
+    except Exception as e:
+        if not browser_closed:
+            console.print(f"[red]Error: {e}[/red]")
+            console.print("[green]Goodbye![/green]")
+
+
 def run_announcement_action(args=None):
     """Run the announcement scheduling action"""
     from announcements import schedule_announcements
@@ -372,6 +432,7 @@ def show_main_menu():
         # Create menu options
         menu_options = [
             "discussion - Scrape discussions and generate AI responses",
+            "grade - Auto-grade discussion posts in Speed Grader",
             "announcement - Schedule course announcements",
             "donate - Support the project ☕",
             "exit - Exit the application",
@@ -388,6 +449,8 @@ def show_main_menu():
             action = selected.split(" - ")[0]
             if action == "discussion":
                 run_discussion_action()
+            elif action == "grade":
+                run_speed_grader_action_cli()
             elif action == "announcement":
                 run_announcement_action()
             elif action == "donate":
@@ -428,10 +491,12 @@ def main():
             epilog="""
 Available actions:
   discussion    - Scrape discussions and generate AI responses
+  grade         - Auto-grade discussion posts in Speed Grader
   announcement  - Schedule course announcements
 
 Examples:
   python main.py discussion --course A --week 3
+  python main.py grade --course A --week 1
   python main.py announcement --course B
   python main.py  (interactive mode)
 
@@ -465,6 +530,31 @@ Examples:
             "--course", default="A", help="Course selector (default: A)"
         )
 
+        grade_parser = subparsers.add_parser(
+            "grade", help="Auto-grade discussion posts in Speed Grader"
+        )
+        grade_parser.add_argument("--course", default="A", help="Course selector (default: A)")
+        grade_parser.add_argument(
+            "--week", type=int, help="Week ID (auto-calculated if not specified)"
+        )
+        grade_parser.add_argument(
+            "--grade", dest="grade", help="Override grade points from courses.json"
+        )
+        grade_parser.add_argument(
+            "--max-students",
+            type=int,
+            help="Maximum number of students to grade (default: all)",
+        )
+        grade_parser.add_argument(
+            "--dry-run",
+            action="store_true",
+            help="Log full LLM prompt/response for student on screen; no Canvas saves",
+        )
+        grade_parser.add_argument(
+            "--provider",
+            choices=["openai", "anthropic", "deepseek"],
+            help="LLM provider for rubric grading (auto-detected if not specified)",
+        )
         args = parser.parse_args()
 
         # If no arguments provided, show interactive menu
@@ -475,6 +565,8 @@ Examples:
         # Route to appropriate action
         if args.action == "discussion":
             run_discussion_action(args)
+        elif args.action == "grade":
+            run_speed_grader_action_cli(args)
         elif args.action == "announcement":
             run_announcement_action(args)
         else:

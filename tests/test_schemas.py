@@ -5,7 +5,13 @@ Unit tests for schemas module
 import pytest
 from pydantic import ValidationError
 
-from schemas import AnnouncementSchema, CourseSchema, CoursesConfig, WeekConfig
+from schemas import (
+    AnnouncementSchema,
+    CourseSchema,
+    CoursesConfig,
+    SpeedGraderConfig,
+    WeekConfig,
+)
 
 
 class TestWeekConfig:
@@ -23,6 +29,28 @@ class TestWeekConfig:
         data = {"topic_id": "FILL_ME", "discussion_prompt": "Test prompt"}
         with pytest.raises(ValidationError):
             WeekConfig(**data)
+
+
+class TestSpeedGraderConfig:
+    """Tests for SpeedGraderConfig schema"""
+
+    def test_valid_speed_grader_config(self):
+        """Test valid speed grader configuration"""
+        data = {
+            "assignment_id": "3783916",
+            "grade": "100",
+            "rubric_ratings": ["traditional-criterion-_6629-ratings-0"],
+        }
+        config = SpeedGraderConfig(**data)
+        assert config.assignment_id == "3783916"
+        assert config.grade == "100"
+        assert len(config.rubric_ratings) == 1
+
+    def test_reject_placeholder_assignment_id(self):
+        """Test rejection of placeholder assignment IDs"""
+        data = {"assignment_id": "FILL_ME"}
+        with pytest.raises(ValidationError):
+            SpeedGraderConfig(**data)
 
 
 class TestCourseSchema:

@@ -8,6 +8,12 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Tuple
 
 from config import course_config
+from discussion_rubric import (
+    DEFAULT_RUBRIC_RATINGS,
+    DISCUSSION_RUBRIC_2021,
+    GRADING_REQUIREMENTS,
+    RUBRIC_RATING_LEVELS,
+)
 from logger import logger
 from schemas import validate_announcements_config, validate_courses_config
 
@@ -173,6 +179,67 @@ def resolve_course_and_topic(
     if not topic_id or topic_id == "FILL_ME":
         raise ValueError(f"Missing topic_id for week {week_id} in course {course_selector}")
     return course_id, topic_id
+
+
+def get_speed_grader_config(
+    course_selector: str, week_id: int, config: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Get Speed Grader configuration for a specific week"""
+    course = resolve_course(course_selector, config)
+    weeks = course.get("weeks", {})
+    week_data = weeks.get(str(week_id))
+    if not week_data:
+        raise ValueError(f"Missing week {week_id} data in course {course_selector}")
+
+    speed_grader = week_data.get("speed_grader")
+    if not speed_grader:
+        raise ValueError(
+            f"Missing speed_grader config for week {week_id} in course {course_selector}. "
+            "Add assignment_id to courses.json."
+        )
+
+    merged = dict(speed_grader)
+    course_rubric = course.get("discussion_rubric") or {}
+
+    if not merged.get("grade"):
+        merged["grade"] = course_rubric.get("grade", DISCUSSION_RUBRIC_2021["grade"])
+    if merged.get("use_rubric") is None:
+        merged["use_rubric"] = course_rubric.get(
+            "use_rubric", DISCUSSION_RUBRIC_2021["use_rubric"]
+        )
+    if not merged.get("rubric_ratings"):
+        merged["rubric_ratings"] = course_rubric.get("rubric_ratings") or list(
+            DEFAULT_RUBRIC_RATINGS
+        )
+    merged["rubric_name"] = course_rubric.get("name", DISCUSSION_RUBRIC_2021["name"])
+    merged["rubric_criteria"] = course_rubric.get(
+        "criteria", DISCUSSION_RUBRIC_2021["criteria"]
+    )
+    merged["grading_requirements"] = {
+        **GRADING_REQUIREMENTS,
+        **course_rubric.get("grading_requirements", {}),
+        **merged.get("grading_requirements", {}),
+    }
+    merged["rubric_rating_levels"] = course_rubric.get(
+        "rubric_rating_levels", RUBRIC_RATING_LEVELS
+    )
+
+    return merged
+
+
+def resolve_course_and_assignment(
+    course_selector: str, week_id: int, config: Dict[str, Any]
+) -> Tuple[str, str]:
+    """Resolve course selector and week to course_id and assignment_id"""
+    course = resolve_course(course_selector, config)
+    course_id = course.get("course_id")
+    speed_grader = get_speed_grader_config(course_selector, week_id, config)
+    assignment_id = speed_grader.get("assignment_id")
+    if not assignment_id or assignment_id == "FILL_ME":
+        raise ValueError(
+            f"Missing assignment_id for week {week_id} in course {course_selector}"
+        )
+    return course_id, assignment_id
 
 
 def get_week_prompt(course_selector: str, week_id: int, config: Dict[str, Any]) -> str:

@@ -37,6 +37,15 @@ class CanvasConfig:
     ANNOUNCEMENT_DATE_SELECTOR: Final[str] = "announcement-available-from-date"
     ANNOUNCEMENT_SUBMIT_SELECTOR: Final[str] = "announcement-submit-button"
 
+    # Speed Grader selectors (data-testid values)
+    SUBMISSION_PREVIEW_IFRAME: Final[str] = "submission-preview-iframe"
+    VIEW_RUBRIC_BUTTON: Final[str] = "view-rubric-button"
+    SAVE_RUBRIC_BUTTON: Final[str] = "save-rubric-assessment-button"
+    GRADE_INPUT: Final[str] = "grade-input"
+    NEXT_STUDENT_BUTTON: Final[str] = "next-student-button"
+    CURRENT_STUDENT_INDEX: Final[str] = "current-student-index"
+    SPEED_GRADER_WAIT_TIME: Final[int] = 2
+
 
 @dataclass(frozen=True)
 class LLMConfig:

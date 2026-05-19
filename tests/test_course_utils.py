@@ -9,8 +9,10 @@ import pytest
 from course_utils import (
     calculate_announcement_dates,
     calculate_current_week,
+    get_speed_grader_config,
     get_week_prompt,
     resolve_course,
+    resolve_course_and_assignment,
 )
 
 
@@ -106,6 +108,78 @@ class TestResolveCourse:
         config = {"courses": {}}
         with pytest.raises(ValueError, match="not found"):
             resolve_course("NONEXISTENT", config)
+
+
+class TestSpeedGraderConfigUtils:
+    """Tests for speed grader configuration helpers"""
+
+    def test_get_speed_grader_config(self):
+        """Test loading speed grader config merged with course rubric"""
+        config = {
+            "courses": {
+                "A": {
+                    "course_id": "93374",
+                    "discussion_rubric": {
+                        "name": "Discussion Rubric (2021)",
+                        "grade": "100",
+                        "use_rubric": True,
+                        "criteria": [
+                            {
+                                "name": "Comprehension",
+                                "max_points": 40,
+                                "rating": "Exceeds Expectations (100%)",
+                            }
+                        ],
+                        "rubric_ratings": ["traditional-criterion-_6629-ratings-0"],
+                    },
+                    "weeks": {
+                        "1": {
+                            "speed_grader": {
+                                "assignment_id": "3783916",
+                            }
+                        }
+                    },
+                }
+            }
+        }
+        sg_config = get_speed_grader_config("A", 1, config)
+        assert sg_config["assignment_id"] == "3783916"
+        assert sg_config["grade"] == "100"
+        assert sg_config["rubric_name"] == "Discussion Rubric (2021)"
+        assert len(sg_config["rubric_ratings"]) == 1
+
+    def test_resolve_course_and_assignment(self):
+        """Test resolving course and assignment IDs"""
+        config = {
+            "courses": {
+                "A": {
+                    "course_id": "93374",
+                    "weeks": {
+                        "1": {
+                            "speed_grader": {
+                                "assignment_id": "3783916",
+                            }
+                        }
+                    },
+                }
+            }
+        }
+        course_id, assignment_id = resolve_course_and_assignment("A", 1, config)
+        assert course_id == "93374"
+        assert assignment_id == "3783916"
+
+    def test_missing_speed_grader_config(self):
+        """Test error when speed grader config is missing"""
+        config = {
+            "courses": {
+                "A": {
+                    "course_id": "93374",
+                    "weeks": {"1": {"topic_id": "1153568"}},
+                }
+            }
+        }
+        with pytest.raises(ValueError, match="speed_grader"):
+            get_speed_grader_config("A", 1, config)
 
 
 class TestGetWeekPrompt:
