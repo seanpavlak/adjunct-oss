@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from canvas_service import CanvasService
 from course_utils import (
     calculate_current_week,
+    calculate_grading_week,
     get_speed_grader_config,
     get_week_prompt,
     load_courses_config,
@@ -40,20 +41,25 @@ def run_speed_grader_action(
 
     config = load_courses_config()
     course = resolve_course(course_selector, config)
+    course_start_date = course.get("course_start_date")
+    if not course_start_date:
+        raise ValueError(f"Course start date not found for course {course_selector}")
+
+    course_id = course.get("course_id")
 
     if week_id is None:
-        course_start_date = course.get("course_start_date")
-        if not course_start_date:
-            raise ValueError(f"Course start date not found for course {course_selector}")
-        week_id = calculate_current_week(course_start_date)
+        calendar_week = calculate_current_week(course_start_date)
+        week_id = calculate_grading_week(course_start_date)
         print(
-            f"Auto-calculated current week: {week_id} "
-            f"(based on course start date: {course_start_date})"
+            f"Auto-selected grading week: {week_id} "
+            f"(calendar week {calendar_week} minus 1, start {course_start_date})"
         )
     else:
         print(f"Using manually specified week: {week_id}")
 
-    course_id, assignment_id = resolve_course_and_assignment(course_selector, week_id, config)
+    course_id, assignment_id = resolve_course_and_assignment(
+        course_selector, week_id, config
+    )
     speed_grader_config = get_speed_grader_config(course_selector, week_id, config)
 
     grade = grade_override or speed_grader_config.get("grade", "100")
@@ -65,6 +71,7 @@ def run_speed_grader_action(
 
     print(f"\nSpeed Grader setup:")
     print(f"  Course ID: {course_id}")
+    print(f"  Week: {week_id}")
     print(f"  Assignment ID: {assignment_id}")
     print(f"  Rubric: {rubric_name}")
     print(f"  Grade: {grade}")
@@ -138,7 +145,11 @@ def main():
         epilog="💡 Find this helpful? https://buymeacoffee.com/seanpavlak",
     )
     parser.add_argument("--course", default="A", help="Course selector (default: A)")
-    parser.add_argument("--week", type=int, help="Week ID (auto-calculated if not specified)")
+    parser.add_argument(
+        "--week",
+        type=int,
+        help="Week ID (default: calendar week minus 1)",
+    )
     parser.add_argument("--grade", help="Override grade points from courses.json")
     parser.add_argument(
         "--max-students",

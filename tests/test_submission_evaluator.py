@@ -5,12 +5,12 @@ Unit tests for discussion submission parsing and evaluation
 import pytest
 
 from submission_evaluator import (
+    build_discussion_submission_from_entries,
     count_citations,
     evaluate_submission,
     parse_discussion_submission,
     split_content_into_posts,
 )
-from submission_models import DiscussionSubmission
 from submission_models import DiscussionSubmission
 
 
@@ -63,6 +63,39 @@ class TestEvaluateSubmission:
                 DiscussionSubmission(initial_post="test"),
                 {},
             )
+
+
+class TestBuildDiscussionSubmissionFromEntries:
+    """Tests for Speed Grader discussion_entry DOM order parsing"""
+
+    def test_first_entry_initial_rest_are_peer_replies(self):
+        initial = (
+            "The metric system is not used in the United States currently because "
+            "it was never implemented as the main system use."
+        )
+        reply_lidia = (
+            "Hi Lidia, I agree with your point regarding making the switch to the "
+            "metric system. This would cause many conflicts within the country."
+        )
+        reply_bailee = (
+            "Hello Bailee, I agree with you perspective on everything being a little "
+            "better if we all used the metric system and avoiding the conversions."
+        )
+        sub = build_discussion_submission_from_entries(
+            [initial, reply_lidia, reply_bailee]
+        )
+        assert initial in sub.initial_post
+        assert len(sub.peer_replies) == 2
+        assert "Hi Lidia" in sub.peer_replies[0]
+        assert "Hello Bailee" in sub.peer_replies[1]
+        assert sub.peer_reply_count == 2
+
+    def test_single_entry_no_peer_replies(self):
+        sub = build_discussion_submission_from_entries(
+            ["Only the initial post with enough characters to count."]
+        )
+        assert sub.initial_post
+        assert sub.peer_replies == []
 
 
 class TestParseDiscussionSubmission:

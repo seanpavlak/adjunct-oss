@@ -115,8 +115,38 @@ def _split_on_peer_greetings(text: str) -> List[str]:
     return parts if len(parts) > 1 else [text]
 
 
+def _is_meaningful_entry_text(text: str, min_chars: int = 10) -> bool:
+    stripped = text.strip()
+    if len(stripped) < min_chars:
+        return False
+    if stripped in ("\xa0", "&nbsp;"):
+        return False
+    return not _should_skip_text(stripped)
+
+
+def build_discussion_submission_from_entries(
+    entry_messages: List[str],
+    raw_text: str = "",
+    is_late: bool = False,
+) -> DiscussionSubmission:
+    """
+    Build a submission from Speed Grader discussion_entry blocks.
+
+    Canvas lists one ``discussion_entry`` per post: the first is the student's
+    initial post; the rest are peer replies.
+    """
+    messages = [m.strip() for m in entry_messages if _is_meaningful_entry_text(m)]
+    return DiscussionSubmission(
+        initial_post=messages[0] if messages else "",
+        peer_replies=messages[1:] if len(messages) > 1 else [],
+        all_posts=list(messages),
+        is_late=is_late,
+        raw_text=raw_text,
+    )
+
+
 def parse_discussion_submission(raw_text: str, is_late: bool = False) -> DiscussionSubmission:
-    """Build a DiscussionSubmission from raw iframe text."""
+    """Build a DiscussionSubmission from raw iframe text (fallback when DOM parse fails)."""
     posts = split_content_into_posts(raw_text)
     initial = posts[0] if posts else ""
     replies = posts[1:] if len(posts) > 1 else []

@@ -10,7 +10,11 @@ from playwright.sync_api import sync_playwright
 
 from config import canvas_config
 from response_generator import ResponseGenerator
-from submission_evaluator import detect_late_submission, parse_discussion_submission
+from submission_evaluator import (
+    build_discussion_submission_from_entries,
+    detect_late_submission,
+    parse_discussion_submission,
+)
 from submission_models import DiscussionSubmission, SubmissionEvaluation
 
 STUDENT_INDEX_PATTERN = re.compile(r"(\d+)\s*/\s*(\d+)")
@@ -306,12 +310,37 @@ class CanvasService:
         except Exception:
             pass
 
+    def _extract_discussion_entry_messages(self, frame) -> list[str]:
+        """
+        Read each Speed Grader discussion_entry message body in DOM order.
+
+        Structure: ``#content .discussion_entry.communication_message`` — first entry
+        is the initial post, subsequent entries are peer replies.
+        """
+        messages: list[str] = []
+        entries = frame.locator("#content .discussion_entry.communication_message")
+        try:
+            count = entries.count()
+        except Exception:
+            return messages
+
+        for i in range(count):
+            entry = entries.nth(i)
+            try:
+                msg = entry.locator(".message.user_content.enhanced").first
+                text = msg.inner_text(timeout=3000).strip()
+            except Exception:
+                continue
+            if text:
+                messages.append(text)
+        return messages
+
     def extract_discussion_submission(self) -> DiscussionSubmission:
         """
         Extract initial post and peer replies from the submission preview iframe.
 
-        Reads #content in the iframe (including the initial post body and each
-        classmate follow-up), matching the Speed Grader discussion layout.
+        Prefers structured ``discussion_entry`` blocks (first = initial post, rest =
+        peer replies). Falls back to plain-text parsing of ``#content`` if needed.
         """
         frame = self._submission_preview_frame()
         content = frame.locator("#content")
@@ -320,17 +349,14 @@ class CanvasService:
         raw_text = content.inner_text()
         is_late = detect_late_submission(raw_text)
 
-        # Focus initial post region (header area about submissions for this assignment)
-        try:
-            content.locator("motion.fs-mask p, .discussion-entry-content p, p").first.wait_for(
-                state="attached", timeout=5000
+        entry_messages = self._extract_discussion_entry_messages(frame)
+        if entry_messages:
+            return build_discussion_submission_from_entries(
+                entry_messages, raw_text=raw_text, is_late=is_late
             )
-        except Exception:
-            pass
 
         submission = parse_discussion_submission(raw_text, is_late=is_late)
 
-        # Fallback: collect paragraph texts directly from iframe if split failed
         if not submission.initial_post:
             paragraphs = [
                 t.strip()

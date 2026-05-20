@@ -88,7 +88,7 @@ class TestPostProcessor:
         )
         assert level == "needs"
 
-    def test_no_citations_writing_zero(self):
+    def test_no_citations_writing_capped_at_meets(self):
         processor, _ = _processor()
         levels = processor.apply(
             {n: "exceeds" for n in CRITERION_ORDER},
@@ -98,7 +98,7 @@ class TestPostProcessor:
             ),
             lenient=True,
         )
-        assert levels["Writing"] == "below"
+        assert levels["Writing"] == "meets"
 
     def test_citation_present_does_not_force_writing_below(self):
         _, config = _processor()

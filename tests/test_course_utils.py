@@ -9,6 +9,7 @@ import pytest
 from course_utils import (
     calculate_announcement_dates,
     calculate_current_week,
+    calculate_grading_week,
     get_speed_grader_config,
     get_week_prompt,
     resolve_course,
@@ -40,6 +41,22 @@ class TestCalculateCurrentWeek:
         future_date = (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
         result = calculate_current_week(future_date)
         assert result == 1
+
+
+class TestCalculateGradingWeek:
+    def test_calendar_week_two_grades_week_one(self):
+        """When calendar week is 2, grade week 1 (N-1)."""
+        from unittest.mock import patch
+
+        with patch("course_utils.calculate_current_week", return_value=2):
+            assert calculate_grading_week("2026-05-11") == 1
+
+    def test_calendar_week_one_stays_week_one(self):
+        """Week 1 clamps to 1 (no week 0)."""
+        from unittest.mock import patch
+
+        with patch("course_utils.calculate_current_week", return_value=1):
+            assert calculate_grading_week("2026-05-11") == 1
 
 
 class TestCalculateAnnouncementDates:

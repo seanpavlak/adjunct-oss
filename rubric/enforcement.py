@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Mapping, Optional
 
-from rubric.types import RubricLevel
+from rubric.types import RUBRIC_LEVEL_ORDER, RubricLevel
 from submission_evaluator import count_citations, detect_late_submission
 from submission_models import DiscussionSubmission
 
@@ -25,6 +25,13 @@ class EnforcementContext:
     level: RubricLevel
     submission: DiscussionSubmission
     params: Mapping[str, Any]
+
+
+def _cap_at_most(level: RubricLevel, ceiling: RubricLevel) -> RubricLevel:
+    """Lower the level if it is above ceiling (e.g. exceeds → meets when no citations)."""
+    if RUBRIC_LEVEL_ORDER.index(level) > RUBRIC_LEVEL_ORDER.index(ceiling):
+        return ceiling
+    return level
 
 
 def count_meaningful_peer_replies(
@@ -52,6 +59,11 @@ def _apply_min_peer_replies(ctx: EnforcementContext) -> RubricLevel:
 
 
 def _apply_min_citations(ctx: EnforcementContext) -> RubricLevel:
+    """
+    Citation enforcement caps Writing — it does not zero out the criterion.
+
+    Clear writing without a citation may earn meets but not exceeds.
+    """
     if not ctx.params.get("require_citation", True):
         return ctx.level
     combined = (
@@ -60,9 +72,11 @@ def _apply_min_citations(ctx: EnforcementContext) -> RubricLevel:
     citation_count = count_citations(combined)
     min_count = int(ctx.params.get("min_count", 1))
     if citation_count == 0:
-        return ctx.params.get("level_when_zero", "below")
+        ceiling = ctx.params.get("level_when_zero", "meets")
+        return _cap_at_most(ctx.level, ceiling)
     if citation_count < min_count:
-        return ctx.params.get("level_when_insufficient", "needs")
+        ceiling = ctx.params.get("level_when_insufficient", "meets")
+        return _cap_at_most(ctx.level, ceiling)
     return ctx.level
 
 

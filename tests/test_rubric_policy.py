@@ -66,7 +66,7 @@ class TestApplyRubricPolicies:
         )
         assert levels["Engagement"] == "below"
 
-    def test_no_citations_writing_below(self):
+    def test_no_citations_writing_capped_at_meets(self):
         levels = apply_rubric_policies(
             {n: "exceeds" for n in CRITERION_ORDER},
             DiscussionSubmission(
@@ -78,7 +78,7 @@ class TestApplyRubricPolicies:
             ),
             lenient=True,
         )
-        assert levels["Writing"] == "below"
+        assert levels["Writing"] == "meets"
 
 
 class TestBoundaryLeniency:

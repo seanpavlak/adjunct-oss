@@ -132,6 +132,20 @@ def calculate_current_week(course_start_date: str) -> int:
     return current_week
 
 
+def calculate_grading_week(course_start_date: str) -> int:
+    """
+    Week to grade in Speed Grader: always the previous calendar week (N - 1).
+
+    During calendar week 2, grade week 1 discussions. Clamped to MIN_WEEK (1).
+    """
+    current_week = calculate_current_week(course_start_date)
+    grading_week = max(course_config.MIN_WEEK, current_week - 1)
+    logger.debug(
+        f"Grading week {grading_week} (calendar week {current_week} minus 1)"
+    )
+    return grading_week
+
+
 def calculate_announcement_dates(course_start_date: str, announcements: list) -> Dict[int, str]:
     """
     Calculate specific dates for each announcement based on course start date.

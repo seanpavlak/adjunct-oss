@@ -48,17 +48,18 @@ DEFAULT_CRITERION_GRADING_POLICIES: Dict[str, Dict[str, Any]] = {
     },
     "Writing": {
         "llm_guidance": (
-            "Assess clarity and citation practice. Writing MUST be 'below' (0 points) if "
-            "the submission has no citation (URL, DOI, in-text cite, or reference) when "
-            "stating factual claims."
+            "Assess clarity and citation practice. Excellent clear writing without any "
+            "citation (URL, DOI, in-text cite, or reference) should be meets, not exceeds. "
+            "Do not use below for writing quality alone — reserve below for unclear or "
+            "unintelligible posts."
         ),
         "lenient": True,
         "enforcement": {
             "type": "min_citations",
             "min_count": 1,
             "require_citation": True,
-            "level_when_zero": "below",
-            "level_when_insufficient": "needs",
+            "level_when_zero": "meets",
+            "level_when_insufficient": "meets",
         },
     },
 }

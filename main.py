@@ -209,7 +209,8 @@ def get_week_selector():
     while True:
         try:
             week_input = Prompt.ask(
-                "Enter week number (or press Enter for auto-calculate)", default=""
+                "Enter week number (or press Enter for calendar week minus 1)",
+                default="",
             )
             if week_input.strip() == "":
                 return None
