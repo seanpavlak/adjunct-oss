@@ -36,7 +36,7 @@
         },
         "2": {
           "topic_id": "1153566",
-          "discussion_prompt": "For this discussion, share what you feel is the most valuable takeaway from your learning with the materials for the week. Specifically… Describe your most valuable takeaway (most important information you learned). Explain why this was important to your learning and how it will help you in your field.",
+          "discussion_prompt": "For this discussion, share what you feel is the most valuable takeaway from your learning with the materials for the week. Specifically\u2026 Describe your most valuable takeaway (most important information you learned). Explain why this was important to your learning and how it will help you in your field.",
           "discussion_data": [
             {
               "post": "Physics teaches us knowledgable information that we may think we dont need to know but its very useful to use especially regarding our different career paths . The most valuable takeaway I've learned is all the different equations that I've learned so far in physics learning how to get distance or velocity and speed , knowing that when I'm driving my ''mph'' means something more that how fast I'm just going. It is important to learn this because it could help you further your knowledge about physics and what you know now , I could help with some peoples career especially careers that may be going into the science field or things to due with physics as well. Physics can be an important part in many people's career field.",
@@ -127,7 +127,7 @@
           "discussion_data": [
             {
               "post": "According to an article I read, the three main components are an anode (Electrons flow out from the anode in a device connected to a circuit.), a cathode (Electrons flow into the cathode in a device connected to a circuit.), and an electrolyte (The electrolyte is the substance, often a liquid or gel, that is capable of transporting ions between the chemical reactions that happen at the anode and cathode.) (Hymel). Viewing batteries, I do believe they contain the anode, cathode, and electrolyte components. The battery in a vehicle is charged by running the car for a certain amount of time, I don't know the specifics of it, but the alternator works with the generator to charge the battery while the car drives. My dad taught me this when my brothers car sat in the driveway for 6 months and I had to drive the car for at least 50 miles or so to charge the battery enough to stay alive. According to KwikFit, revving the engine does charge the battery faster because it increases the rpms. (n.a.)\n\nHymel, S. (n.d). What is a battery?. What is a Battery? - SparkFun Learn. https://learn.sparkfun.com/tutorials/what-is-a-battery/components#:~:text=Batteries%20are%20made%20up%20of,a%20cathode%2C%20and%20an%20electrolyteLinks to an external site..\n\nn.a. (n.d). Does a car battery charge while idling?. Kwik Fit. https://www.kwik-fit.com/blog/-does-car-battery-charge-while-idling#\n\n",
-              "response": "Great job identifying the three main components of a battery and their functions. You've explained the roles of the anode, cathode, and electrolyte very well. It's also good to see that you've applied real-life experience and additional resources to understand how a vehicle's battery is charged. Remember, the alternator is key in this system—it converts mechanical energy from the engine into electrical energy that charges the battery."
+              "response": "Great job identifying the three main components of a battery and their functions. You've explained the roles of the anode, cathode, and electrolyte very well. It's also good to see that you've applied real-life experience and additional resources to understand how a vehicle's battery is charged. Remember, the alternator is key in this system\u2014it converts mechanical energy from the engine into electrical energy that charges the battery."
             },
             {
               "post": "If I'm being honest, I have not a single clue when it comes to vehicles. I grew up fortunate enough to have a grandfather that took care of all my car needs. It would be beneficial to maybe look under the hood one day. It wouldn't be fair to explain what I think those main parts are of a car battery since I'm not familiar. I do know that cables play an important role when needing to give another car/truck a jump. \n\n  Looking in my home and noticing how all the batteries have similarities. I noticed how all batteries have a negative and positive component. This is essential because that is how power operates, it needs an opposite to function. I think when the car is turned off properly, the battery charges. I know leaving a light on for several hours could cause the battery to die. Therefore, if your car is parked and turned off, this allows times for the battery to power on. \n\n",
@@ -201,7 +201,7 @@
           "discussion_prompt": "What did you learn about physics this term? What would you still like to know? What suggestions would you offer future students? Hopefully, the course was not a big black hole. What is a black hole? When do black holes form? Can scientists see a black hole? What is the \"event horizon\" of a black hole? Find out information about black holes and share it with your classmates or choose another topic in physics and create a thread.",
           "discussion_data": [
             {
-              "post": "Physics is all about understanding matter and energy in the universe, with applications in engineering, technology, medicine, and environmental science. For future physics students, it's crucial to build a strong foundation, practice problem-solving, use resources like textbooks, and collaborate with classmates. Staying curious about the latest developments and connecting what you learn to the real world are important too. A black hole is a space region with incredibly strong gravity, trapping everything, even light. They form when big stars run out of fuel and explode in a supernova, with the remaining core collapsing into an extremely dense point called a singularity. This point is surrounded by an invisible boundary called the event horizon. Black holes can't be seen directly because they don't emit light, but scientists can figure out their presence by observing how they affect nearby matter. The Event Horizon Telescope made history by capturing the first image of a black hole in 2019, showing its silhouette against bright surroundings. The event horizon is crucial—it's the boundary where nothing, not even light, can escape the black hole's gravitational pull. Once something crosses it, it's pulled into the black hole, and any information about it is lost to the external universe, adding to the mysterious nature of black holes.",
+              "post": "Physics is all about understanding matter and energy in the universe, with applications in engineering, technology, medicine, and environmental science. For future physics students, it's crucial to build a strong foundation, practice problem-solving, use resources like textbooks, and collaborate with classmates. Staying curious about the latest developments and connecting what you learn to the real world are important too. A black hole is a space region with incredibly strong gravity, trapping everything, even light. They form when big stars run out of fuel and explode in a supernova, with the remaining core collapsing into an extremely dense point called a singularity. This point is surrounded by an invisible boundary called the event horizon. Black holes can't be seen directly because they don't emit light, but scientists can figure out their presence by observing how they affect nearby matter. The Event Horizon Telescope made history by capturing the first image of a black hole in 2019, showing its silhouette against bright surroundings. The event horizon is crucial\u2014it's the boundary where nothing, not even light, can escape the black hole's gravitational pull. Once something crosses it, it's pulled into the black hole, and any information about it is lost to the external universe, adding to the mysterious nature of black holes.",
               "response": "100% agree a strong foundation is fundamental to understanding physics and building off previous concepts. You also perfectly described black holes, and if you haven't googled the pictures EHT and JWST have taken of black holes I would highly recommend it."
             },
             {
@@ -231,25 +231,66 @@
             "name": "Comprehension",
             "max_points": 40,
             "rating": "Exceeds Expectations (100%)",
-            "description": "Well-organized initial post with critical thinking, analysis, or experiences using rich and significant detail."
+            "description": "Well-organized initial post with critical thinking, analysis, or experiences using rich and significant detail.",
+            "grading_policy": {
+              "llm_guidance": "Evaluate whether the initial post addresses the discussion prompt with substantive effort and organized critical thinking. Err on leniency when the student shows genuine effort.",
+              "lenient": true,
+              "enforcement": {
+                "type": "comprehension_effort",
+                "min_chars_floor": 30,
+                "min_chars_meets": 80,
+                "min_chars_exceeds": 120
+              }
+            }
           },
           {
             "name": "Timeliness",
             "max_points": 10,
             "rating": "Meets Expectations (100%)",
-            "description": "Initial post submitted on time."
+            "description": "Initial post submitted on time.",
+            "grading_policy": {
+              "llm_guidance": "Use 'meets' for on-time initial posts. Do not use 'exceeds' for timeliness (N/A in this rubric). Use 'needs' or 'below' only when clearly late.",
+              "lenient": true,
+              "enforcement": {
+                "type": "timeliness",
+                "on_time_level": "meets",
+                "late_below_to_needs": true
+              }
+            }
           },
           {
             "name": "Engagement",
             "max_points": 30,
             "rating": "Exceeds Expectations (100%)",
-            "description": "Meaningful, on-topic peer responses with clarifying detail that advance the dialogue."
+            "description": "Meaningful, on-topic peer responses with clarifying detail that advance the dialogue.",
+            "grading_policy": {
+              "llm_guidance": "Give 'exceeds' when the student has two or more thoughtful peer replies that advance the dialogue. Engagement MUST be 'below' (0 points) if there are no replies to classmates, and 'needs' or lower if fewer than two meaningful peer responses.",
+              "lenient": true,
+              "enforcement": {
+                "type": "min_meaningful_peer_replies",
+                "min_count": 2,
+                "min_chars_per_reply": 40,
+                "level_when_zero": "below",
+                "level_when_insufficient": "needs"
+              }
+            }
           },
           {
             "name": "Writing",
             "max_points": 20,
             "rating": "Exceeds Expectations (100%)",
-            "description": "Posts are easily understood, clear, and concise with proper citation methods where applicable."
+            "description": "Posts are easily understood, clear, and concise with proper citation methods where applicable.",
+            "grading_policy": {
+              "llm_guidance": "Assess clarity and citation practice. Writing MUST be 'below' (0 points) if the submission has no citation (URL, DOI, in-text cite, or reference) when stating factual claims.",
+              "lenient": true,
+              "enforcement": {
+                "type": "min_citations",
+                "min_count": 1,
+                "require_citation": true,
+                "level_when_zero": "below",
+                "level_when_insufficient": "needs"
+              }
+            }
           }
         ],
         "rubric_ratings": [
@@ -291,6 +332,10 @@
             "needs": "traditional-criterion-61199_554-ratings-2",
             "below": "traditional-criterion-61199_554-ratings-3"
           }
+        },
+        "grading_defaults": {
+          "lenient": true,
+          "global_llm_guidance": "Rubric levels (1\u20134): 1=below, 2=needs, 3=meets, 4=exceeds. LENIENCY: When the work clearly fits one level, keep that level (a clear 1 stays 1; a clear 3 stays 3 \u2014 do not bump 3 to 4). When genuinely torn between two adjacent levels only \u2014 1\u21942 or 3\u21944 \u2014 set borderline=true and choose the lower of the two in `level`; post-processing will optimistically bump one step. Do not use borderline=true when the level is a clear fit. Reserve level 1 (below) for missing or clearly inadequate work."
         }
       }
     },
@@ -330,7 +375,7 @@
         },
         "2": {
           "topic_id": "1153597",
-          "discussion_prompt": "For this discussion, share what you feel is the most valuable takeaway from your learning with the materials for the week. Specifically… Describe your most valuable takeaway (most important information you learned). Explain why this was important to your learning and how it will help you in your field.",
+          "discussion_prompt": "For this discussion, share what you feel is the most valuable takeaway from your learning with the materials for the week. Specifically\u2026 Describe your most valuable takeaway (most important information you learned). Explain why this was important to your learning and how it will help you in your field.",
           "discussion_data": [
             {
               "post": "Physics teaches us knowledgable information that we may think we dont need to know but its very useful to use especially regarding our different career paths . The most valuable takeaway I've learned is all the different equations that I've learned so far in physics learning how to get distance or velocity and speed , knowing that when I'm driving my ''mph'' means something more that how fast I'm just going. It is important to learn this because it could help you further your knowledge about physics and what you know now , I could help with some peoples career especially careers that may be going into the science field or things to due with physics as well. Physics can be an important part in many people's career field.",
@@ -421,7 +466,7 @@
           "discussion_data": [
             {
               "post": "According to an article I read, the three main components are an anode (Electrons flow out from the anode in a device connected to a circuit.), a cathode (Electrons flow into the cathode in a device connected to a circuit.), and an electrolyte (The electrolyte is the substance, often a liquid or gel, that is capable of transporting ions between the chemical reactions that happen at the anode and cathode.) (Hymel). Viewing batteries, I do believe they contain the anode, cathode, and electrolyte components. The battery in a vehicle is charged by running the car for a certain amount of time, I don't know the specifics of it, but the alternator works with the generator to charge the battery while the car drives. My dad taught me this when my brothers car sat in the driveway for 6 months and I had to drive the car for at least 50 miles or so to charge the battery enough to stay alive. According to KwikFit, revving the engine does charge the battery faster because it increases the rpms. (n.a.)\n\nHymel, S. (n.d). What is a battery?. What is a Battery? - SparkFun Learn. https://learn.sparkfun.com/tutorials/what-is-a-battery/components#:~:text=Batteries%20are%20made%20up%20of,a%20cathode%2C%20and%20an%20electrolyteLinks to an external site..\n\nn.a. (n.d). Does a car battery charge while idling?. Kwik Fit. https://www.kwik-fit.com/blog/-does-car-battery-charge-while-idling#\n\n",
-              "response": "Great job identifying the three main components of a battery and their functions. You've explained the roles of the anode, cathode, and electrolyte very well. It's also good to see that you've applied real-life experience and additional resources to understand how a vehicle's battery is charged. Remember, the alternator is key in this system—it converts mechanical energy from the engine into electrical energy that charges the battery."
+              "response": "Great job identifying the three main components of a battery and their functions. You've explained the roles of the anode, cathode, and electrolyte very well. It's also good to see that you've applied real-life experience and additional resources to understand how a vehicle's battery is charged. Remember, the alternator is key in this system\u2014it converts mechanical energy from the engine into electrical energy that charges the battery."
             },
             {
               "post": "If I'm being honest, I have not a single clue when it comes to vehicles. I grew up fortunate enough to have a grandfather that took care of all my car needs. It would be beneficial to maybe look under the hood one day. It wouldn't be fair to explain what I think those main parts are of a car battery since I'm not familiar. I do know that cables play an important role when needing to give another car/truck a jump. \n\n  Looking in my home and noticing how all the batteries have similarities. I noticed how all batteries have a negative and positive component. This is essential because that is how power operates, it needs an opposite to function. I think when the car is turned off properly, the battery charges. I know leaving a light on for several hours could cause the battery to die. Therefore, if your car is parked and turned off, this allows times for the battery to power on. \n\n",
@@ -495,7 +540,7 @@
           "discussion_prompt": "What did you learn about physics this term? What would you still like to know? What suggestions would you offer future students? Hopefully, the course was not a big black hole. What is a black hole? When do black holes form? Can scientists see a black hole? What is the \"event horizon\" of a black hole? Find out information about black holes and share it with your classmates or choose another topic in physics and create a thread.",
           "discussion_data": [
             {
-              "post": "Physics is all about understanding matter and energy in the universe, with applications in engineering, technology, medicine, and environmental science. For future physics students, it's crucial to build a strong foundation, practice problem-solving, use resources like textbooks, and collaborate with classmates. Staying curious about the latest developments and connecting what you learn to the real world are important too. A black hole is a space region with incredibly strong gravity, trapping everything, even light. They form when big stars run out of fuel and explode in a supernova, with the remaining core collapsing into an extremely dense point called a singularity. This point is surrounded by an invisible boundary called the event horizon. Black holes can't be seen directly because they don't emit light, but scientists can figure out their presence by observing how they affect nearby matter. The Event Horizon Telescope made history by capturing the first image of a black hole in 2019, showing its silhouette against bright surroundings. The event horizon is crucial—it's the boundary where nothing, not even light, can escape the black hole's gravitational pull. Once something crosses it, it's pulled into the black hole, and any information about it is lost to the external universe, adding to the mysterious nature of black holes.",
+              "post": "Physics is all about understanding matter and energy in the universe, with applications in engineering, technology, medicine, and environmental science. For future physics students, it's crucial to build a strong foundation, practice problem-solving, use resources like textbooks, and collaborate with classmates. Staying curious about the latest developments and connecting what you learn to the real world are important too. A black hole is a space region with incredibly strong gravity, trapping everything, even light. They form when big stars run out of fuel and explode in a supernova, with the remaining core collapsing into an extremely dense point called a singularity. This point is surrounded by an invisible boundary called the event horizon. Black holes can't be seen directly because they don't emit light, but scientists can figure out their presence by observing how they affect nearby matter. The Event Horizon Telescope made history by capturing the first image of a black hole in 2019, showing its silhouette against bright surroundings. The event horizon is crucial\u2014it's the boundary where nothing, not even light, can escape the black hole's gravitational pull. Once something crosses it, it's pulled into the black hole, and any information about it is lost to the external universe, adding to the mysterious nature of black holes.",
               "response": "100% agree a strong foundation is fundamental to understanding physics and building off previous concepts. You also perfectly described black holes, and if you haven't googled the pictures EHT and JWST have taken of black holes I would highly recommend it."
             },
             {
@@ -525,25 +570,66 @@
             "name": "Comprehension",
             "max_points": 40,
             "rating": "Exceeds Expectations (100%)",
-            "description": "Well-organized initial post with critical thinking, analysis, or experiences using rich and significant detail."
+            "description": "Well-organized initial post with critical thinking, analysis, or experiences using rich and significant detail.",
+            "grading_policy": {
+              "llm_guidance": "Evaluate whether the initial post addresses the discussion prompt with substantive effort and organized critical thinking. Err on leniency when the student shows genuine effort.",
+              "lenient": true,
+              "enforcement": {
+                "type": "comprehension_effort",
+                "min_chars_floor": 30,
+                "min_chars_meets": 80,
+                "min_chars_exceeds": 120
+              }
+            }
           },
           {
             "name": "Timeliness",
             "max_points": 10,
             "rating": "Meets Expectations (100%)",
-            "description": "Initial post submitted on time."
+            "description": "Initial post submitted on time.",
+            "grading_policy": {
+              "llm_guidance": "Use 'meets' for on-time initial posts. Do not use 'exceeds' for timeliness (N/A in this rubric). Use 'needs' or 'below' only when clearly late.",
+              "lenient": true,
+              "enforcement": {
+                "type": "timeliness",
+                "on_time_level": "meets",
+                "late_below_to_needs": true
+              }
+            }
           },
           {
             "name": "Engagement",
             "max_points": 30,
             "rating": "Exceeds Expectations (100%)",
-            "description": "Meaningful, on-topic peer responses with clarifying detail that advance the dialogue."
+            "description": "Meaningful, on-topic peer responses with clarifying detail that advance the dialogue.",
+            "grading_policy": {
+              "llm_guidance": "Give 'exceeds' when the student has two or more thoughtful peer replies that advance the dialogue. Engagement MUST be 'below' (0 points) if there are no replies to classmates, and 'needs' or lower if fewer than two meaningful peer responses.",
+              "lenient": true,
+              "enforcement": {
+                "type": "min_meaningful_peer_replies",
+                "min_count": 2,
+                "min_chars_per_reply": 40,
+                "level_when_zero": "below",
+                "level_when_insufficient": "needs"
+              }
+            }
           },
           {
             "name": "Writing",
             "max_points": 20,
             "rating": "Exceeds Expectations (100%)",
-            "description": "Posts are easily understood, clear, and concise with proper citation methods where applicable."
+            "description": "Posts are easily understood, clear, and concise with proper citation methods where applicable.",
+            "grading_policy": {
+              "llm_guidance": "Assess clarity and citation practice. Writing MUST be 'below' (0 points) if the submission has no citation (URL, DOI, in-text cite, or reference) when stating factual claims.",
+              "lenient": true,
+              "enforcement": {
+                "type": "min_citations",
+                "min_count": 1,
+                "require_citation": true,
+                "level_when_zero": "below",
+                "level_when_insufficient": "needs"
+              }
+            }
           }
         ],
         "rubric_ratings": [
@@ -585,6 +671,10 @@
             "needs": "traditional-criterion-61199_554-ratings-2",
             "below": "traditional-criterion-61199_554-ratings-3"
           }
+        },
+        "grading_defaults": {
+          "lenient": true,
+          "global_llm_guidance": "Rubric levels (1\u20134): 1=below, 2=needs, 3=meets, 4=exceeds. LENIENCY: When the work clearly fits one level, keep that level (a clear 1 stays 1; a clear 3 stays 3 \u2014 do not bump 3 to 4). When genuinely torn between two adjacent levels only \u2014 1\u21942 or 3\u21944 \u2014 set borderline=true and choose the lower of the two in `level`; post-processing will optimistically bump one step. Do not use borderline=true when the level is a clear fit. Reserve level 1 (below) for missing or clearly inadequate work."
         }
       }
     }

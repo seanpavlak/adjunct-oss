@@ -148,14 +148,31 @@ The tool reads the submission preview iframe (`#content`): initial post body plu
 | On time | No "late submission" in preview |
 | Citations | At least 1 URL, DOI, in-text cite, or reference |
 
-**LLM rubric grading (lenient):** An LLM reads the full Discussion Rubric (2021), assigns each criterion (`exceeds` / `meets` / `needs` / `below`), then applies leniency rules (e.g. on-time → Timeliness `meets`, 2+ peer replies → Engagement at least `meets`). Requires an API key in `.env`.
+**LLM rubric grading (lenient):** An LLM reads the rubric and assigns each criterion (`exceeds` / `meets` / `needs` / `below`) plus a `borderline` flag when torn between adjacent levels (1↔2 or 3↔4). Lenient post-processing bumps one step only when `borderline=true`; clear scores are unchanged. Hard enforcement still caps clear violations (e.g. zero peer replies). Requires an API key in `.env`.
 
 ```bash
 python main.py grade --course A --week 1 --dry-run   # log full LLM I/O for student on screen
 python main.py grade --course A --week 1             # verify + apply rubric in Canvas
 ```
 
-Override rules in `courses.json` → `discussion_rubric.grading_requirements`.
+**Rubric finetuning (reusable across courses):** Under `discussion_rubric` in `courses.json`:
+
+- `grading_defaults.global_llm_guidance` — course-wide tone for the LLM prompt
+- `criteria[].grading_policy.llm_guidance` — per-criterion finetuning text
+- `criteria[].grading_policy.enforcement` — deterministic post-LLM rules (`min_meaningful_peer_replies`, `min_citations`, `timeliness`, `comprehension_effort`)
+
+Implementation lives in the `rubric/` package:
+
+| Module | Role |
+|--------|------|
+| `rubric/config.py` | `RubricGradingConfig` — validated config from JSON |
+| `rubric/prompt.py` | LLM prompt sections |
+| `rubric/leniency.py` | Boundary bumps when `borderline=true` |
+| `rubric/enforcement.py` | Registered hard-rule handlers |
+| `rubric/pipeline.py` | `RubricPostProcessor` — leniency then enforcement |
+| `rubric/defaults.py` | Discussion Rubric (2021) default policies |
+
+Canvas-specific test IDs stay in `discussion_rubric.py`. Legacy `grading_requirements` still merge into enforcement params.
 
 ### 3. Announcement Configuration
 

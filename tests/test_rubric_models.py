@@ -18,6 +18,16 @@ class TestCriterionGrade:
             reason="Strong analysis with detail.",
         )
         assert grade.level == "exceeds"
+        assert grade.borderline is False
+
+    def test_borderline_flag(self):
+        grade = CriterionGrade(
+            criterion="Writing",
+            level="meets",
+            reason="Borderline between meets and exceeds.",
+            borderline=True,
+        )
+        assert grade.borderline is True
 
     def test_rejects_invalid_criterion_name(self):
         with pytest.raises(ValidationError):

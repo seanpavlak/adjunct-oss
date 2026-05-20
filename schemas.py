@@ -3,7 +3,7 @@ Pydantic schemas for configuration validation
 """
 
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -15,6 +15,36 @@ class DiscussionData(BaseModel):
     response: str = Field(..., min_length=1)
 
 
+class CriterionGradingPolicySchema(BaseModel):
+    """Per-criterion LLM finetuning and deterministic post-processing rules."""
+
+    llm_guidance: Optional[str] = Field(
+        default=None,
+        description="Course-specific instructions injected into the LLM prompt for this criterion",
+    )
+    lenient: bool = Field(
+        default=True,
+        description="Whether lenient post-processing applies to this criterion",
+    )
+    enforcement: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description=(
+            "Post-LLM rule (type + params). Types: min_meaningful_peer_replies, "
+            "min_citations, timeliness, comprehension_effort"
+        ),
+    )
+
+
+class RubricGradingDefaultsSchema(BaseModel):
+    """Course-level defaults for LLM rubric grading."""
+
+    lenient: bool = Field(default=True)
+    global_llm_guidance: Optional[str] = Field(
+        default=None,
+        description="Global leniency and grading tone for the LLM prompt",
+    )
+
+
 class RubricCriterionSchema(BaseModel):
     """One criterion from the Discussion Rubric (2021)"""
 
@@ -22,6 +52,10 @@ class RubricCriterionSchema(BaseModel):
     max_points: int = Field(..., ge=0)
     rating: str = Field(..., min_length=1, description="Rating level selected for auto-grading")
     description: Optional[str] = Field(default=None)
+    grading_policy: Optional[CriterionGradingPolicySchema] = Field(
+        default=None,
+        description="LLM finetuning and enforcement for this criterion",
+    )
 
 
 class GradingRequirementsSchema(BaseModel):
@@ -48,7 +82,11 @@ class DiscussionRubricSchema(BaseModel):
     )
     grading_requirements: Optional[GradingRequirementsSchema] = Field(
         default=None,
-        description="Rules: peer replies, on-time, citations",
+        description="Legacy numeric thresholds; merged into criterion grading_policy enforcement",
+    )
+    grading_defaults: Optional[RubricGradingDefaultsSchema] = Field(
+        default=None,
+        description="Course-wide LLM grading tone and leniency",
     )
     rubric_rating_levels: Optional[Dict[str, Dict[str, str]]] = Field(
         default=None,

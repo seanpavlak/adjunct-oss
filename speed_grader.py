@@ -105,6 +105,10 @@ def run_speed_grader_action(
         anthropic_key=anthropic_key,
         deepseek_key=deepseek_key,
         lenient=grading_requirements.get("lenient", True),
+        rubric_criteria=rubric_criteria,
+        grading_defaults=speed_grader_config.get("grading_defaults"),
+        rubric_name=speed_grader_config.get("rubric_name"),
+        rubric_grading_config=speed_grader_config.get("rubric_grading_config"),
     )
     print(f"  LLM provider: {llm_provider} (lenient rubric grading)")
 

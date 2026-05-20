@@ -12,8 +12,11 @@ from discussion_rubric import (
     DEFAULT_RUBRIC_RATINGS,
     DISCUSSION_RUBRIC_2021,
     GRADING_REQUIREMENTS,
+    RUBRIC_GRADING_DEFAULTS,
     RUBRIC_RATING_LEVELS,
 )
+from rubric import build_rubric_grading_config
+from rubric.config import config_to_legacy_dict
 from logger import logger
 from schemas import validate_announcements_config, validate_courses_config
 
@@ -212,14 +215,27 @@ def get_speed_grader_config(
             DEFAULT_RUBRIC_RATINGS
         )
     merged["rubric_name"] = course_rubric.get("name", DISCUSSION_RUBRIC_2021["name"])
-    merged["rubric_criteria"] = course_rubric.get(
-        "criteria", DISCUSSION_RUBRIC_2021["criteria"]
-    )
+    raw_criteria = course_rubric.get("criteria", DISCUSSION_RUBRIC_2021["criteria"])
     merged["grading_requirements"] = {
         **GRADING_REQUIREMENTS,
         **course_rubric.get("grading_requirements", {}),
         **merged.get("grading_requirements", {}),
     }
+    grading_defaults = {
+        **RUBRIC_GRADING_DEFAULTS,
+        **course_rubric.get("grading_defaults", {}),
+        **merged.get("grading_defaults", {}),
+    }
+    rubric_config = build_rubric_grading_config(
+        raw_criteria,
+        merged["grading_requirements"],
+        grading_defaults,
+    )
+    rubric_grading = config_to_legacy_dict(rubric_config)
+    merged["rubric_criteria"] = rubric_grading["criteria"]
+    merged["rubric_grading_config"] = rubric_grading
+    merged["grading_defaults"] = rubric_grading["grading_defaults"]
+    merged["rubric_config"] = rubric_config
     merged["rubric_rating_levels"] = course_rubric.get(
         "rubric_rating_levels", RUBRIC_RATING_LEVELS
     )

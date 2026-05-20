@@ -14,6 +14,8 @@ from submission_evaluator import detect_late_submission, parse_discussion_submis
 from submission_models import DiscussionSubmission, SubmissionEvaluation
 
 STUDENT_INDEX_PATTERN = re.compile(r"(\d+)\s*/\s*(\d+)")
+# First number in rubric-total label (e.g. "91", "91 / 100", "91 out of 100")
+RUBRIC_TOTAL_POINTS_PATTERN = re.compile(r"(\d+(?:\.\d+)?)")
 
 
 def parse_student_index(text: str) -> Optional[Tuple[int, int]]:
@@ -24,6 +26,19 @@ def parse_student_index(text: str) -> Optional[Tuple[int, int]]:
     if not match:
         return None
     return int(match.group(1)), int(match.group(2))
+
+
+def parse_rubric_total_points(text: str) -> Optional[str]:
+    """Extract the numeric rubric sum from Canvas rubric-total element text."""
+    if not text:
+        return None
+    match = RUBRIC_TOTAL_POINTS_PATTERN.search(text.strip())
+    if not match:
+        return None
+    value = match.group(1)
+    if value.endswith(".0"):
+        return str(int(float(value)))
+    return value
 
 
 class CanvasService:
@@ -329,16 +344,39 @@ class CanvasService:
 
         return submission
 
+    def read_rubric_total_points(self) -> Optional[str]:
+        """
+        Read the summed rubric score from Canvas (data-testid=rubric-total).
+
+        Clicks the total display so Canvas exposes the current rubric sum, then
+        parses the visible points value.
+        """
+        try:
+            total_el = self.page.get_by_test_id(canvas_config.RUBRIC_TOTAL)
+            total_el.wait_for(state="visible", timeout=5000)
+            total_el.click()
+            time.sleep(0.3)
+            raw = total_el.inner_text()
+            points = parse_rubric_total_points(raw)
+            if points is not None:
+                print(f"  Rubric total from Canvas (rubric-total): {points} (raw: {raw!r})")
+            return points
+        except Exception as e:
+            print(f"  Could not read rubric-total: {e}")
+            return None
+
     def apply_rubric_and_grade(
         self,
         rubric_ratings: List[str],
         grade: str,
         use_rubric: bool = True,
     ) -> bool:
-        """Apply rubric selections and set the submission grade"""
+        """Apply rubric selections, read Canvas rubric total, and set grade-input."""
         try:
             self._focus_submission_preview()
             time.sleep(canvas_config.GRADE_INPUT_WAIT)
+
+            grade_to_enter = grade
 
             if use_rubric and rubric_ratings:
                 self.page.get_by_test_id(canvas_config.VIEW_RUBRIC_BUTTON).click()
@@ -351,10 +389,19 @@ class CanvasService:
                 save_btn.click()
                 time.sleep(canvas_config.RUBRIC_SAVE_WAIT)
 
+                rubric_total = self.read_rubric_total_points()
+                if rubric_total is not None:
+                    grade_to_enter = rubric_total
+                else:
+                    print(
+                        f"  Falling back to calculated grade {grade} "
+                        "(rubric-total not readable)"
+                    )
+
             grade_input = self.page.get_by_test_id(canvas_config.GRADE_INPUT)
             grade_input.click()
             time.sleep(0.5)
-            grade_input.fill(grade)
+            grade_input.fill(grade_to_enter)
             time.sleep(0.5)
             grade_input.press("Enter")
             time.sleep(canvas_config.AFTER_GRADE_SAVE_WAIT)

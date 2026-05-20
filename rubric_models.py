@@ -31,6 +31,13 @@ class CriterionGrade(BaseModel):
         min_length=1,
         description="Brief justification referencing the rubric",
     )
+    borderline: bool = Field(
+        default=False,
+        description=(
+            "True only when torn between two adjacent levels: level 1↔2 (below/needs) "
+            "or level 3↔4 (meets/exceeds). False when the chosen level is a clear fit."
+        ),
+    )
 
 
 class RubricAssessment(BaseModel):
@@ -71,3 +78,7 @@ class RubricAssessment(BaseModel):
     def reasons_by_criterion(self) -> dict[str, str]:
         """Map criterion name to justification."""
         return {c.criterion: c.reason for c in self.criteria}
+
+    def borderline_by_criterion(self) -> dict[str, bool]:
+        """Map criterion name to whether the LLM was torn between adjacent levels."""
+        return {c.criterion: c.borderline for c in self.criteria}

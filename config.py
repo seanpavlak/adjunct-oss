@@ -42,6 +42,7 @@ class CanvasConfig:
     NO_SUBMISSION_IFRAME: Final[str] = "no-submission-iframe"
     VIEW_RUBRIC_BUTTON: Final[str] = "view-rubric-button"
     SAVE_RUBRIC_BUTTON: Final[str] = "save-rubric-assessment-button"
+    RUBRIC_TOTAL: Final[str] = "rubric-total"
     GRADE_INPUT: Final[str] = "grade-input"
     NEXT_STUDENT_BUTTON: Final[str] = "next-student-button"
     CURRENT_STUDENT_INDEX: Final[str] = "current-student-index"
