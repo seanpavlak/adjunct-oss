@@ -12,12 +12,12 @@ from config import canvas_config
 from response_generator import ResponseGenerator
 from submission_evaluator import (
     build_discussion_submission_from_entries,
-    detect_late_submission,
     parse_discussion_submission,
 )
 from submission_models import DiscussionSubmission, SubmissionEvaluation
 
 STUDENT_INDEX_PATTERN = re.compile(r"(\d+)\s*/\s*(\d+)")
+DAYS_LATE_VALUE_PATTERN = re.compile(r"(\d+)")
 # First number in rubric-total label (e.g. "91", "91 / 100", "91 out of 100")
 RUBRIC_TOTAL_POINTS_PATTERN = re.compile(r"(\d+(?:\.\d+)?)")
 
@@ -30,6 +30,21 @@ def parse_student_index(text: str) -> Optional[Tuple[int, int]]:
     if not match:
         return None
     return int(match.group(1)), int(match.group(2))
+
+
+def parse_days_late_value(text: str) -> int:
+    """
+    Parse the numeric value from Canvas ``days-late-input``.
+
+    When the field is present but empty or unparseable, assume 1 day late.
+    """
+    stripped = (text or "").strip()
+    if not stripped:
+        return 1
+    match = DAYS_LATE_VALUE_PATTERN.search(stripped)
+    if not match:
+        return 1
+    return max(0, int(match.group(1)))
 
 
 def parse_rubric_total_points(text: str) -> Optional[str]:
@@ -301,6 +316,38 @@ class CanvasService:
             f'[data-testid="{canvas_config.SUBMISSION_PREVIEW_IFRAME}"]'
         )
 
+    def read_days_late(self) -> Optional[int]:
+        """
+        Read lateness from Speed Grader ``days-late-input`` on the main page.
+
+        Returns ``None`` when the input is not present (submission on time).
+        When present, the field indicates a late submission and the value is
+        the number of days late.
+        """
+        el = self.page.get_by_test_id(canvas_config.DAYS_LATE_INPUT)
+        try:
+            if el.count() == 0:
+                return None
+            locator = el.first
+            locator.wait_for(state="visible", timeout=3000)
+        except Exception:
+            return None
+
+        raw = ""
+        for reader in ("input_value", "inner_text"):
+            try:
+                if reader == "input_value":
+                    raw = locator.input_value()
+                else:
+                    raw = locator.inner_text()
+                break
+            except Exception:
+                continue
+
+        days = parse_days_late_value(raw)
+        print(f"  Days late (days-late-input): {days}")
+        return days
+
     def _focus_submission_preview(self) -> None:
         """Click submission preview so the iframe content is active"""
         try:
@@ -347,15 +394,21 @@ class CanvasService:
         content.wait_for(state="attached", timeout=canvas_config.DEFAULT_TIMEOUT)
 
         raw_text = content.inner_text()
-        is_late = detect_late_submission(raw_text)
+        days_late = self.read_days_late()
+        is_late = days_late is not None and days_late > 0
 
         entry_messages = self._extract_discussion_entry_messages(frame)
         if entry_messages:
             return build_discussion_submission_from_entries(
-                entry_messages, raw_text=raw_text, is_late=is_late
+                entry_messages,
+                raw_text=raw_text,
+                is_late=is_late,
+                days_late=days_late,
             )
 
-        submission = parse_discussion_submission(raw_text, is_late=is_late)
+        submission = parse_discussion_submission(
+            raw_text, is_late=is_late, days_late=days_late
+        )
 
         if not submission.initial_post:
             paragraphs = [
@@ -365,7 +418,9 @@ class CanvasService:
             ]
             if paragraphs:
                 submission = parse_discussion_submission(
-                    "\n".join(paragraphs), is_late=is_late
+                    "\n".join(paragraphs),
+                    is_late=is_late,
+                    days_late=days_late,
                 )
 
         return submission

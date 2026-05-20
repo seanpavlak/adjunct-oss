@@ -11,7 +11,11 @@ from dataclasses import dataclass
 from typing import Any, Callable, Dict, Mapping, Optional
 
 from rubric.types import RUBRIC_LEVEL_ORDER, RubricLevel
-from submission_evaluator import count_citations, detect_late_submission
+from submission_evaluator import (
+    count_citations,
+    detect_late_submission,
+    timeliness_level_from_days_late,
+)
 from submission_models import DiscussionSubmission
 
 EnforcementHandler = Callable[["EnforcementContext"], RubricLevel]
@@ -41,6 +45,10 @@ def count_meaningful_peer_replies(
 
 
 def _apply_timeliness(ctx: EnforcementContext) -> RubricLevel:
+    days_late = ctx.submission.days_late
+    if days_late is not None:
+        return timeliness_level_from_days_late(days_late)  # type: ignore[return-value]
+
     is_late = ctx.submission.is_late or detect_late_submission(ctx.submission.raw_text)
     if not is_late:
         return ctx.params.get("on_time_level", "meets")

@@ -4,7 +4,7 @@ Verify discussion submissions against course grading requirements.
 Checks (configurable per course):
   - Initial post present and substantive
   - At least N meaningful peer replies to classmates
-  - Initial post submitted on time (no late indicator in preview)
+  - Initial post on time (Canvas days-late-input absent, or legacy preview text)
   - At least one citation when posts contain factual claims
 """
 
@@ -128,6 +128,7 @@ def build_discussion_submission_from_entries(
     entry_messages: List[str],
     raw_text: str = "",
     is_late: bool = False,
+    days_late: Optional[int] = None,
 ) -> DiscussionSubmission:
     """
     Build a submission from Speed Grader discussion_entry blocks.
@@ -141,11 +142,16 @@ def build_discussion_submission_from_entries(
         peer_replies=messages[1:] if len(messages) > 1 else [],
         all_posts=list(messages),
         is_late=is_late,
+        days_late=days_late,
         raw_text=raw_text,
     )
 
 
-def parse_discussion_submission(raw_text: str, is_late: bool = False) -> DiscussionSubmission:
+def parse_discussion_submission(
+    raw_text: str,
+    is_late: bool = False,
+    days_late: Optional[int] = None,
+) -> DiscussionSubmission:
     """Build a DiscussionSubmission from raw iframe text (fallback when DOM parse fails)."""
     posts = split_content_into_posts(raw_text)
     initial = posts[0] if posts else ""
@@ -163,6 +169,7 @@ def parse_discussion_submission(raw_text: str, is_late: bool = False) -> Discuss
         peer_replies=[r.strip() for r in replies if r.strip()],
         all_posts=posts,
         is_late=is_late,
+        days_late=days_late,
         raw_text=raw_text,
     )
 
@@ -181,6 +188,21 @@ def count_citations(text: str) -> int:
 def detect_late_submission(raw_text: str) -> bool:
     """Detect late submission markers in preview text."""
     return any(p.search(raw_text) for p in LATE_PATTERNS)
+
+
+def timeliness_level_from_days_late(days_late: int) -> str:
+    """
+    Map Canvas days-late count to Discussion Rubric (2021) timeliness levels.
+
+    - 0 days (edge case): meets (on time)
+    - 1 day: needs
+    - 2+ days: below
+    """
+    if days_late <= 0:
+        return "meets"
+    if days_late == 1:
+        return "needs"
+    return "below"
 
 
 def evaluate_submission(

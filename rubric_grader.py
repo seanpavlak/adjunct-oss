@@ -54,7 +54,10 @@ def format_submission_for_prompt(submission: DiscussionSubmission) -> str:
     else:
         parts.append("(none detected)")
     parts.append("")
-    parts.append(f"Late indicator in preview: {'yes' if submission.is_late else 'no'}")
+    if submission.days_late is not None:
+        parts.append(f"Days late (Canvas days-late-input): {submission.days_late}")
+    else:
+        parts.append(f"Late indicator in preview: {'yes' if submission.is_late else 'no'}")
     return "\n".join(parts)
 
 
@@ -319,9 +322,12 @@ class RubricGrader:
         citation_count = count_citations(
             submission.initial_post + "\n" + "\n".join(submission.peer_replies)
         )
-        on_time = not submission.is_late and not detect_late_submission(
-            submission.raw_text
-        )
+        if submission.days_late is not None:
+            on_time = submission.days_late <= 0
+        else:
+            on_time = not submission.is_late and not detect_late_submission(
+                submission.raw_text
+            )
         passed = all(levels.get(n) in ("exceeds", "meets") for n in criterion_order)
 
         return SubmissionEvaluation(

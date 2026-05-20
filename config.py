@@ -44,6 +44,7 @@ class CanvasConfig:
     SAVE_RUBRIC_BUTTON: Final[str] = "save-rubric-assessment-button"
     RUBRIC_TOTAL: Final[str] = "rubric-total"
     GRADE_INPUT: Final[str] = "grade-input"
+    DAYS_LATE_INPUT: Final[str] = "days-late-input"
     NEXT_STUDENT_BUTTON: Final[str] = "next-student-button"
     CURRENT_STUDENT_INDEX: Final[str] = "current-student-index"
     SPEED_GRADER_WAIT_TIME: Final[int] = 4

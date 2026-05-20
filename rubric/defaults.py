@@ -24,8 +24,9 @@ DEFAULT_CRITERION_GRADING_POLICIES: Dict[str, Dict[str, Any]] = {
     },
     "Timeliness": {
         "llm_guidance": (
-            "Use 'meets' for on-time initial posts. Do not use 'exceeds' for timeliness "
-            "(N/A in this rubric). Use 'needs' or 'below' only when clearly late."
+            "Timeliness is set from Canvas days-late-input when provided (0=meets, "
+            "1 day=needs, 2+=below). Otherwise use 'meets' for on-time posts. Do not "
+            "use 'exceeds' for timeliness (N/A in this rubric)."
         ),
         "lenient": True,
         "enforcement": {

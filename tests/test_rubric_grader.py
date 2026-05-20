@@ -38,6 +38,32 @@ class TestPostProcessor:
         )
         assert levels["Timeliness"] == "meets"
 
+    def test_one_day_late_timeliness_needs(self):
+        processor, _ = _processor()
+        levels = processor.apply(
+            {n: "exceeds" for n in CRITERION_ORDER},
+            DiscussionSubmission(
+                initial_post="A" * 150,
+                peer_replies=["Hi Sue, " + "x" * 50, "Hi Bob, " + "y" * 50],
+                days_late=1,
+            ),
+            lenient=True,
+        )
+        assert levels["Timeliness"] == "needs"
+
+    def test_two_days_late_timeliness_below(self):
+        processor, _ = _processor()
+        levels = processor.apply(
+            {n: "exceeds" for n in CRITERION_ORDER},
+            DiscussionSubmission(
+                initial_post="A" * 150,
+                peer_replies=["Hi Sue, " + "x" * 50, "Hi Bob, " + "y" * 50],
+                days_late=2,
+            ),
+            lenient=True,
+        )
+        assert levels["Timeliness"] == "below"
+
     def test_clear_meets_stays_meets_with_two_replies(self):
         processor, _ = _processor()
         levels = processor.apply(

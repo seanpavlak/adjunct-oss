@@ -14,6 +14,11 @@ class DiscussionSubmission:
     peer_replies: List[str] = field(default_factory=list)
     all_posts: List[str] = field(default_factory=list)
     is_late: bool = False
+    """Legacy flag from preview text; prefer ``days_late`` from Speed Grader."""
+
+    days_late: Optional[int] = None
+    """Days late from Canvas ``days-late-input``; ``None`` when the field is absent (on time)."""
+
     raw_text: str = ""
 
     @property
@@ -43,7 +48,11 @@ class SubmissionEvaluation:
             f"  Initial post: {len(self.submission.initial_post) if self.submission else 0} chars",
             f"  Peer replies: {self.peer_reply_count}",
             f"  Citations found: {self.citation_count}",
-            f"  On time: {'yes' if self.on_time else 'no'}",
+            (
+                f"  Days late: {self.submission.days_late}"
+                if self.submission and self.submission.days_late is not None
+                else f"  On time: {'yes' if self.on_time else 'no'}"
+            ),
             f"  Grade: {self.grade} pts",
         ]
         if self.criterion_levels:
