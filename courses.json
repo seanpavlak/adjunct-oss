@@ -233,12 +233,11 @@
             "rating": "Exceeds Expectations (100%)",
             "description": "Well-organized initial post with critical thinking, analysis, or experiences using rich and significant detail.",
             "grading_policy": {
-              "llm_guidance": "Evaluate whether the initial post addresses the discussion prompt with substantive effort and organized critical thinking. Err on leniency when the student shows genuine effort.",
+              "llm_guidance": "Use exceeds when the initial post fully addresses every part of the discussion prompt with rich detail, critical thinking, and personal or professional examples (e.g. medicine, sonography, daily life). Use meets for adequate posts that are thinner or less developed. Reserve below for missing, off-topic, or clearly inadequate work.",
               "lenient": true,
               "enforcement": {
                 "type": "comprehension_effort",
                 "min_chars_floor": 30,
-                "min_chars_meets": 80,
                 "min_chars_exceeds": 120
               }
             }
@@ -572,12 +571,11 @@
             "rating": "Exceeds Expectations (100%)",
             "description": "Well-organized initial post with critical thinking, analysis, or experiences using rich and significant detail.",
             "grading_policy": {
-              "llm_guidance": "Evaluate whether the initial post addresses the discussion prompt with substantive effort and organized critical thinking. Err on leniency when the student shows genuine effort.",
+              "llm_guidance": "Use exceeds when the initial post fully addresses every part of the discussion prompt with rich detail, critical thinking, and personal or professional examples (e.g. medicine, sonography, daily life). Use meets for adequate posts that are thinner or less developed. Reserve below for missing, off-topic, or clearly inadequate work.",
               "lenient": true,
               "enforcement": {
                 "type": "comprehension_effort",
                 "min_chars_floor": 30,
-                "min_chars_meets": 80,
                 "min_chars_exceeds": 120
               }
             }

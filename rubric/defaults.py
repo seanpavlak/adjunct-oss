@@ -9,14 +9,17 @@ from typing import Any, Dict
 DEFAULT_CRITERION_GRADING_POLICIES: Dict[str, Dict[str, Any]] = {
     "Comprehension": {
         "llm_guidance": (
-            "Evaluate whether the initial post addresses the discussion prompt with "
-            "substantive effort and organized critical thinking. Err on leniency when "
-            "the student shows genuine effort."
+            "Use exceeds when the initial post fully addresses every part of the "
+            "discussion prompt with rich detail, critical thinking, and personal or "
+            "professional examples (e.g. medicine, sonography, daily life). Use meets "
+            "for adequate posts that are thinner or less developed. Reserve below for "
+            "missing, off-topic, or clearly inadequate work."
         ),
         "lenient": True,
         "enforcement": {
             "type": "comprehension_effort",
             "min_chars_floor": 30,
+            "min_chars_exceeds": 120,
         },
     },
     "Timeliness": {

@@ -81,10 +81,17 @@ def _apply_min_citations(ctx: EnforcementContext) -> RubricLevel:
 
 
 def _apply_comprehension_effort(ctx: EnforcementContext) -> RubricLevel:
+    """
+    Floor very short posts at below; promote substantive initial posts to exceeds
+    when the LLM underrated a clearly rich response.
+    """
     initial_len = len(ctx.submission.initial_post.strip())
     floor = int(ctx.params.get("min_chars_floor", 30))
+    exceeds_at = int(ctx.params.get("min_chars_exceeds", 120))
     if initial_len < floor:
         return "below"
+    if initial_len >= exceeds_at and ctx.level == "meets":
+        return "exceeds"
     return ctx.level
 
 

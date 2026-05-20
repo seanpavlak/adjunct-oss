@@ -100,6 +100,27 @@ class TestPostProcessor:
         )
         assert levels["Writing"] == "meets"
 
+    def test_substantive_post_bumps_comprehension_meets_to_exceeds(self):
+        processor, _ = _processor()
+        long_post = "A" * 200 + (
+            " The metric system and physics connect to healthcare with "
+            "critical thinking and examples throughout."
+        )
+        levels = processor.apply(
+            {
+                "Comprehension": "meets",
+                "Timeliness": "meets",
+                "Engagement": "exceeds",
+                "Writing": "meets",
+            },
+            DiscussionSubmission(
+                initial_post=long_post,
+                peer_replies=["Hi Sue, " + "x" * 50, "Hi Bob, " + "y" * 50],
+            ),
+            lenient=True,
+        )
+        assert levels["Comprehension"] == "exceeds"
+
     def test_citation_present_does_not_force_writing_below(self):
         _, config = _processor()
         enforcement = config.enforcement_for("Writing") or {}
