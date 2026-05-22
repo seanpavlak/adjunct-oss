@@ -74,10 +74,7 @@ def _apply_min_citations(ctx: EnforcementContext) -> RubricLevel:
     """
     if not ctx.params.get("require_citation", True):
         return ctx.level
-    combined = (
-        ctx.submission.initial_post + "\n" + "\n".join(ctx.submission.peer_replies)
-    )
-    citation_count = count_citations(combined)
+    citation_count = count_citations(submission=ctx.submission)
     min_count = int(ctx.params.get("min_count", 1))
     if citation_count == 0:
         ceiling = ctx.params.get("level_when_zero", "meets")

@@ -280,7 +280,7 @@
             "rating": "Exceeds Expectations (100%)",
             "description": "Posts are easily understood, clear, and concise with proper citation methods where applicable.",
             "grading_policy": {
-              "llm_guidance": "Assess clarity and citation practice. Excellent clear writing without any citation (URL, DOI, in-text cite, or reference) should be meets, not exceeds. Do not use below for writing quality alone \u2014 reserve below for unclear or unintelligible posts.",
+              "llm_guidance": "Assess clarity and citation practice. Hyperlinks and APA-style reference entries (Author. (n.d.). Title. Retrieved [date], from Source (URL)) count as citations. Excellent clear writing without any citation should be meets, not exceeds. Do not use below for writing quality alone \u2014 reserve below for unclear or unintelligible posts.",
               "lenient": true,
               "enforcement": {
                 "type": "min_citations",
@@ -618,7 +618,7 @@
             "rating": "Exceeds Expectations (100%)",
             "description": "Posts are easily understood, clear, and concise with proper citation methods where applicable.",
             "grading_policy": {
-              "llm_guidance": "Assess clarity and citation practice. Excellent clear writing without any citation (URL, DOI, in-text cite, or reference) should be meets, not exceeds. Do not use below for writing quality alone \u2014 reserve below for unclear or unintelligible posts.",
+              "llm_guidance": "Assess clarity and citation practice. Hyperlinks and APA-style reference entries (Author. (n.d.). Title. Retrieved [date], from Source (URL)) count as citations. Excellent clear writing without any citation should be meets, not exceeds. Do not use below for writing quality alone \u2014 reserve below for unclear or unintelligible posts.",
               "lenient": true,
               "enforcement": {
                 "type": "min_citations",

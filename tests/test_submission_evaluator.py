@@ -8,6 +8,7 @@ from submission_evaluator import (
     build_discussion_submission_from_entries,
     count_citations,
     evaluate_submission,
+    extract_link_urls_from_text,
     parse_discussion_submission,
     split_content_into_posts,
 )
@@ -45,6 +46,76 @@ class TestCitations:
     def test_url_citation(self):
         text = "See https://www.nasa.gov/metric for more information."
         assert count_citations(text) >= 1
+
+    def test_nist_url_citation(self):
+        text = "See https://www.nist.gov/pml/owm/metric-si for details."
+        assert count_citations(text) >= 1
+
+    def test_href_only_counts_via_link_urls(self):
+        assert count_citations("Read more on the NIST site.", link_urls=[]) == 0
+        assert (
+            count_citations(
+                "Read more on the NIST site.",
+                link_urls=["https://www.nist.gov/pml/owm/metric-si"],
+            )
+            >= 1
+        )
+
+    def test_submission_link_urls_count(self):
+        sub = DiscussionSubmission(
+            initial_post="I used an external source for this claim.",
+            link_urls=["https://www.nist.gov/pml/owm/metric-si"],
+        )
+        assert count_citations(submission=sub) >= 1
+
+    def test_apa_retrieved_from_citations(self):
+        text = (
+            "National Institute of Standards and Technology. (n.d.). Metric system basics. "
+            "Retrieved May 11, 2026, from National Institute of Standards and Technology "
+            "(https://www.nist.gov?utm_source=chatgpt.com)\n\n"
+            "NASA. (n.d.). The metric system and science. Retrieved May 11, 2026, from "
+            "NASA (https://www.nasa.gov?utm_source=chatgpt.com)"
+        )
+        assert count_citations(text) >= 1
+        assert len(extract_link_urls_from_text(text)) >= 2
+
+    def test_apa_retrieved_without_urls_in_text(self):
+        text = (
+            "National Institute of Standards and Technology. (n.d.). Metric system basics. "
+            "Retrieved May 11, 2026, from National Institute of Standards and Technology\n\n"
+            "NASA. (n.d.). The metric system and science. Retrieved May 11, 2026, from NASA"
+        )
+        assert count_citations(text) >= 1
+
+    def test_apa_bibliography_merged_without_heading(self):
+        refs = (
+            "National Institute of Standards and Technology. (n.d.). Metric system basics. "
+            "Retrieved May 11, 2026, from National Institute of Standards and Technology "
+            "(https://www.nist.gov?utm_source=chatgpt.com)\n\n"
+            "NASA. (n.d.). The metric system and science. Retrieved May 11, 2026, from "
+            "NASA (https://www.nasa.gov?utm_source=chatgpt.com)"
+        )
+        main = "Discussion post body. " * 12
+        sub = build_discussion_submission_from_entries([main], raw_text=main + "\n\n" + refs)
+        assert "Retrieved May" in sub.initial_post
+        assert count_citations(submission=sub) >= 1
+
+    def test_references_only_in_raw_text(self):
+        refs = (
+            "Refrences\n\n"
+            "The reason the U.S. doesn't use the metric system. NIST. (2025, February 4). "
+            "https://www.nist.gov/news-events/news/2024/06/reason-us-doesnt-use-metric-system"
+            "Links to an external site.\n\n"
+            "Why doesn't the U.S. use the metric system? - the ANSI blog. (n.d.). "
+            "https://blog.ansi.org/ansi/why-does-the-u-s-not-use-the-metric-system/"
+            "Links to an external site."
+        )
+        main = "Even though most of the world uses the metric system. " * 8
+        raw = f"{main}\n\n{refs}"
+        sub = build_discussion_submission_from_entries([main], raw_text=raw)
+        assert "refrenc" in sub.initial_post.lower()
+        assert count_citations(submission=sub) >= 1
+        assert len(sub.link_urls) >= 2
 
     def test_no_citation(self):
         assert count_citations("I think physics is interesting.") == 0

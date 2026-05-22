@@ -20,6 +20,8 @@ class DiscussionSubmission:
     """Days late from Canvas ``days-late-input``; ``None`` when the field is absent (on time)."""
 
     raw_text: str = ""
+    link_urls: List[str] = field(default_factory=list)
+    """External URLs from ``<a href>`` in posts (Canvas often hides URL in visible text)."""
 
     @property
     def peer_reply_count(self) -> int:

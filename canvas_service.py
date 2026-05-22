@@ -12,6 +12,7 @@ from config import canvas_config
 from response_generator import ResponseGenerator
 from submission_evaluator import (
     build_discussion_submission_from_entries,
+    is_citable_url,
     parse_discussion_submission,
 )
 from submission_models import DiscussionSubmission, SubmissionEvaluation
@@ -357,30 +358,57 @@ class CanvasService:
         except Exception:
             pass
 
-    def _extract_discussion_entry_messages(self, frame) -> list[str]:
+    def _extract_link_hrefs(self, message_locator) -> list[str]:
+        """Collect external ``<a href>`` URLs from a discussion message (citations)."""
+        hrefs: list[str] = []
+        try:
+            anchors = message_locator.locator("a[href]")
+            n = anchors.count()
+        except Exception:
+            return hrefs
+        for i in range(n):
+            try:
+                href = anchors.nth(i).get_attribute("href")
+            except Exception:
+                continue
+            if href and is_citable_url(href):
+                hrefs.append(href.strip())
+        return hrefs
+
+    def _extract_discussion_entry_messages(self, frame) -> tuple[list[str], list[str]]:
         """
         Read each Speed Grader discussion_entry message body in DOM order.
 
         Structure: ``#content .discussion_entry.communication_message`` — first entry
-        is the initial post, subsequent entries are peer replies.
+        is the initial post, subsequent entries are peer replies. Also collects
+        ``<a href>`` URLs since Canvas link text often omits the URL string.
         """
         messages: list[str] = []
+        link_urls: list[str] = []
         entries = frame.locator("#content .discussion_entry.communication_message")
         try:
             count = entries.count()
         except Exception:
-            return messages
+            return messages, link_urls
 
         for i in range(count):
             entry = entries.nth(i)
             try:
                 msg = entry.locator(".message.user_content.enhanced").first
                 text = msg.inner_text(timeout=3000).strip()
+                link_urls.extend(self._extract_link_hrefs(msg))
             except Exception:
                 continue
             if text:
                 messages.append(text)
-        return messages
+
+        # References / links sometimes live outside discussion_entry bodies
+        try:
+            link_urls.extend(self._extract_link_hrefs(frame.locator("#content")))
+        except Exception:
+            pass
+
+        return messages, link_urls
 
     def extract_discussion_submission(self) -> DiscussionSubmission:
         """
@@ -397,33 +425,22 @@ class CanvasService:
         days_late = self.read_days_late()
         is_late = days_late is not None and days_late > 0
 
-        entry_messages = self._extract_discussion_entry_messages(frame)
+        entry_messages, link_urls = self._extract_discussion_entry_messages(frame)
         if entry_messages:
             return build_discussion_submission_from_entries(
                 entry_messages,
                 raw_text=raw_text,
                 is_late=is_late,
                 days_late=days_late,
+                link_urls=link_urls,
             )
 
-        submission = parse_discussion_submission(
-            raw_text, is_late=is_late, days_late=days_late
+        return parse_discussion_submission(
+            raw_text,
+            is_late=is_late,
+            days_late=days_late,
+            link_urls=link_urls,
         )
-
-        if not submission.initial_post:
-            paragraphs = [
-                t.strip()
-                for t in frame.locator("#content p").all_inner_texts()
-                if t and len(t.strip()) >= 20
-            ]
-            if paragraphs:
-                submission = parse_discussion_submission(
-                    "\n".join(paragraphs),
-                    is_late=is_late,
-                    days_late=days_late,
-                )
-
-        return submission
 
     def read_rubric_total_points(self) -> Optional[str]:
         """

@@ -58,6 +58,11 @@ def format_submission_for_prompt(submission: DiscussionSubmission) -> str:
         parts.append(f"Days late (Canvas days-late-input): {submission.days_late}")
     else:
         parts.append(f"Late indicator in preview: {'yes' if submission.is_late else 'no'}")
+    if submission.link_urls:
+        parts.append("")
+        parts.append("=== LINKS (count as citations) ===")
+        for url in submission.link_urls:
+            parts.append(url)
     return "\n".join(parts)
 
 
@@ -319,9 +324,7 @@ class RubricGrader:
         peer_enforcement = config.enforcement_for("Engagement") or {}
         min_chars = int(peer_enforcement.get("min_chars_per_reply", 40))
         peer_count = count_meaningful_peer_replies(submission, min_chars)
-        citation_count = count_citations(
-            submission.initial_post + "\n" + "\n".join(submission.peer_replies)
-        )
+        citation_count = count_citations(submission=submission)
         if submission.days_late is not None:
             on_time = submission.days_late <= 0
         else:

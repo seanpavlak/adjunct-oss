@@ -52,8 +52,10 @@ DEFAULT_CRITERION_GRADING_POLICIES: Dict[str, Dict[str, Any]] = {
     },
     "Writing": {
         "llm_guidance": (
-            "Assess clarity and citation practice. Excellent clear writing without any "
-            "citation (URL, DOI, in-text cite, or reference) should be meets, not exceeds. "
+            "Assess clarity and citation practice. Hyperlinks and APA-style reference "
+            "entries (e.g. Author. (n.d.). Title. Retrieved [date], from Source (URL)) "
+            "count as citations. Excellent clear writing without any citation should be "
+            "meets, not exceeds. "
             "Do not use below for writing quality alone — reserve below for unclear or "
             "unintelligible posts."
         ),
