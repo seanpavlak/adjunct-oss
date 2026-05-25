@@ -10,6 +10,7 @@ from rubric.config import RubricGradingConfig, build_rubric_grading_config
 from rubric.enforcement import apply_enforcement
 from rubric.leniency import apply_boundary_leniency
 from rubric.types import RubricLevel
+from grading.analysis import SubmissionAnalysis
 from submission_models import DiscussionSubmission
 
 
@@ -41,6 +42,7 @@ class RubricPostProcessor:
         *,
         lenient: bool = True,
         borderline: Optional[Mapping[str, bool]] = None,
+        analysis: Optional[SubmissionAnalysis] = None,
     ) -> Dict[str, RubricLevel]:
         result: Dict[str, RubricLevel] = dict(levels)
         use_lenient = lenient and self._config.lenient_enabled
@@ -54,7 +56,7 @@ class RubricPostProcessor:
                 continue
             current = result.get(name, "meets")
             result[name] = apply_enforcement(
-                current, name, submission, enforcement
+                current, name, submission, enforcement, analysis=analysis
             )
         return result
 
@@ -66,6 +68,7 @@ def apply_rubric_policies(
     *,
     lenient: bool = True,
     borderline: Optional[Dict[str, bool]] = None,
+    analysis: Optional[SubmissionAnalysis] = None,
 ) -> Dict[str, str]:
     """Backward-compatible entry point accepting a legacy config dict."""
     config = build_rubric_grading_config(
@@ -79,6 +82,10 @@ def apply_rubric_policies(
         for k, v in levels.items()
     }
     result = processor.apply(
-        typed_levels, submission, lenient=lenient, borderline=borderline
+        typed_levels,
+        submission,
+        lenient=lenient,
+        borderline=borderline,
+        analysis=analysis,
     )
     return dict(result)

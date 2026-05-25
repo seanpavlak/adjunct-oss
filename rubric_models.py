@@ -5,7 +5,7 @@ These models define the exact JSON shape returned by the LLM and are used with
 LangChain's with_structured_output() for validated parsing.
 """
 
-from typing import List, Literal
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -82,3 +82,16 @@ class RubricAssessment(BaseModel):
     def borderline_by_criterion(self) -> dict[str, bool]:
         """Map criterion name to whether the LLM was torn between adjacent levels."""
         return {c.criterion: c.borderline for c in self.criteria}
+
+
+def assessment_to_levels(
+    assessment: RubricAssessment,
+    criterion_order: Optional[List[str]] = None,
+) -> dict[str, RubricLevel]:
+    """Convert validated RubricAssessment to criterion -> level map."""
+    order = criterion_order or list(CRITERION_ORDER)
+    levels: dict[str, RubricLevel] = dict(assessment.levels_by_criterion())
+    for name in order:
+        if name not in levels:
+            levels[name] = "meets"
+    return levels

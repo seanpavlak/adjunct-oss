@@ -9,8 +9,7 @@ from rubric import (
     format_rubric_for_prompt,
 )
 from rubric.enforcement import apply_enforcement
-from rubric_grader import assessment_to_levels
-from rubric_models import CriterionGrade, RubricAssessment
+from rubric_models import CriterionGrade, RubricAssessment, assessment_to_levels
 from submission_models import DiscussionSubmission
 
 
@@ -126,12 +125,18 @@ class TestPostProcessor:
         )
         assert levels["Writing"] == "meets"
 
-    def test_substantive_post_bumps_comprehension_meets_to_exceeds(self):
+    def test_rich_initial_post_bumps_comprehension_meets_to_exceeds(self):
+        from grading.fixtures import BRITO_RICH_INITIAL
+
         processor, _ = _processor()
-        long_post = "A" * 200 + (
-            " The metric system and physics connect to healthcare with "
-            "critical thinking and examples throughout."
+        sub = DiscussionSubmission(
+            initial_post=BRITO_RICH_INITIAL,
+            peer_replies=["Hi Sue, " + "x" * 50, "Hi Bob, " + "y" * 50],
         )
+        from grading.analysis import analyze_submission
+
+        analysis = analyze_submission(sub)
+        assert analysis.initial_richness.qualifies_for_exceeds
         levels = processor.apply(
             {
                 "Comprehension": "meets",
@@ -139,13 +144,27 @@ class TestPostProcessor:
                 "Engagement": "exceeds",
                 "Writing": "meets",
             },
-            DiscussionSubmission(
-                initial_post=long_post,
-                peer_replies=["Hi Sue, " + "x" * 50, "Hi Bob, " + "y" * 50],
-            ),
+            sub,
             lenient=True,
+            analysis=analysis,
         )
         assert levels["Comprehension"] == "exceeds"
+
+    def test_padding_alone_does_not_bump_comprehension(self):
+        from grading.fixtures import LESLEY_ADEQUATE_INITIAL
+
+        processor, _ = _processor()
+        sub = DiscussionSubmission(initial_post=LESLEY_ADEQUATE_INITIAL)
+        from grading.analysis import analyze_submission
+
+        analysis = analyze_submission(sub)
+        levels = processor.apply(
+            {"Comprehension": "meets", "Timeliness": "meets", "Engagement": "meets", "Writing": "meets"},
+            sub,
+            lenient=True,
+            analysis=analysis,
+        )
+        assert levels["Comprehension"] == "meets"
 
     def test_citation_present_does_not_force_writing_below(self):
         _, config = _processor()

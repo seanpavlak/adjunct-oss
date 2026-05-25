@@ -10,8 +10,10 @@ from playwright.sync_api import sync_playwright
 
 from config import canvas_config
 from response_generator import ResponseGenerator
-from submission_evaluator import (
+from grading import (
+    analyze_submission,
     build_discussion_submission_from_entries,
+    evaluate_submission,
     is_citable_url,
     parse_discussion_submission,
 )
@@ -564,7 +566,6 @@ class CanvasService:
         discussion_prompt: str = "",
     ) -> Tuple[int, int]:
         """Grade each student submission in Speed Grader"""
-        from submission_evaluator import evaluate_submission
         from submission_models import grading_requirements_from_config
 
         requirements = grading_requirements or grading_requirements_from_config({})
@@ -620,12 +621,16 @@ class CanvasService:
                 print(submission.raw_text)
                 print("--- End raw iframe text ---\n")
 
+            pre_analysis = analyze_submission(submission, requirements)
             print("  Parsed submission:")
-            print(f"    Initial post ({len(submission.initial_post)} chars):")
+            for line in pre_analysis.checklist:
+                print(f"    {line}")
+            print(f"    Initial post ({pre_analysis.initial_char_count} chars):")
             print(submission.initial_post or "(empty)")
-            for i, reply in enumerate(submission.peer_replies, start=1):
-                print(f"    Peer reply {i} ({len(reply)} chars):")
-                print(reply)
+            for peer in pre_analysis.peer_replies:
+                quality = "substantive" if peer.is_substantive else "thin"
+                print(f"    Peer reply {peer.index} ({peer.char_count} chars, {quality}):")
+                print(peer.text)
 
             evaluation: SubmissionEvaluation = evaluate_submission(
                 submission,

@@ -20,6 +20,7 @@ class GradingRequirements(BaseModel):
     require_citation: bool = True
     min_initial_post_chars: int = 100
     min_peer_reply_chars: int = 40
+    min_comprehension_richness_signals: int = 3
     lenient: bool = True
 
 
@@ -98,8 +99,6 @@ def _overlay_legacy_requirements(
     elif criterion_name == "Writing" and rule_type == "min_citations":
         result["min_count"] = requirements.min_citations
         result["require_citation"] = requirements.require_citation
-    elif criterion_name == "Comprehension" and rule_type == "comprehension_effort":
-        result["min_chars_exceeds"] = requirements.min_initial_post_chars
     return result
 
 

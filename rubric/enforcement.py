@@ -10,12 +10,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Mapping, Optional
 
+from grading.analysis import SubmissionAnalysis
+from grading.citations import count_citations
+from grading.parse import detect_late_submission, timeliness_level_from_days_late
 from rubric.types import RUBRIC_LEVEL_ORDER, RubricLevel
-from submission_evaluator import (
-    count_citations,
-    detect_late_submission,
-    timeliness_level_from_days_late,
-)
 from submission_models import DiscussionSubmission
 
 EnforcementHandler = Callable[["EnforcementContext"], RubricLevel]
@@ -29,6 +27,7 @@ class EnforcementContext:
     level: RubricLevel
     submission: DiscussionSubmission
     params: Mapping[str, Any]
+    analysis: Optional[SubmissionAnalysis] = None
 
 
 def _cap_at_most(level: RubricLevel, ceiling: RubricLevel) -> RubricLevel:
@@ -58,11 +57,24 @@ def _apply_timeliness(ctx: EnforcementContext) -> RubricLevel:
 def _apply_min_peer_replies(ctx: EnforcementContext) -> RubricLevel:
     min_chars = int(ctx.params.get("min_chars_per_reply", 40))
     min_count = int(ctx.params.get("min_count", 2))
-    peer_count = count_meaningful_peer_replies(ctx.submission, min_chars)
-    if peer_count == 0:
+    min_substantive = int(ctx.params.get("min_substantive", min_count))
+
+    if ctx.analysis is not None:
+        meaningful = ctx.analysis.meaningful_peer_count
+        substantive = ctx.analysis.substantive_peer_count
+    else:
+        meaningful = count_meaningful_peer_replies(ctx.submission, min_chars)
+        substantive = meaningful
+
+    if meaningful == 0:
         return ctx.params.get("level_when_zero", "below")
-    if peer_count < min_count:
+    if meaningful < min_count:
         return ctx.params.get("level_when_insufficient", "needs")
+    if substantive < min_substantive:
+        return ctx.params.get(
+            "level_when_low_quality",
+            ctx.params.get("level_when_insufficient", "needs"),
+        )
     return ctx.level
 
 
@@ -87,15 +99,21 @@ def _apply_min_citations(ctx: EnforcementContext) -> RubricLevel:
 
 def _apply_comprehension_effort(ctx: EnforcementContext) -> RubricLevel:
     """
-    Floor very short posts at below; promote substantive initial posts to exceeds
-    when the LLM underrated a clearly rich response.
+    Floor very short posts at below.
+
+    Promote meets → exceeds only when the initial post passes richness signals
+    (multi-paragraph, ~130+ words, references/URLs — not length alone).
     """
-    initial_len = len(ctx.submission.initial_post.strip())
+    if ctx.analysis is not None:
+        initial_len = ctx.analysis.initial_char_count
+        qualifies = ctx.analysis.initial_richness.qualifies_for_exceeds
+    else:
+        initial_len = len(ctx.submission.initial_post.strip())
+        qualifies = False
     floor = int(ctx.params.get("min_chars_floor", 30))
-    exceeds_at = int(ctx.params.get("min_chars_exceeds", 120))
     if initial_len < floor:
         return "below"
-    if initial_len >= exceeds_at and ctx.level == "meets":
+    if qualifies and ctx.level == "meets":
         return "exceeds"
     return ctx.level
 
@@ -113,6 +131,7 @@ def apply_enforcement(
     criterion_name: str,
     submission: DiscussionSubmission,
     enforcement: Mapping[str, Any],
+    analysis: Optional[SubmissionAnalysis] = None,
 ) -> RubricLevel:
     """Run a single enforcement rule; return unchanged level if type is unknown."""
     rule_type = enforcement.get("type")
@@ -123,6 +142,7 @@ def apply_enforcement(
         level=level,
         submission=submission,
         params=enforcement,
+        analysis=analysis,
     )
     result = ENFORCEMENT_HANDLERS[rule_type](ctx)
     return result  # type: ignore[return-value]

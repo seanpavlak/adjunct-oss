@@ -1,42 +1,44 @@
 """
-Backward-compatible re-exports for the grading pipeline.
-
-Prefer ``from grading import ...`` in new code.
+Discussion grading pipeline: parse → analyze → LLM assess → enforce → score.
 """
 
-from grading import (
-    CitationReport,
+from grading.analysis import (
     InitialPostRichness,
     PeerReplyMetrics,
     SubmissionAnalysis,
     analyze_submission,
+    analyze_peer_reply,
     assess_initial_post_richness,
-    build_citation_report,
-    build_discussion_submission_from_entries,
-    count_citations,
-    evaluate_submission,
-    extract_link_urls_from_text,
-    format_grading_brief,
-    format_submission_for_prompt,
-    grade_points_from_levels,
-    is_citable_url,
     is_substantive_peer_reply,
+)
+from grading.brief import format_grading_brief, format_submission_for_prompt
+from grading.citations import (
+    CitationReport,
+    build_citation_report,
+    count_citations,
+    extract_link_urls_from_text,
+    is_citable_url,
+    submission_citation_corpus,
+)
+from grading.evaluate import evaluate_submission
+from grading.parse import (
+    build_discussion_submission_from_entries,
+    detect_late_submission,
     parse_discussion_submission,
     split_content_into_posts,
     timeliness_level_from_days_late,
-    detect_late_submission,
-    submission_citation_corpus,
 )
-from grading.scoring import grade_points_from_levels as _grade_from_levels
-from submission_models import DiscussionSubmission, SubmissionEvaluation
+from grading.scoring import grade_points_from_levels
 
 __all__ = [
-    "CitationReport",
     "InitialPostRichness",
     "PeerReplyMetrics",
     "SubmissionAnalysis",
+    "CitationReport",
     "analyze_submission",
+    "analyze_peer_reply",
     "assess_initial_post_richness",
+    "is_substantive_peer_reply",
     "format_grading_brief",
     "format_submission_for_prompt",
     "build_citation_report",
@@ -44,15 +46,11 @@ __all__ = [
     "extract_link_urls_from_text",
     "is_citable_url",
     "submission_citation_corpus",
+    "evaluate_submission",
     "build_discussion_submission_from_entries",
     "detect_late_submission",
     "parse_discussion_submission",
     "split_content_into_posts",
     "timeliness_level_from_days_late",
-    "is_substantive_peer_reply",
     "grade_points_from_levels",
-    "_grade_from_levels",
-    "evaluate_submission",
-    "DiscussionSubmission",
-    "SubmissionEvaluation",
 ]

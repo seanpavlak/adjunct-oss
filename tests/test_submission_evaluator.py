@@ -4,7 +4,7 @@ Unit tests for discussion submission parsing and evaluation
 
 import pytest
 
-from submission_evaluator import (
+from grading import (
     build_discussion_submission_from_entries,
     count_citations,
     evaluate_submission,

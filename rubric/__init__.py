@@ -11,11 +11,14 @@ from rubric.defaults import (
     DEFAULT_CRITERION_GRADING_POLICIES,
     RUBRIC_GRADING_DEFAULTS,
 )
+from grading.analysis import SubmissionAnalysis, analyze_submission
 from rubric.enforcement import count_meaningful_peer_replies
 from rubric.pipeline import RubricPostProcessor, apply_rubric_policies
 from rubric.prompt import build_grading_instructions, format_rubric_for_prompt
 
 __all__ = [
+    "SubmissionAnalysis",
+    "analyze_submission",
     "DEFAULT_CRITERION_GRADING_POLICIES",
     "RUBRIC_GRADING_DEFAULTS",
     "RubricGradingConfig",

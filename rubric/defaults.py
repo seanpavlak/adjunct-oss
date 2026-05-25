@@ -9,17 +9,17 @@ from typing import Any, Dict
 DEFAULT_CRITERION_GRADING_POLICIES: Dict[str, Dict[str, Any]] = {
     "Comprehension": {
         "llm_guidance": (
-            "Use exceeds when the initial post fully addresses every part of the "
-            "discussion prompt with rich detail, critical thinking, and personal or "
-            "professional examples (e.g. medicine, sonography, daily life). Use meets "
-            "for adequate posts that are thinner or less developed. Reserve below for "
-            "missing, off-topic, or clearly inadequate work."
+            "Read the discussion prompt first, then judge ONLY the initial post (not peer "
+            "replies). Exceeds: fully addresses all parts of the prompt with critical "
+            "thinking, analysis, and rich examples (healthcare, sonography, personal "
+            "experience). Meets: addresses the prompt with adequate detail. Needs: "
+            "partially addresses the prompt or lacks depth/organization. Below: missing, "
+            "off-topic, or far too short to demonstrate understanding."
         ),
         "lenient": True,
         "enforcement": {
             "type": "comprehension_effort",
             "min_chars_floor": 30,
-            "min_chars_exceeds": 120,
         },
     },
     "Timeliness": {
@@ -36,18 +36,23 @@ DEFAULT_CRITERION_GRADING_POLICIES: Dict[str, Dict[str, Any]] = {
     },
     "Engagement": {
         "llm_guidance": (
-            "Give 'exceeds' when the student has two or more thoughtful peer replies that "
-            "advance the dialogue. Engagement MUST be 'below' (0 points) if there are no "
-            "replies to classmates, and 'needs' or lower if fewer than two meaningful "
-            "peer responses."
+            "Grade each peer reply to a classmate separately. A substantive reply greets "
+            "the peer and adds detail, an example, a question, or clinical insight — not "
+            "only 'I agree' or 'great point'. Exceeds: two or more substantive replies "
+            "that advance dialogue. Meets: two meaningful replies with adequate explanation. "
+            "Needs: only one substantive reply, or two replies that are thin/agreement-only. "
+            "Below: no replies to classmates. Use the automated peer-reply flags in the "
+            "submission packet."
         ),
         "lenient": True,
         "enforcement": {
             "type": "min_meaningful_peer_replies",
             "min_count": 2,
+            "min_substantive": 2,
             "min_chars_per_reply": 40,
             "level_when_zero": "below",
             "level_when_insufficient": "needs",
+            "level_when_low_quality": "needs",
         },
     },
     "Writing": {
@@ -74,12 +79,12 @@ RUBRIC_GRADING_DEFAULTS: Dict[str, Any] = {
     "lenient": True,
     "global_llm_guidance": (
         "Rubric levels (1–4): 1=below, 2=needs, 3=meets, 4=exceeds. "
-        "LENIENCY: When the work clearly fits one level, keep that level "
-        "(a clear 1 stays 1; a clear 3 stays 3 — do not bump 3 to 4). "
-        "When genuinely torn between two adjacent levels only — 1↔2 or 3↔4 — "
-        "set borderline=true and choose the lower of the two in `level`; "
-        "post-processing will optimistically bump one step. "
-        "Do not use borderline=true when the level is a clear fit. "
-        "Reserve level 1 (below) for missing or clearly inadequate work."
+        "You receive an AUTOMATED PRE-GRADE CHECKLIST — treat it as ground truth for "
+        "counts (peer replies, citations, lateness) unless the student text clearly "
+        "contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) "
+        "within those facts. LENIENCY: When the work clearly fits one level, keep it. "
+        "When genuinely torn between adjacent levels only (1↔2 or 3↔4), set borderline=true "
+        "and pick the lower level; post-processing may bump one step. "
+        "Reserve below for missing or clearly inadequate work."
     ),
 }

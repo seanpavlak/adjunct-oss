@@ -67,6 +67,13 @@ class GradingRequirementsSchema(BaseModel):
     require_citation: bool = Field(default=True)
     min_initial_post_chars: int = Field(default=100, ge=0)
     min_peer_reply_chars: int = Field(default=40, ge=0)
+    min_comprehension_richness_signals: int = Field(
+        default=3,
+        ge=1,
+        le=5,
+        description="Richness signals required for Comprehension exceeds auto-bump",
+    )
+    lenient: bool = Field(default=True)
 
 
 class DiscussionRubricSchema(BaseModel):

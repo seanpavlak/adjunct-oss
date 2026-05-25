@@ -17,6 +17,7 @@ GRADING_REQUIREMENTS: Dict[str, Any] = {
     "min_citations": 1,
     "require_citation": True,
     "min_initial_post_chars": 100,
+    "min_comprehension_richness_signals": 3,
     "min_peer_reply_chars": 40,
     "lenient": True,
 }
@@ -122,8 +123,26 @@ def build_rubric_ratings_for_levels(
     return ratings
 
 
+def rubric_criteria_for_course_json() -> List[Dict[str, Any]]:
+    """
+    Criterion rows for ``courses.json`` (structure only).
+
+    Grading policies are merged from ``rubric/defaults.py`` at runtime — do not
+    duplicate ``grading_policy`` in JSON unless overriding a single course.
+    """
+    return [
+        {
+            "name": c["name"],
+            "max_points": c["max_points"],
+            "rating": c["rating"],
+            "description": c["description"],
+        }
+        for c in DISCUSSION_RUBRIC_2021["criteria"]
+    ]
+
+
 def build_discussion_rubric_config(
-    rubric_ratings: List[str] | None = None,
+    rubric_ratings: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     """Build a course-level discussion_rubric config block for courses.json."""
     config = dict(DISCUSSION_RUBRIC_2021)

@@ -138,41 +138,43 @@ Configure once per course under `discussion_rubric` in `courses.json`. Each week
 
 If Canvas changes rubric button IDs, update `rubric_ratings` in the course `discussion_rubric` block (DevTools → `data-testid` on each rating).
 
-**Submission verification** (before grading each student in Speed Grader):
+**Grading pipeline** (Speed Grader):
 
-The tool reads the submission preview iframe (`#content`): initial post body plus each classmate follow-up. It then checks:
+1. **Parse** (`grading/parse.py`) — Canvas `discussion_entry` DOM: first post = initial, rest = peer replies; fallback text heuristics.
+2. **Analyze** (`grading/analysis.py`) — checklist: meaningful vs substantive peer replies, citation signals, timeliness, **comprehension richness** (multi-paragraph, ~130+ words, references/URLs — not length alone).
+3. **Brief** (`grading/brief.py`) — discussion prompt + checklist + full student text for the LLM.
+4. **LLM** (`rubric_grader.py`) — structured `RubricAssessment` per criterion.
+5. **Post-process** (`rubric/pipeline.py`) — leniency (`borderline=true`) then enforcement using the same `SubmissionAnalysis`.
+6. **Score** (`grading/scoring.py`) — map levels to points; click Canvas rubric buttons.
 
 | Rule | Default |
 |------|---------|
-| Meaningful peer replies | At least 2 (e.g. "Hi Lidia, I agree…") |
-| On time | No "late submission" in preview |
-| Citations | At least 1 URL, DOI, in-text cite, or reference |
-
-**LLM rubric grading (lenient):** An LLM reads the rubric and assigns each criterion (`exceeds` / `meets` / `needs` / `below`) plus a `borderline` flag when torn between adjacent levels (1↔2 or 3↔4). Lenient post-processing bumps one step only when `borderline=true`; clear scores are unchanged. Hard enforcement still caps clear violations (e.g. zero peer replies). Requires an API key in `.env`.
+| Meaningful peer replies | ≥2 at 40+ chars each |
+| Substantive peer replies | ≥2 that add detail (not agreement-only) |
+| On time | Canvas `days-late-input` or preview |
+| Citations | URLs, APA/refs, or citation attempts |
+| Comprehension exceeds | 3+ richness signals (not 120 chars alone) |
 
 ```bash
 python main.py grade --course A --week 1 --dry-run   # log full LLM I/O for student on screen
 python main.py grade --course A --week 1             # verify + apply rubric in Canvas
 ```
 
-**Rubric finetuning (reusable across courses):** Under `discussion_rubric` in `courses.json`:
+**Configuration** (`courses.json` → `discussion_rubric`):
 
-- `grading_defaults.global_llm_guidance` — course-wide tone for the LLM prompt
-- `criteria[].grading_policy.llm_guidance` — per-criterion finetuning text
-- `criteria[].grading_policy.enforcement` — deterministic post-LLM rules (`min_meaningful_peer_replies`, `min_citations`, `timeliness`, `comprehension_effort`)
+- `criteria[]` — name, points, description only (policies come from `rubric/defaults.py`)
+- `grading_requirements` — thresholds (`min_comprehension_richness_signals`, peer/citation mins, `lenient`)
+- `grading_defaults.global_llm_guidance` — course-wide LLM tone
+- `rubric_rating_levels` — Canvas `data-testid` per level
 
-Implementation lives in the `rubric/` package:
+| Package | Role |
+|---------|------|
+| `grading/` | Parse, analyze, brief, citations, evaluate, score |
+| `rubric/` | Config, prompts, leniency, enforcement, pipeline |
+| `rubric_grader.py` | LLM + wires grading → Canvas ratings |
+| `discussion_rubric.py` | Rubric constants and rating test IDs |
 
-| Module | Role |
-|--------|------|
-| `rubric/config.py` | `RubricGradingConfig` — validated config from JSON |
-| `rubric/prompt.py` | LLM prompt sections |
-| `rubric/leniency.py` | Boundary bumps when `borderline=true` |
-| `rubric/enforcement.py` | Registered hard-rule handlers |
-| `rubric/pipeline.py` | `RubricPostProcessor` — leniency then enforcement |
-| `rubric/defaults.py` | Discussion Rubric (2021) default policies |
-
-Canvas-specific test IDs stay in `discussion_rubric.py`. Legacy `grading_requirements` still merge into enforcement params.
+Prefer `from grading import analyze_submission, evaluate_submission` in new code. `submission_evaluator` re-exports for compatibility.
 
 ### 3. Announcement Configuration
 

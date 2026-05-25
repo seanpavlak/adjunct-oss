@@ -1,8 +1,8 @@
 """
 LLM-based rubric grading for discussion submissions.
 
-Uses Pydantic structured output (``rubric_models.RubricAssessment``) and the
-``rubric`` package for configuration, prompts, and post-processing.
+Pipeline: analyze submission → rich grading brief → LLM assessment →
+post-process (leniency + enforcement with analysis) → Canvas ratings.
 """
 
 from __future__ import annotations
@@ -21,62 +21,28 @@ from discussion_rubric import (
     RUBRIC_RATING_LEVELS,
     build_rubric_ratings_for_levels,
 )
+from grading.analysis import SubmissionAnalysis, analyze_submission
+from grading.brief import format_grading_brief
+from grading.parse import detect_late_submission
+from grading.scoring import grade_points_from_levels
 from rubric import (
     RubricGradingConfig,
     RubricPostProcessor,
     build_grading_instructions,
     build_rubric_grading_config,
-    count_meaningful_peer_replies,
     format_rubric_for_prompt,
 )
 from rubric.types import RubricLevel
-from rubric_models import RubricAssessment
-from submission_evaluator import (
-    _grade_from_levels,
-    count_citations,
-    detect_late_submission,
-)
+from rubric_models import RubricAssessment, assessment_to_levels
 from submission_models import DiscussionSubmission, SubmissionEvaluation
 
-
-def format_submission_for_prompt(submission: DiscussionSubmission) -> str:
-    """Format extracted submission for the LLM."""
-    parts = [
-        "=== INITIAL POST ===",
-        submission.initial_post or "(empty)",
-        "",
-        f"=== PEER REPLIES ({len(submission.peer_replies)}) ===",
-    ]
-    if submission.peer_replies:
-        for i, reply in enumerate(submission.peer_replies, start=1):
-            parts.append(f"--- Reply {i} ---")
-            parts.append(reply)
-    else:
-        parts.append("(none detected)")
-    parts.append("")
-    if submission.days_late is not None:
-        parts.append(f"Days late (Canvas days-late-input): {submission.days_late}")
-    else:
-        parts.append(f"Late indicator in preview: {'yes' if submission.is_late else 'no'}")
-    if submission.link_urls:
-        parts.append("")
-        parts.append("=== LINKS (count as citations) ===")
-        for url in submission.link_urls:
-            parts.append(url)
-    return "\n".join(parts)
-
-
-def assessment_to_levels(
-    assessment: RubricAssessment,
-    criterion_order: Optional[List[str]] = None,
-) -> Dict[str, RubricLevel]:
-    """Convert validated RubricAssessment to criterion -> level map."""
-    order = criterion_order or list(CRITERION_ORDER)
-    levels: Dict[str, RubricLevel] = dict(assessment.levels_by_criterion())
-    for name in order:
-        if name not in levels:
-            levels[name] = "meets"
-    return levels
+def format_submission_for_prompt(
+    submission: DiscussionSubmission,
+    discussion_prompt: str = "",
+) -> str:
+    """Backward-compatible wrapper building the full grading brief."""
+    analysis = analyze_submission(submission)
+    return format_grading_brief(analysis, discussion_prompt)
 
 
 def _print_section(title: str, body: str) -> None:
@@ -127,18 +93,19 @@ class RubricGrader:
         criteria_names = ", ".join(self._config.criterion_order)
         self.prompt = PromptTemplate(
             template=(
-                "You are an experienced, fair instructor grading a discussion assignment "
-                "using the rubric below. Return a structured assessment with exactly one "
-                f"entry per criterion ({criteria_names}). "
-                "Each entry must use level: exceeds, meets, needs, or below, and "
-                "borderline (true only when torn between adjacent levels 1↔2 or 3↔4).\n\n"
+                "You are an experienced instructor grading a weekly discussion assignment. "
+                "Grade like a fair human: use the rubric, the discussion prompt, and the "
+                "automated checklist in the student packet. Return a structured assessment "
+                f"with exactly one entry per criterion ({criteria_names}). "
+                "Each entry: level (exceeds, meets, needs, below), reason citing specific "
+                "evidence from the initial post and/or peer replies, and borderline (true "
+                "only when torn between adjacent levels 1↔2 or 3↔4).\n\n"
                 "{rubric_text}\n\n"
-                "Discussion prompt for this week:\n{discussion_prompt}\n\n"
-                "Student submission:\n{submission_text}\n\n"
-                "Grading guidance for this course rubric:\n"
+                "{submission_text}\n\n"
+                "Course-specific grading guidance:\n"
                 "{grading_instructions}\n"
             ),
-            input_variables=["discussion_prompt", "submission_text"],
+            input_variables=["submission_text"],
             partial_variables={
                 "rubric_text": format_rubric_for_prompt(
                     self._config.criteria,
@@ -182,26 +149,22 @@ class RubricGrader:
             )
         raise ValueError(f"Unsupported provider: {self.provider}")
 
-    def format_full_prompt(self, discussion_prompt: str, submission_text: str) -> str:
+    def format_full_prompt(
+        self, discussion_prompt: str, submission: DiscussionSubmission
+    ) -> str:
+        analysis = analyze_submission(
+            submission, self._config.grading_requirements.model_dump()
+        )
+        brief = format_grading_brief(analysis, discussion_prompt)
         schema_hint = (
-            "\n\n[Structured output schema: RubricAssessment with criteria: "
+            "\n\n[Structured output: RubricAssessment with criteria: "
             f"List[CriterionGrade] — one per {', '.join(self._config.criterion_order)}]"
         )
-        return self.prompt.format(
-            discussion_prompt=discussion_prompt,
-            submission_text=submission_text,
-        ) + schema_hint
+        return self.prompt.format(submission_text=brief) + schema_hint
 
-    def _invoke_assessment(
-        self, discussion_prompt: str, submission_text: str
-    ) -> RubricAssessment:
+    def _invoke_assessment(self, submission_text: str) -> RubricAssessment:
         chain = self.prompt | self.structured_llm
-        result = chain.invoke(
-            {
-                "discussion_prompt": discussion_prompt,
-                "submission_text": submission_text,
-            }
-        )
+        result = chain.invoke({"submission_text": submission_text})
         if isinstance(result, RubricAssessment):
             return result
         return RubricAssessment.model_validate(result)
@@ -252,16 +215,19 @@ class RubricGrader:
         else:
             config = self._resolve_config(requirements)
 
+        req_dict = config.grading_requirements.model_dump()
+        analysis = analyze_submission(submission, req_dict)
+        submission_text = format_grading_brief(analysis, discussion_prompt)
         processor = RubricPostProcessor(config)
-        submission_text = format_submission_for_prompt(submission)
         criterion_order = config.criterion_order
 
         if dry_run:
             _print_section("DRY RUN — Discussion prompt", discussion_prompt)
-            _print_section("DRY RUN — Submission sent to LLM", submission_text)
+            _print_section("DRY RUN — Pre-grade analysis", "\n".join(analysis.checklist))
+            _print_section("DRY RUN — Submission packet sent to LLM", submission_text)
             _print_section(
                 "DRY RUN — Full LLM prompt",
-                self.format_full_prompt(discussion_prompt, submission_text),
+                self.format_full_prompt(discussion_prompt, submission),
             )
             _print_section(
                 "DRY RUN — Expected Pydantic schema",
@@ -269,7 +235,7 @@ class RubricGrader:
             )
             print("\nCalling LLM (structured output → RubricAssessment)...\n")
 
-        assessment = self._invoke_assessment(discussion_prompt, submission_text)
+        assessment = self._invoke_assessment(submission_text)
         levels = assessment_to_levels(assessment, criterion_order)
         levels_before_policy = dict(levels)
         borderline = assessment.borderline_by_criterion()
@@ -293,10 +259,11 @@ class RubricGrader:
             submission,
             lenient=use_lenient,
             borderline=borderline,
+            analysis=analysis,
         )
 
         rubric_ratings = build_rubric_ratings_for_levels(levels, rubric_rating_levels)
-        grade = _grade_from_levels(levels)
+        grade = grade_points_from_levels(levels)
 
         if dry_run:
             lines = ["Levels after policy post-processing:"]
@@ -321,28 +288,19 @@ class RubricGrader:
             if level in ("needs", "below"):
                 issues.append(f"{name} ({level}): {reason or 'see rubric'}")
 
-        peer_enforcement = config.enforcement_for("Engagement") or {}
-        min_chars = int(peer_enforcement.get("min_chars_per_reply", 40))
-        peer_count = count_meaningful_peer_replies(submission, min_chars)
-        citation_count = count_citations(submission=submission)
-        if submission.days_late is not None:
-            on_time = submission.days_late <= 0
-        else:
-            on_time = not submission.is_late and not detect_late_submission(
-                submission.raw_text
-            )
         passed = all(levels.get(n) in ("exceeds", "meets") for n in criterion_order)
 
         return SubmissionEvaluation(
             passed=passed,
             issues=issues,
-            peer_reply_count=peer_count,
-            citation_count=citation_count,
-            on_time=on_time,
+            peer_reply_count=analysis.meaningful_peer_count,
+            citation_count=analysis.citation_count,
+            on_time=analysis.on_time,
             rubric_ratings=rubric_ratings,
             grade=grade,
             submission=submission,
             criterion_levels=dict(levels),
             criterion_reasons=criterion_reasons,
             overall_notes=assessment.overall_notes,
+            analysis=analysis,
         )

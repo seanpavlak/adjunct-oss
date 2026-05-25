@@ -231,65 +231,25 @@
             "name": "Comprehension",
             "max_points": 40,
             "rating": "Exceeds Expectations (100%)",
-            "description": "Well-organized initial post with critical thinking, analysis, or experiences using rich and significant detail.",
-            "grading_policy": {
-              "llm_guidance": "Use exceeds when the initial post fully addresses every part of the discussion prompt with rich detail, critical thinking, and personal or professional examples (e.g. medicine, sonography, daily life). Use meets for adequate posts that are thinner or less developed. Reserve below for missing, off-topic, or clearly inadequate work.",
-              "lenient": true,
-              "enforcement": {
-                "type": "comprehension_effort",
-                "min_chars_floor": 30,
-                "min_chars_exceeds": 120
-              }
-            }
+            "description": "Well-organized initial post with critical thinking, analysis, or experiences using rich and significant detail."
           },
           {
             "name": "Timeliness",
             "max_points": 10,
             "rating": "Meets Expectations (100%)",
-            "description": "Initial post submitted on time.",
-            "grading_policy": {
-              "llm_guidance": "Timeliness is set from Canvas days-late-input when provided (0=meets, 1 day=needs, 2+=below). Otherwise use 'meets' for on-time posts. Do not use 'exceeds' for timeliness (N/A in this rubric).",
-              "lenient": true,
-              "enforcement": {
-                "type": "timeliness",
-                "on_time_level": "meets",
-                "late_below_to_needs": true
-              }
-            }
+            "description": "Initial post submitted on time."
           },
           {
             "name": "Engagement",
             "max_points": 30,
             "rating": "Exceeds Expectations (100%)",
-            "description": "Meaningful, on-topic peer responses with clarifying detail that advance the dialogue.",
-            "grading_policy": {
-              "llm_guidance": "Give 'exceeds' when the student has two or more thoughtful peer replies that advance the dialogue. Engagement MUST be 'below' (0 points) if there are no replies to classmates, and 'needs' or lower if fewer than two meaningful peer responses.",
-              "lenient": true,
-              "enforcement": {
-                "type": "min_meaningful_peer_replies",
-                "min_count": 2,
-                "min_chars_per_reply": 40,
-                "level_when_zero": "below",
-                "level_when_insufficient": "needs"
-              }
-            }
+            "description": "Meaningful, on-topic peer responses with clarifying detail that advance the dialogue."
           },
           {
             "name": "Writing",
             "max_points": 20,
             "rating": "Exceeds Expectations (100%)",
-            "description": "Posts are easily understood, clear, and concise with proper citation methods where applicable.",
-            "grading_policy": {
-              "llm_guidance": "Assess clarity and citation practice. Hyperlinks and APA-style reference entries (Author. (n.d.). Title. Retrieved [date], from Source (URL)) count as citations. Excellent clear writing without any citation should be meets, not exceeds. Do not use below for writing quality alone \u2014 reserve below for unclear or unintelligible posts.",
-              "lenient": true,
-              "enforcement": {
-                "type": "min_citations",
-                "min_count": 1,
-                "require_citation": true,
-                "level_when_zero": "meets",
-                "level_when_insufficient": "meets"
-              }
-            }
+            "description": "Posts are easily understood, clear, and concise with proper citation methods where applicable."
           }
         ],
         "rubric_ratings": [
@@ -304,7 +264,9 @@
           "min_citations": 1,
           "require_citation": true,
           "min_initial_post_chars": 100,
-          "min_peer_reply_chars": 40
+          "min_peer_reply_chars": 40,
+          "min_comprehension_richness_signals": 3,
+          "lenient": true
         },
         "rubric_rating_levels": {
           "Comprehension": {
@@ -334,7 +296,7 @@
         },
         "grading_defaults": {
           "lenient": true,
-          "global_llm_guidance": "Rubric levels (1\u20134): 1=below, 2=needs, 3=meets, 4=exceeds. LENIENCY: When the work clearly fits one level, keep that level (a clear 1 stays 1; a clear 3 stays 3 \u2014 do not bump 3 to 4). When genuinely torn between two adjacent levels only \u2014 1\u21942 or 3\u21944 \u2014 set borderline=true and choose the lower of the two in `level`; post-processing will optimistically bump one step. Do not use borderline=true when the level is a clear fit. Reserve level 1 (below) for missing or clearly inadequate work."
+          "global_llm_guidance": "Rubric levels (1\u20134): 1=below, 2=needs, 3=meets, 4=exceeds. You receive an AUTOMATED PRE-GRADE CHECKLIST \u2014 treat it as ground truth for counts (peer replies, citations, lateness) unless the student text clearly contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) within those facts. LENIENCY: When the work clearly fits one level, keep it. When genuinely torn between adjacent levels only (1\u21942 or 3\u21944), set borderline=true and pick the lower level; post-processing may bump one step. Reserve below for missing or clearly inadequate work."
         }
       }
     },
@@ -569,65 +531,25 @@
             "name": "Comprehension",
             "max_points": 40,
             "rating": "Exceeds Expectations (100%)",
-            "description": "Well-organized initial post with critical thinking, analysis, or experiences using rich and significant detail.",
-            "grading_policy": {
-              "llm_guidance": "Use exceeds when the initial post fully addresses every part of the discussion prompt with rich detail, critical thinking, and personal or professional examples (e.g. medicine, sonography, daily life). Use meets for adequate posts that are thinner or less developed. Reserve below for missing, off-topic, or clearly inadequate work.",
-              "lenient": true,
-              "enforcement": {
-                "type": "comprehension_effort",
-                "min_chars_floor": 30,
-                "min_chars_exceeds": 120
-              }
-            }
+            "description": "Well-organized initial post with critical thinking, analysis, or experiences using rich and significant detail."
           },
           {
             "name": "Timeliness",
             "max_points": 10,
             "rating": "Meets Expectations (100%)",
-            "description": "Initial post submitted on time.",
-            "grading_policy": {
-              "llm_guidance": "Timeliness is set from Canvas days-late-input when provided (0=meets, 1 day=needs, 2+=below). Otherwise use 'meets' for on-time posts. Do not use 'exceeds' for timeliness (N/A in this rubric).",
-              "lenient": true,
-              "enforcement": {
-                "type": "timeliness",
-                "on_time_level": "meets",
-                "late_below_to_needs": true
-              }
-            }
+            "description": "Initial post submitted on time."
           },
           {
             "name": "Engagement",
             "max_points": 30,
             "rating": "Exceeds Expectations (100%)",
-            "description": "Meaningful, on-topic peer responses with clarifying detail that advance the dialogue.",
-            "grading_policy": {
-              "llm_guidance": "Give 'exceeds' when the student has two or more thoughtful peer replies that advance the dialogue. Engagement MUST be 'below' (0 points) if there are no replies to classmates, and 'needs' or lower if fewer than two meaningful peer responses.",
-              "lenient": true,
-              "enforcement": {
-                "type": "min_meaningful_peer_replies",
-                "min_count": 2,
-                "min_chars_per_reply": 40,
-                "level_when_zero": "below",
-                "level_when_insufficient": "needs"
-              }
-            }
+            "description": "Meaningful, on-topic peer responses with clarifying detail that advance the dialogue."
           },
           {
             "name": "Writing",
             "max_points": 20,
             "rating": "Exceeds Expectations (100%)",
-            "description": "Posts are easily understood, clear, and concise with proper citation methods where applicable.",
-            "grading_policy": {
-              "llm_guidance": "Assess clarity and citation practice. Hyperlinks and APA-style reference entries (Author. (n.d.). Title. Retrieved [date], from Source (URL)) count as citations. Excellent clear writing without any citation should be meets, not exceeds. Do not use below for writing quality alone \u2014 reserve below for unclear or unintelligible posts.",
-              "lenient": true,
-              "enforcement": {
-                "type": "min_citations",
-                "min_count": 1,
-                "require_citation": true,
-                "level_when_zero": "meets",
-                "level_when_insufficient": "meets"
-              }
-            }
+            "description": "Posts are easily understood, clear, and concise with proper citation methods where applicable."
           }
         ],
         "rubric_ratings": [
@@ -642,7 +564,9 @@
           "min_citations": 1,
           "require_citation": true,
           "min_initial_post_chars": 100,
-          "min_peer_reply_chars": 40
+          "min_peer_reply_chars": 40,
+          "min_comprehension_richness_signals": 3,
+          "lenient": true
         },
         "rubric_rating_levels": {
           "Comprehension": {
@@ -672,7 +596,7 @@
         },
         "grading_defaults": {
           "lenient": true,
-          "global_llm_guidance": "Rubric levels (1\u20134): 1=below, 2=needs, 3=meets, 4=exceeds. LENIENCY: When the work clearly fits one level, keep that level (a clear 1 stays 1; a clear 3 stays 3 \u2014 do not bump 3 to 4). When genuinely torn between two adjacent levels only \u2014 1\u21942 or 3\u21944 \u2014 set borderline=true and choose the lower of the two in `level`; post-processing will optimistically bump one step. Do not use borderline=true when the level is a clear fit. Reserve level 1 (below) for missing or clearly inadequate work."
+          "global_llm_guidance": "Rubric levels (1\u20134): 1=below, 2=needs, 3=meets, 4=exceeds. You receive an AUTOMATED PRE-GRADE CHECKLIST \u2014 treat it as ground truth for counts (peer replies, citations, lateness) unless the student text clearly contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) within those facts. LENIENCY: When the work clearly fits one level, keep it. When genuinely torn between adjacent levels only (1\u21942 or 3\u21944), set borderline=true and pick the lower level; post-processing may bump one step. Reserve below for missing or clearly inadequate work."
         }
       }
     }

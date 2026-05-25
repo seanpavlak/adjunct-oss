@@ -3,7 +3,10 @@ Data models for Speed Grader discussion submission extraction and evaluation.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
+if TYPE_CHECKING:
+    from grading.analysis import SubmissionAnalysis
 
 
 @dataclass
@@ -43,20 +46,29 @@ class SubmissionEvaluation:
     criterion_levels: Dict[str, str] = field(default_factory=dict)
     criterion_reasons: Dict[str, str] = field(default_factory=dict)
     overall_notes: str = ""
+    analysis: Optional["SubmissionAnalysis"] = None
 
     def summary_lines(self) -> List[str]:
         """Human-readable verification summary."""
-        lines = [
+        lines = []
+        if self.analysis:
+            for item in self.analysis.checklist:
+                lines.append(f"  {item}")
+        lines.extend([
             f"  Initial post: {len(self.submission.initial_post) if self.submission else 0} chars",
-            f"  Peer replies: {self.peer_reply_count}",
+            f"  Peer replies (meaningful): {self.peer_reply_count}",
+            f"  Substantive peer replies: {self.analysis.substantive_peer_count if self.analysis else '—'}",
+            f"  Comprehension exceeds bar: {'yes' if self.analysis and self.analysis.initial_richness.qualifies_for_exceeds else 'no'}",
             f"  Citations found: {self.citation_count}",
+        ])
+        lines.extend([
             (
                 f"  Days late: {self.submission.days_late}"
                 if self.submission and self.submission.days_late is not None
                 else f"  On time: {'yes' if self.on_time else 'no'}"
             ),
             f"  Grade: {self.grade} pts",
-        ]
+        ])
         if self.criterion_levels:
             lines.append("  Rubric levels (lenient LLM):")
             for name, level in self.criterion_levels.items():
