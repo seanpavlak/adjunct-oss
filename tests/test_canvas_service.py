@@ -19,13 +19,29 @@ class TestParseStudentIndex:
 
 class TestParseDaysLateValue:
     def test_numeric(self):
-        assert parse_days_late_value("2") == 2
+        assert parse_days_late_value("2") == 2.0
+
+    def test_fractional_days(self):
+        assert parse_days_late_value("0.98") == 0.98
 
     def test_empty_defaults_one(self):
-        assert parse_days_late_value("") == 1
+        assert parse_days_late_value("") == 1.0
 
     def test_whitespace_number(self):
-        assert parse_days_late_value("  1  ") == 1
+        assert parse_days_late_value("  1  ") == 1.0
+
+
+class TestTimelinessFromDaysLate:
+    def test_standard_round_to_whole_days(self):
+        from grading.parse import timeliness_level_from_days_late
+
+        assert timeliness_level_from_days_late(0) == "meets"
+        assert timeliness_level_from_days_late(0.1) == "meets"
+        assert timeliness_level_from_days_late(0.49) == "meets"
+        assert timeliness_level_from_days_late(0.51) == "needs"
+        assert timeliness_level_from_days_late(0.98) == "needs"
+        assert timeliness_level_from_days_late(1) == "needs"
+        assert timeliness_level_from_days_late(2) == "below"
 
 
 class TestParseRubricTotalPoints:

@@ -144,7 +144,7 @@ class SubmissionAnalysis:
     citation_report: CitationReport = field(default_factory=CitationReport)
     citation_count: int = 0
 
-    days_late: Optional[int] = None
+    days_late: Optional[float] = None
     on_time: bool = True
     timeliness_level_hint: str = "meets"
     timeliness_summary: str = ""
@@ -268,14 +268,21 @@ def analyze_submission(
 
     days_late = submission.days_late
     if days_late is not None:
-        on_time = days_late <= 0
+        rounded_days = round(days_late)
+        on_time = rounded_days <= 0
         timeliness_hint = timeliness_level_from_days_late(days_late)
-        if days_late <= 0:
-            timeliness_summary = "On time (0 days late per Canvas)."
-        elif days_late == 1:
-            timeliness_summary = "1 day late → rubric timeliness: needs."
+        if rounded_days <= 0:
+            timeliness_summary = (
+                f"On time ({days_late:g} days late per Canvas, rounds to {rounded_days})."
+            )
+        elif rounded_days == 1:
+            timeliness_summary = (
+                f"{days_late:g} days late (rounds to 1 day) → rubric timeliness: needs."
+            )
         else:
-            timeliness_summary = f"{days_late} days late → rubric timeliness: below."
+            timeliness_summary = (
+                f"{days_late:g} days late (rounds to {rounded_days} days) → rubric: below."
+            )
     else:
         on_time = not submission.is_late and not detect_late_submission(
             submission.raw_text

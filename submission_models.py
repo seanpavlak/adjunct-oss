@@ -19,8 +19,8 @@ class DiscussionSubmission:
     is_late: bool = False
     """Legacy flag from preview text; prefer ``days_late`` from Speed Grader."""
 
-    days_late: Optional[int] = None
-    """Days late from Canvas ``days-late-input``; ``None`` when the field is absent (on time)."""
+    days_late: Optional[float] = None
+    """Days late from Canvas ``days-late-input`` (may be fractional); ``None`` if absent."""
 
     raw_text: str = ""
     link_urls: List[str] = field(default_factory=list)

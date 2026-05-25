@@ -20,7 +20,7 @@ from grading import (
 from submission_models import DiscussionSubmission, SubmissionEvaluation
 
 STUDENT_INDEX_PATTERN = re.compile(r"(\d+)\s*/\s*(\d+)")
-DAYS_LATE_VALUE_PATTERN = re.compile(r"(\d+)")
+DAYS_LATE_VALUE_PATTERN = re.compile(r"(\d+(?:\.\d+)?)")
 # First number in rubric-total label (e.g. "91", "91 / 100", "91 out of 100")
 RUBRIC_TOTAL_POINTS_PATTERN = re.compile(r"(\d+(?:\.\d+)?)")
 
@@ -35,19 +35,20 @@ def parse_student_index(text: str) -> Optional[Tuple[int, int]]:
     return int(match.group(1)), int(match.group(2))
 
 
-def parse_days_late_value(text: str) -> int:
+def parse_days_late_value(text: str) -> float:
     """
     Parse the numeric value from Canvas ``days-late-input``.
 
-    When the field is present but empty or unparseable, assume 1 day late.
+    Canvas may show fractional days (e.g. ``0.98``). When the field is present
+    but empty or unparseable, assume 1 day late.
     """
     stripped = (text or "").strip()
     if not stripped:
-        return 1
+        return 1.0
     match = DAYS_LATE_VALUE_PATTERN.search(stripped)
     if not match:
-        return 1
-    return max(0, int(match.group(1)))
+        return 1.0
+    return max(0.0, float(match.group(1)))
 
 
 def parse_rubric_total_points(text: str) -> Optional[str]:
@@ -319,13 +320,12 @@ class CanvasService:
             f'[data-testid="{canvas_config.SUBMISSION_PREVIEW_IFRAME}"]'
         )
 
-    def read_days_late(self) -> Optional[int]:
+    def read_days_late(self) -> Optional[float]:
         """
         Read lateness from Speed Grader ``days-late-input`` on the main page.
 
         Returns ``None`` when the input is not present (submission on time).
-        When present, the field indicates a late submission and the value is
-        the number of days late.
+        When present, returns fractional days late (e.g. ``0.98``).
         """
         el = self.page.get_by_test_id(canvas_config.DAYS_LATE_INPUT)
         try:

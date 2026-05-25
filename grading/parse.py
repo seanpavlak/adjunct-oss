@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from grading.citations import (
     APA_REFERENCE_ENTRY,
@@ -148,7 +148,7 @@ def build_discussion_submission_from_entries(
     entry_messages: List[str],
     raw_text: str = "",
     is_late: bool = False,
-    days_late: Optional[int] = None,
+    days_late: Optional[float] = None,
     link_urls: Optional[List[str]] = None,
 ) -> DiscussionSubmission:
     messages = [m.strip() for m in entry_messages if _is_meaningful_entry_text(m)]
@@ -173,7 +173,7 @@ def build_discussion_submission_from_entries(
 def parse_discussion_submission(
     raw_text: str,
     is_late: bool = False,
-    days_late: Optional[int] = None,
+    days_late: Optional[float] = None,
     link_urls: Optional[List[str]] = None,
 ) -> DiscussionSubmission:
     posts = split_content_into_posts(raw_text)
@@ -205,9 +205,16 @@ def detect_late_submission(raw_text: str) -> bool:
     return any(p.search(raw_text) for p in LATE_PATTERNS)
 
 
-def timeliness_level_from_days_late(days_late: int) -> str:
-    if days_late <= 0:
+def timeliness_level_from_days_late(days_late: Union[int, float]) -> str:
+    """
+    Map Canvas days-late to Discussion Rubric (2021) timeliness bands.
+
+    Fractional Canvas values are rounded to the nearest whole day (standard
+    ``round``): 0.49 → on time, 0.51 → one day late (needs), 2.0+ → below.
+    """
+    whole_days = round(float(days_late))
+    if whole_days <= 0:
         return "meets"
-    if days_late == 1:
+    if whole_days == 1:
         return "needs"
     return "below"
