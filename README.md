@@ -14,6 +14,7 @@ Automate Canvas LMS tasks including AI-powered discussion responses and announce
 ## ✨ Features
 
 - 🤖 **AI-Powered Discussion Responses** - Generate contextual responses using OpenAI, Anthropic, or DeepSeek
+- 🔍 **Plagiarism Check** - Many-to-many comparison of student discussion posts (lenient thresholds)
 - ✅ **Speed Grader Automation** - Auto-apply rubrics and full credit for discussion assignments
 - 📢 **Automated Announcement Scheduling** - Schedule announcements for entire course with calculated dates
 - 🎯 **Interactive CLI** - Rich terminal interface with arrow key navigation
@@ -83,7 +84,7 @@ DEEPSEEK_API_KEY=sk-...
 
 ### 2. Course Configuration
 
-Edit `courses.json` to configure your courses:
+Edit `config/courses.json` to configure your courses:
 
 ```json
 {
@@ -134,7 +135,7 @@ Edit `courses.json` to configure your courses:
 | Engagement | 30 | Exceeds Expectations (100%) |
 | Writing | 20 | Exceeds Expectations (100%) |
 
-Configure once per course under `discussion_rubric` in `courses.json`. Each week only needs `speed_grader.assignment_id`.
+Configure once per course under `discussion_rubric` in `config/courses.json`. Each week only needs `speed_grader.assignment_id`.
 
 If Canvas changes rubric button IDs, update `rubric_ratings` in the course `discussion_rubric` block (DevTools → `data-testid` on each rating).
 
@@ -160,7 +161,7 @@ python main.py grade --course A --week 1 --dry-run   # log full LLM I/O for stud
 python main.py grade --course A --week 1             # verify + apply rubric in Canvas
 ```
 
-**Configuration** (`courses.json` → `discussion_rubric`):
+**Configuration** (`config/courses.json` → `discussion_rubric`):
 
 - `criteria[]` — name, points, description only (policies come from `rubric/defaults.py`)
 - `grading_requirements` — thresholds (`min_comprehension_richness_signals`, peer/citation mins, `lenient`)
@@ -178,7 +179,7 @@ Prefer `from grading import analyze_submission, evaluate_submission` in new code
 
 ### 3. Announcement Configuration
 
-Edit `announcements.json` to configure announcements:
+Edit `config/announcements.json` to configure announcements:
 
 ```json
 {
@@ -203,7 +204,7 @@ python main.py
 ```
 
 Use arrow keys to:
-1. Select action (discussion, grade, announcement, or donate)
+1. Select action (discussion, plagiarism, grade, announcement, or donate)
 2. Choose course
 3. Select LLM provider (if applicable)
 4. Specify week (if applicable)
@@ -223,6 +224,13 @@ python main.py discussion --course A --week 3 --provider anthropic
 
 # Use course ID directly
 python main.py discussion --course 12345 --week 2
+```
+
+#### Check Discussion Plagiarism
+
+```bash
+# Scrape all posts and compare students (no LLM required)
+python main.py plagiarism --course A --week 3
 ```
 
 #### Auto-Grade Discussion Posts (Speed Grader)
@@ -269,33 +277,32 @@ python speed_grader.py --course A --week 1
 ## 📁 Project Structure
 
 ```
-chcp/
-├── main.py                    # CLI entry point
-├── requirements.txt           # Python dependencies
-├── .env                       # Environment variables (create from .env.example)
-│
-├── discussions.py             # Discussion handler
-├── speed_grader.py            # Speed Grader automation
-├── announcements.py          # Announcement scheduler
-├── response_generator.py     # LLM response generation
-├── canvas_service.py         # Browser automation service
-│
-├── course_utils.py           # Course/date utilities
-├── llm_manager.py            # LLM provider management
-├── config.py                 # Configuration constants
-├── schemas.py                # Pydantic validation schemas
-├── env_validator.py          # Environment validation
-├── logger.py                 # Logging configuration
-│
-├── announcements.json        # Announcement data
-└── courses.json              # Course configuration
+chcp/                          # Repository root
+├── main.py                    # CLI entry point (`python main.py`)
+├── requirements.txt
+├── config/
+│   ├── courses.json           # Course & week configuration
+│   └── announcements.json     # Announcement templates
+├── chcp/                      # Application package
+│   ├── actions/               # CLI actions (discussion, grade, plagiarism, …)
+│   ├── canvas/                # Playwright Canvas automation
+│   ├── core/                    # course_utils, schemas, logging, env validation
+│   ├── llm/                     # LLM providers & response generation
+│   ├── plagiarism/            # Many-to-many post comparison
+│   ├── grading/               # Submission parsing & analysis
+│   ├── rubric/                # Rubric policy & enforcement
+│   ├── settings.py            # Canvas/LLM constants
+│   ├── discussion_rubric.py
+│   ├── rubric_grader.py
+│   └── submission_models.py
+└── tests/
 ```
 
 ## 🔧 Advanced Configuration
 
 ### Customizing LLM Behavior
 
-Edit `config.py` to customize LLM parameters:
+Edit `chcp/settings.py` to customize LLM parameters:
 
 ```python
 @dataclass(frozen=True)
@@ -307,7 +314,7 @@ class LLMConfig:
 
 ### Customizing Wait Times
 
-Adjust browser automation timings in `config.py`:
+Adjust browser automation timings in `chcp/settings.py`:
 
 ```python
 @dataclass(frozen=True)

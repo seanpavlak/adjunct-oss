@@ -2,7 +2,7 @@
 Unit tests for Canvas service helpers (no browser)
 """
 
-from canvas_service import (
+from chcp.canvas.parsers import (
     parse_days_late_value,
     parse_rubric_total_points,
     parse_student_index,
@@ -33,7 +33,7 @@ class TestParseDaysLateValue:
 
 class TestTimelinessFromDaysLate:
     def test_standard_round_to_whole_days(self):
-        from grading.parse import timeliness_level_from_days_late
+        from chcp.grading.parse import timeliness_level_from_days_late
 
         assert timeliness_level_from_days_late(0) == "meets"
         assert timeliness_level_from_days_late(0.1) == "meets"

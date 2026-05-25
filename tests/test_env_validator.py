@@ -4,7 +4,7 @@ Unit tests for env_validator module
 
 import pytest
 
-from env_validator import Settings
+from chcp.core.env_validator import Settings
 
 
 class TestSettings:

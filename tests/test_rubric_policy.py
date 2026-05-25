@@ -2,16 +2,16 @@
 Unit tests for rubric policy engine (config-driven grading rules)
 """
 
-from discussion_rubric import CRITERION_ORDER, DEFAULT_CRITERION_GRADING_POLICIES
-from rubric import (
+from chcp.discussion_rubric import CRITERION_ORDER, DEFAULT_CRITERION_GRADING_POLICIES
+from chcp.rubric import (
     apply_rubric_policies,
     build_grading_instructions,
     build_rubric_grading_config,
     format_rubric_for_prompt,
     merge_criterion_grading_policies,
 )
-from rubric.leniency import apply_boundary_leniency
-from submission_models import DiscussionSubmission
+from chcp.rubric.leniency import apply_boundary_leniency
+from chcp.submission_models import DiscussionSubmission
 
 
 def _config(requirements=None):

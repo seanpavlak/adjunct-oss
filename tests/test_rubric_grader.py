@@ -2,15 +2,15 @@
 Unit tests for LLM rubric grading helpers (no API calls)
 """
 
-from discussion_rubric import CRITERION_ORDER
-from rubric import (
+from chcp.discussion_rubric import CRITERION_ORDER
+from chcp.rubric import (
     RubricPostProcessor,
     build_rubric_grading_config,
     format_rubric_for_prompt,
 )
-from rubric.enforcement import apply_enforcement
-from rubric_models import CriterionGrade, RubricAssessment, assessment_to_levels
-from submission_models import DiscussionSubmission
+from chcp.rubric.enforcement import apply_enforcement
+from chcp.rubric_models import CriterionGrade, RubricAssessment, assessment_to_levels
+from chcp.submission_models import DiscussionSubmission
 
 
 def _processor(requirements=None):
@@ -80,8 +80,8 @@ class TestPostProcessor:
         assert levels["Engagement"] == "meets"
 
     def test_strong_peer_replies_promote_engagement_to_exceeds(self):
-        from grading.analysis import analyze_submission
-        from grading.fixtures import TIONNA_PEER_REPLY_CHEYENE, TIONNA_PEER_REPLY_LIDIA
+        from chcp.grading.analysis import analyze_submission
+        from chcp.grading.fixtures import TIONNA_PEER_REPLY_CHEYENE, TIONNA_PEER_REPLY_LIDIA
 
         sub = DiscussionSubmission(
             initial_post="A" * 150,
@@ -144,14 +144,14 @@ class TestPostProcessor:
         assert levels["Writing"] == "meets"
 
     def test_rich_initial_post_bumps_comprehension_meets_to_exceeds(self):
-        from grading.fixtures import BRITO_RICH_INITIAL
+        from chcp.grading.fixtures import BRITO_RICH_INITIAL
 
         processor, _ = _processor()
         sub = DiscussionSubmission(
             initial_post=BRITO_RICH_INITIAL,
             peer_replies=["Hi Sue, " + "x" * 50, "Hi Bob, " + "y" * 50],
         )
-        from grading.analysis import analyze_submission
+        from chcp.grading.analysis import analyze_submission
 
         analysis = analyze_submission(sub)
         assert analysis.initial_richness.qualifies_for_exceeds
@@ -169,11 +169,11 @@ class TestPostProcessor:
         assert levels["Comprehension"] == "exceeds"
 
     def test_padding_alone_does_not_bump_comprehension(self):
-        from grading.fixtures import LESLEY_ADEQUATE_INITIAL
+        from chcp.grading.fixtures import LESLEY_ADEQUATE_INITIAL
 
         processor, _ = _processor()
         sub = DiscussionSubmission(initial_post=LESLEY_ADEQUATE_INITIAL)
-        from grading.analysis import analyze_submission
+        from chcp.grading.analysis import analyze_submission
 
         analysis = analyze_submission(sub)
         levels = processor.apply(
@@ -196,8 +196,8 @@ class TestPostProcessor:
         assert level == "exceeds"
 
     def test_book_citation_promotes_writing_meets_to_exceeds(self):
-        from grading.analysis import analyze_submission
-        from grading.fixtures import PROJECTILE_WITH_BOOK_CITATION
+        from chcp.grading.analysis import analyze_submission
+        from chcp.grading.fixtures import PROJECTILE_WITH_BOOK_CITATION
 
         sub = DiscussionSubmission(
             initial_post=PROJECTILE_WITH_BOOK_CITATION,

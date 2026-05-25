@@ -1,0 +1,6 @@
+"""Allow ``python -m chcp`` as an alias for the CLI."""
+
+from main import main
+
+if __name__ == "__main__":
+    main()

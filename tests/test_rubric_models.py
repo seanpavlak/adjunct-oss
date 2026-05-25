@@ -5,7 +5,7 @@ Unit tests for rubric Pydantic models
 import pytest
 from pydantic import ValidationError
 
-from rubric_models import CriterionGrade, RubricAssessment
+from chcp.rubric_models import CriterionGrade, RubricAssessment
 
 
 class TestCriterionGrade:

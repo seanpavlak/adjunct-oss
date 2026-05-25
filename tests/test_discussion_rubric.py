@@ -2,7 +2,7 @@
 Unit tests for discussion rubric configuration
 """
 
-from discussion_rubric import (
+from chcp.discussion_rubric import (
     DISCUSSION_RUBRIC_2021,
     DEFAULT_RUBRIC_RATINGS,
     build_discussion_rubric_config,

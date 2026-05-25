@@ -175,7 +175,7 @@ def select_from_list(options, title="Select an option", default=0):
 
 def get_course_selector():
     """Get course selector from user via interactive selection"""
-    from course_utils import load_courses_config
+    from chcp.core.course_utils import load_courses_config
 
     try:
         config = load_courses_config()
@@ -276,7 +276,7 @@ def get_llm_provider():
 
 def run_discussion_action(args=None):
     """Run the discussion scraping action"""
-    from discussions import run_discussion_action
+    from chcp.actions.discussions import run_discussion_action
 
     username = os.getenv("CANVAS_USERNAME")
     password = os.getenv("CANVAS_PASSWORD")
@@ -325,7 +325,7 @@ def run_discussion_action(args=None):
 
 def run_speed_grader_action_cli(args=None):
     """Run the Speed Grader auto-grading action"""
-    from speed_grader import run_speed_grader_action
+    from chcp.actions.speed_grader import run_speed_grader_action
 
     username = os.getenv("CANVAS_USERNAME")
     password = os.getenv("CANVAS_PASSWORD")
@@ -383,9 +383,54 @@ def run_speed_grader_action_cli(args=None):
             console.print("[green]Goodbye![/green]")
 
 
+def run_plagiarism_action_cli(args=None):
+    """Run many-to-many discussion plagiarism comparison"""
+    from chcp.actions.discussion_plagiarism import run_plagiarism_action
+
+    username = os.getenv("CANVAS_USERNAME")
+    password = os.getenv("CANVAS_PASSWORD")
+
+    if not username or not password:
+        raise ValueError("CANVAS_USERNAME and CANVAS_PASSWORD environment variables must be set")
+
+    if args:
+        course_selector = args.course
+        week_id = args.week
+        similarity_threshold = args.threshold
+        min_words = args.min_words
+    else:
+        console.print(Panel.fit("[bold blue]Plagiarism Check Setup[/bold blue]"))
+        course_selector = get_course_selector()
+        if not course_selector:
+            return
+        week_id = get_week_selector()
+        similarity_threshold = 0.92
+        min_words = 80
+
+    browser_monitor = threading.Thread(target=monitor_browser_window, daemon=True)
+    browser_monitor.start()
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    try:
+        run_plagiarism_action(
+            email=username,
+            password=password,
+            course_selector=course_selector,
+            week_id=week_id,
+            similarity_threshold=similarity_threshold,
+            min_words=min_words,
+        )
+    except Exception as e:
+        if not browser_closed:
+            console.print(f"[red]Error: {e}[/red]")
+            console.print("[green]Goodbye![/green]")
+
+
 def run_announcement_action(args=None):
     """Run the announcement scheduling action"""
-    from announcements import schedule_announcements
+    from chcp.actions.announcements import schedule_announcements
 
     username = os.getenv("CANVAS_USERNAME")
     password = os.getenv("CANVAS_PASSWORD")
@@ -433,6 +478,7 @@ def show_main_menu():
         # Create menu options
         menu_options = [
             "discussion - Scrape discussions and generate AI responses",
+            "plagiarism - Compare student posts for plagiarism (many-to-many)",
             "grade - Auto-grade discussion posts in Speed Grader",
             "announcement - Schedule course announcements",
             "donate - Support the project ☕",
@@ -450,6 +496,8 @@ def show_main_menu():
             action = selected.split(" - ")[0]
             if action == "discussion":
                 run_discussion_action()
+            elif action == "plagiarism":
+                run_plagiarism_action_cli()
             elif action == "grade":
                 run_speed_grader_action_cli()
             elif action == "announcement":
@@ -492,11 +540,13 @@ def main():
             epilog="""
 Available actions:
   discussion    - Scrape discussions and generate AI responses
+  plagiarism    - Compare student discussion posts for plagiarism
   grade         - Auto-grade discussion posts in Speed Grader
   announcement  - Schedule course announcements
 
 Examples:
   python main.py discussion --course A --week 3
+  python main.py plagiarism --course A --week 3
   python main.py grade --course A --week 1
   python main.py announcement --course B
   python main.py  (interactive mode)
@@ -521,6 +571,29 @@ Examples:
         discussion_parser.add_argument("--course", default="A", help="Course selector (default: A)")
         discussion_parser.add_argument(
             "--week", type=int, help="Week ID (auto-calculated if not specified)"
+        )
+
+        plagiarism_parser = subparsers.add_parser(
+            "plagiarism",
+            help="Compare all student discussion posts for plagiarism",
+        )
+        plagiarism_parser.add_argument(
+            "--course", default="A", help="Course selector (default: A)"
+        )
+        plagiarism_parser.add_argument(
+            "--week", type=int, help="Week ID (auto-calculated if not specified)"
+        )
+        plagiarism_parser.add_argument(
+            "--threshold",
+            type=float,
+            default=0.92,
+            help="Similarity ratio to flag (default: 0.92, lenient)",
+        )
+        plagiarism_parser.add_argument(
+            "--min-words",
+            type=int,
+            default=80,
+            help="Minimum words per post to compare (default: 80)",
         )
 
         # Announcement action
@@ -566,6 +639,8 @@ Examples:
         # Route to appropriate action
         if args.action == "discussion":
             run_discussion_action(args)
+        elif args.action == "plagiarism":
+            run_plagiarism_action_cli(args)
         elif args.action == "grade":
             run_speed_grader_action_cli(args)
         elif args.action == "announcement":

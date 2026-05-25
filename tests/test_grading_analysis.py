@@ -1,14 +1,14 @@
 """Tests for grading.analysis and substantive peer reply detection."""
 
-from grading.analysis import (
+from chcp.grading.analysis import (
     assess_initial_post_richness,
     analyze_submission,
     is_substantive_peer_reply,
 )
-from grading.brief import format_grading_brief
-from rubric import RubricPostProcessor, build_rubric_grading_config
-from discussion_rubric import CRITERION_ORDER
-from submission_models import DiscussionSubmission
+from chcp.grading.brief import format_grading_brief
+from chcp.rubric import RubricPostProcessor, build_rubric_grading_config
+from chcp.discussion_rubric import CRITERION_ORDER
+from chcp.submission_models import DiscussionSubmission
 
 
 class TestSubstantivePeerReplies:
@@ -61,14 +61,14 @@ class TestSubstantivePeerReplies:
         assert levels["Engagement"] == "needs"
 
 
-from grading.fixtures import (
+from chcp.grading.fixtures import (
     BRISTER_THIN_INITIAL,
     BRITO_RICH_INITIAL,
     LESLEY_ADEQUATE_INITIAL,
     TIONNA_PEER_REPLY_CHEYENE,
     TIONNA_PEER_REPLY_LIDIA,
 )
-from grading.analysis import is_engagement_exceeds_quality
+from chcp.grading.analysis import is_engagement_exceeds_quality
 
 
 class TestEngagementExceedsQuality:

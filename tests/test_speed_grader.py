@@ -2,7 +2,7 @@
 Unit tests for Speed Grader helpers
 """
 
-from canvas_service import parse_student_index
+from chcp.canvas.parsers import parse_student_index
 
 
 class TestParseStudentIndex:

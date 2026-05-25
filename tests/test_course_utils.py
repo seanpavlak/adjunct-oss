@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from course_utils import (
+from chcp.core.course_utils import (
     calculate_announcement_dates,
     calculate_current_week,
     calculate_grading_week,
@@ -48,14 +48,14 @@ class TestCalculateGradingWeek:
         """When calendar week is 2, grade week 1 (N-1)."""
         from unittest.mock import patch
 
-        with patch("course_utils.calculate_current_week", return_value=2):
+        with patch("chcp.core.course_utils.calculate_current_week", return_value=2):
             assert calculate_grading_week("2026-05-11") == 1
 
     def test_calendar_week_one_stays_week_one(self):
         """Week 1 clamps to 1 (no week 0)."""
         from unittest.mock import patch
 
-        with patch("course_utils.calculate_current_week", return_value=1):
+        with patch("chcp.core.course_utils.calculate_current_week", return_value=1):
             assert calculate_grading_week("2026-05-11") == 1
 
 

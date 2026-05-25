@@ -6,7 +6,7 @@ import pytest
 from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI
 
-from llm_manager import LLMManager
+from chcp.llm.manager import LLMManager
 
 
 class TestLLMManager:

@@ -5,7 +5,7 @@ Unit tests for schemas module
 import pytest
 from pydantic import ValidationError
 
-from schemas import (
+from chcp.core.schemas import (
     AnnouncementSchema,
     CourseSchema,
     CoursesConfig,

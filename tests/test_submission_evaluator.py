@@ -4,7 +4,7 @@ Unit tests for discussion submission parsing and evaluation
 
 import pytest
 
-from grading import (
+from chcp.grading import (
     build_discussion_submission_from_entries,
     count_citations,
     evaluate_submission,
@@ -12,7 +12,7 @@ from grading import (
     parse_discussion_submission,
     split_content_into_posts,
 )
-from submission_models import DiscussionSubmission
+from chcp.submission_models import DiscussionSubmission
 
 
 class TestSplitContentIntoPosts:
@@ -140,8 +140,8 @@ class TestCitations:
         assert count_citations(text) >= 1
 
     def test_textbook_line_counts_as_quality_source(self):
-        from grading.citations import build_citation_report
-        from grading.fixtures import PROJECTILE_WITH_BOOK_CITATION
+        from chcp.grading.citations import build_citation_report
+        from chcp.grading.fixtures import PROJECTILE_WITH_BOOK_CITATION
 
         report = build_citation_report(text=PROJECTILE_WITH_BOOK_CITATION)
         assert report.has_book_or_journal_reference
