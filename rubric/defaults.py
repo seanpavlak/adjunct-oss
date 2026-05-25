@@ -52,12 +52,12 @@ DEFAULT_CRITERION_GRADING_POLICIES: Dict[str, Dict[str, Any]] = {
     },
     "Writing": {
         "llm_guidance": (
-            "Assess clarity and citation practice. Hyperlinks and APA-style reference "
-            "entries (e.g. Author. (n.d.). Title. Retrieved [date], from Source (URL)) "
-            "count as citations. Excellent clear writing without any citation should be "
-            "meets, not exceeds. "
-            "Do not use below for writing quality alone — reserve below for unclear or "
-            "unintelligible posts."
+            "Assess clarity and citation practice. Count as citations: any URL or "
+            "hyperlink, APA/MLA-style reference entries, parenthetical author-year, "
+            "and citation attempts (Sources:, Author, 2019, partial refs, et al.). "
+            "Excellent clear writing without any source reference should be meets, "
+            "not exceeds. Do not use below for writing quality alone — reserve below "
+            "for unclear or unintelligible posts."
         ),
         "lenient": True,
         "enforcement": {

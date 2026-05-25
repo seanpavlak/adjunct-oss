@@ -31,14 +31,38 @@ PEER_REPLY_PATTERNS = [
     re.compile(r"\b(great|good|nice)\s+(point|post|thought)", re.I),
 ]
 
-# URLs in post text or <a href> (student attempt at a source link)
+# URLs in post text or <a href> — any http(s), www, or common bare domain counts as a citation
 URL_PATTERNS = [
     re.compile(r"https?://[^\s\]\)\"'<>]+", re.I),
     re.compile(r"\bwww\.[^\s\]\)\"'<>]+", re.I),
     re.compile(
-        r"\b[a-z0-9][-a-z0-9]*\.(?:gov|edu|org|com|net|io|us)(?:/[^\s\]\)\"'<>]*)?",
+        r"\b[a-z0-9][-a-z0-9]*\.(?:gov|edu|org|com|net|io|us|info|co|uk|ca|int|me|tv)"
+        r"(?:/[^\s\]\)\"'<>]*)?",
         re.I,
     ),
+]
+
+# Informal or partial citation attempts (still count toward min_citations)
+CITATION_ATTEMPT_PATTERNS = [
+    re.compile(r"\bsource[s]?\s*:", re.I),
+    re.compile(r"\bcitation[s]?\s*:", re.I),
+    re.compile(r"\bworks?\s+cited\b", re.I),
+    re.compile(r"\bbibliography\b", re.I),
+    re.compile(r"\bcited\s+(?:from|in|at|by)\b", re.I),
+    re.compile(r"\bavailable\s+at\s*:", re.I),
+    re.compile(r"\baccessed\s+on\b", re.I),
+    re.compile(r"\bread\s+more\s+(?:at|here)\b", re.I),
+    re.compile(r"\bsee\s+(?:also\s+)?(?:at|here)\s*:", re.I),
+    re.compile(r"\bet\s+al\.?\b", re.I),
+    re.compile(r"\bpp\.\s*\d+", re.I),
+    re.compile(r"\bvol\.\s*\d+", re.I),
+    re.compile(r"\bISBN[\s:-]*[\d\-Xx]+", re.I),
+    re.compile(r"\b(?:19|20)\d{2}\)\s*\."),  # APA-ish closing paren before period
+    re.compile(r"\([A-Za-z][A-Za-z\s&'\-]+,?\s+(?:19|20)\d{2}\)"),  # (Author, 2019)
+    re.compile(r"\b[A-Z][a-z]+,\s+(?:19|20)\d{2}\b"),  # Author, 2019
+    re.compile(r"\b(?:19|20)\d{2},\s+[A-Za-z]+\s+\d{1,2}\)"),  # (2025, February 4)
+    re.compile(r"\b(?:n\.d\.|no\s+date)\b", re.I),
+    re.compile(r"\b(?:apa|mla|chicago|harvard)\s+(?:style|format|7|8)?\b", re.I),
 ]
 
 # Canvas appends this to linked URLs in discussion preview text
@@ -321,12 +345,20 @@ def parse_discussion_submission(
 
 
 def is_citable_url(href: str) -> bool:
-    """True when an anchor href looks like an external source link (not mailto / in-page)."""
+    """
+    True when an anchor href looks like a source link.
+
+    Accepts any http(s) or www URL (including bare citation attempts), not only
+    URLs that also appear as visible text in the post.
+    """
     h = (href or "").strip()
-    if not h or h.startswith(("#", "mailto:", "javascript:")):
+    if not h or h.startswith(("#", "mailto:", "javascript:", "data:")):
         return False
     if h.startswith("/") and not h.startswith("//"):
         return False
+    lower = h.lower()
+    if lower.startswith(("http://", "https://", "www.", "//")):
+        return True
     return any(p.search(h) for p in URL_PATTERNS)
 
 
@@ -339,6 +371,19 @@ def submission_citation_corpus(submission: DiscussionSubmission) -> str:
     return "\n".join(p for p in parts if p)
 
 
+def _collect_citation_urls(corpus: str) -> List[str]:
+    """Distinct URLs and bare domains found in citation corpus text."""
+    urls = extract_link_urls_from_text(corpus)
+    seen = set(urls)
+    for pattern in URL_PATTERNS:
+        for match in pattern.finditer(corpus):
+            url = match.group(0).rstrip(".,;)")
+            if url and url not in seen:
+                seen.add(url)
+                urls.append(url)
+    return urls
+
+
 def count_citations(
     text: str = "",
     *,
@@ -346,9 +391,13 @@ def count_citations(
     submission: Optional[DiscussionSubmission] = None,
 ) -> int:
     """
-    Count citation indicators in post text and/or link URLs.
+    Count citation signals in post text and/or link URLs.
 
-    A single https/www link (including from Canvas ``<a href>``) counts as a citation.
+    Each counts toward the total:
+      - Every distinct URL (https, www, or bare domain like nist.gov/...)
+      - Traditional formatted citations (APA/MLA, DOI, parenthetical author-year, etc.)
+      - Citation attempts (``Sources:``, ``Author, 2019``, partial refs, et al., etc.)
+      - Canvas ``<a href>`` links collected during extraction
     """
     if submission is not None:
         corpus = submission_citation_corpus(submission)
@@ -362,13 +411,11 @@ def count_citations(
 
     corpus = normalize_citation_corpus(corpus)
 
-    found = 0
-    if any(p.search(corpus) for p in URL_PATTERNS):
-        found += 1
-    for pattern in CITATION_PATTERNS:
+    count = len(_collect_citation_urls(corpus))
+    for pattern in (*CITATION_PATTERNS, *CITATION_ATTEMPT_PATTERNS):
         if pattern.search(corpus):
-            found += 1
-    return found
+            count += 1
+    return count
 
 
 def detect_late_submission(raw_text: str) -> bool:

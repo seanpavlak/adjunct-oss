@@ -124,6 +124,28 @@ class TestCitations:
         text = 'According to Smith (2019), the speed of light is constant.'
         assert count_citations(text) >= 1
 
+    def test_citation_attempt_source_label(self):
+        text = (
+            "The metric system is widely used. "
+            "Sources: NASA metric overview, NIST SI units page."
+        )
+        assert count_citations(text) >= 1
+
+    def test_citation_attempt_author_year_comma(self):
+        text = "As noted by Smith, 2019, conversion costs are high."
+        assert count_citations(text) >= 1
+
+    def test_simple_bare_domain(self):
+        text = "See nist.gov/pml/owm/metric-si for the official definition."
+        assert count_citations(text) >= 1
+
+    def test_multiple_urls_counted(self):
+        text = (
+            "https://www.nasa.gov/a\n"
+            "https://www.nist.gov/b"
+        )
+        assert count_citations(text) >= 2
+
 
 class TestEvaluateSubmission:
     """Tests for evaluate_submission entry point"""
