@@ -79,6 +79,24 @@ class TestPostProcessor:
         )
         assert levels["Engagement"] == "meets"
 
+    def test_strong_peer_replies_promote_engagement_to_exceeds(self):
+        from grading.analysis import analyze_submission
+        from grading.fixtures import TIONNA_PEER_REPLY_CHEYENE, TIONNA_PEER_REPLY_LIDIA
+
+        sub = DiscussionSubmission(
+            initial_post="A" * 150,
+            peer_replies=[TIONNA_PEER_REPLY_LIDIA, TIONNA_PEER_REPLY_CHEYENE],
+        )
+        analysis = analyze_submission(sub)
+        processor, _ = _processor()
+        levels = processor.apply(
+            {n: "meets" for n in CRITERION_ORDER},
+            sub,
+            lenient=True,
+            analysis=analysis,
+        )
+        assert levels["Engagement"] == "exceeds"
+
     def test_clear_needs_stays_needs_with_citation(self):
         processor, _ = _processor()
         levels = processor.apply(
@@ -176,6 +194,29 @@ class TestPostProcessor:
             enforcement,
         )
         assert level == "exceeds"
+
+    def test_book_citation_promotes_writing_meets_to_exceeds(self):
+        from grading.analysis import analyze_submission
+        from grading.fixtures import PROJECTILE_WITH_BOOK_CITATION
+
+        sub = DiscussionSubmission(
+            initial_post=PROJECTILE_WITH_BOOK_CITATION,
+            peer_replies=["Hi Sue, " + "x" * 50, "Hi Bob, " + "y" * 50],
+        )
+        analysis = analyze_submission(sub)
+        assert analysis.citation_report.has_quality_source
+        processor, _ = _processor()
+        levels = processor.apply(
+            {
+                "Comprehension": "meets",
+                "Timeliness": "meets",
+                "Engagement": "meets",
+                "Writing": "meets",
+            },
+            sub,
+            analysis=analysis,
+        )
+        assert levels["Writing"] == "exceeds"
 
 
 class TestAssessmentToLevels:

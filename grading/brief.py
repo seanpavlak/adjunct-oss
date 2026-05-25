@@ -58,9 +58,12 @@ def format_grading_brief(
             flags.append(
                 "meaningful" if peer.is_meaningful else f"short (<{analysis.min_peer_reply_chars} chars)"
             )
-            flags.append(
-                "substantive" if peer.is_substantive else "agreement-only/thin"
-            )
+            if peer.qualifies_for_exceeds_engagement:
+                flags.append("exceeds-quality dialogue")
+            elif peer.is_substantive:
+                flags.append("substantive")
+            else:
+                flags.append("agreement-only/thin")
             lines.append(
                 f"--- Reply {peer.index} ({peer.char_count} chars, "
                 f"{peer.word_count} words; {', '.join(flags)}) ---"
@@ -88,10 +91,10 @@ def format_grading_brief(
             "1. Comprehension: Judge ONLY the initial post against the discussion prompt — "
             "organization, critical thinking, examples, and depth.",
             "2. Timeliness: Use the timeliness note above; do not assign exceeds for timeliness.",
-            "3. Engagement: Judge EACH peer reply — meaningful, on-topic, adds value or questions; "
-            "not just 'I agree'. Two substantive replies → meets or exceeds; zero → below.",
-            "4. Writing: Clarity and grammar; citations include URLs, APA blocks, Sources:, or attempts. "
-            "Clear writing without sources → meets max; strong writing with sources → can exceed.",
+            "3. Engagement: Judge EACH peer reply. Exceeds when two replies greet a classmate and "
+            "discuss the topic/field (see exceeds-quality flags). Meets for two thinner replies; zero → below.",
+            "4. Writing: Clarity and grammar. Exceeds when writing is clear and a real source is cited "
+            "(URL, References list, or Author (Year). Title (ed.). Publisher). Meets when clear but no source.",
             "Reference the checklist in each criterion reason when your level differs from a hint.",
         ]
     )

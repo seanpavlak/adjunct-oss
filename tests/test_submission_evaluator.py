@@ -139,6 +139,14 @@ class TestCitations:
         text = "See nist.gov/pml/owm/metric-si for the official definition."
         assert count_citations(text) >= 1
 
+    def test_textbook_line_counts_as_quality_source(self):
+        from grading.citations import build_citation_report
+        from grading.fixtures import PROJECTILE_WITH_BOOK_CITATION
+
+        report = build_citation_report(text=PROJECTILE_WITH_BOOK_CITATION)
+        assert report.has_book_or_journal_reference
+        assert report.has_quality_source
+
     def test_multiple_urls_counted(self):
         text = (
             "https://www.nasa.gov/a\n"

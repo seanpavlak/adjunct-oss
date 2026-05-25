@@ -26,6 +26,17 @@ _AGREE_ONLY_BODY = re.compile(
     re.I,
 )
 
+# Topic tie-in, career/learning reflection, or enough depth for Engagement exceeds
+_DIALOGUE_DEPTH = re.compile(
+    r"\b("
+    r"beneficial|career|field|learn(?:ing)?|formulas?|physics|semester|excited|"
+    r"hands-on|important|discuss(?:ing)?|velocity|acceleration|position|metric|"
+    r"helps?\s+you|can't wait|professionals?|together|step by step|"
+    r"question|wonder|example|sonograph|clinical|patient|week|readings?"
+    r")\b",
+    re.I,
+)
+
 
 @dataclass
 class PeerReplyMetrics:
@@ -36,6 +47,7 @@ class PeerReplyMetrics:
     greets_classmate: bool
     is_meaningful: bool
     is_substantive: bool
+    qualifies_for_exceeds_engagement: bool
     preview: str
 
 
@@ -126,6 +138,8 @@ class SubmissionAnalysis:
     peer_replies: List[PeerReplyMetrics] = field(default_factory=list)
     meaningful_peer_count: int = 0
     substantive_peer_count: int = 0
+    engagement_exceeds_peer_count: int = 0
+    engagement_qualifies_for_exceeds: bool = False
 
     citation_report: CitationReport = field(default_factory=CitationReport)
     citation_count: int = 0
@@ -178,11 +192,33 @@ def is_substantive_peer_reply(text: str, min_chars: int = 40) -> bool:
     return True
 
 
+def is_engagement_exceeds_quality(text: str, min_chars: int = 40) -> bool:
+    """
+    True when a peer reply supports Engagement exceeds — not only agreement.
+
+    Examples: greets a classmate, ties the week's topic to their field or learning,
+    and adds a few sentences of reflection (typical strong undergraduate replies).
+    """
+    if not is_substantive_peer_reply(text, min_chars):
+        return False
+    body = _strip_greeting((text or "").strip())
+    if len(body.split()) >= 18:
+        return True
+    if _DIALOGUE_DEPTH.search(body):
+        return True
+    if "?" in body:
+        return True
+    return False
+
+
 def analyze_peer_reply(text: str, index: int, min_chars: int) -> PeerReplyMetrics:
     stripped = (text or "").strip()
     char_count = len(stripped)
     meaningful = char_count >= min_chars
     substantive = is_substantive_peer_reply(stripped, min_chars) if meaningful else False
+    exceeds_quality = (
+        is_engagement_exceeds_quality(stripped, min_chars) if substantive else False
+    )
     preview = stripped[:200] + ("…" if char_count > 200 else "")
     return PeerReplyMetrics(
         index=index,
@@ -192,6 +228,7 @@ def analyze_peer_reply(text: str, index: int, min_chars: int) -> PeerReplyMetric
         greets_classmate=bool(_GREETING.search(stripped)),
         is_meaningful=meaningful,
         is_substantive=substantive,
+        qualifies_for_exceeds_engagement=exceeds_quality,
         preview=preview,
     )
 
@@ -221,6 +258,10 @@ def analyze_submission(
     ]
     meaningful = sum(1 for p in peer_metrics if p.is_meaningful)
     substantive = sum(1 for p in peer_metrics if p.is_substantive)
+    exceeds_engagement = sum(1 for p in peer_metrics if p.qualifies_for_exceeds_engagement)
+    engagement_qualifies_for_exceeds = (
+        substantive >= min_peer and exceeds_engagement >= min_peer
+    )
 
     citation_report = build_citation_report(submission=submission)
     citation_count = citation_report.total_signals
@@ -265,9 +306,15 @@ def analyze_submission(
     )
     checklist.append(f"Timeliness: {timeliness_summary}")
 
-    if substantive >= min_peer and meaningful >= min_peer:
+    if engagement_qualifies_for_exceeds:
         engagement_summary = (
-            f"Meets quantity and quality bar ({substantive} substantive peer replies)."
+            f"Engagement exceeds bar met ({exceeds_engagement} strong peer replies with "
+            "topic/career tie-in) — two substantive classmate responses that advance dialogue."
+        )
+    elif substantive >= min_peer and meaningful >= min_peer:
+        engagement_summary = (
+            f"Meets peer-reply count ({substantive} substantive); grade whether replies "
+            "add enough detail for exceeds."
         )
     elif meaningful >= min_peer:
         engagement_summary = (
@@ -281,9 +328,14 @@ def analyze_submission(
     else:
         engagement_summary = "No meaningful peer replies — Engagement must be below."
 
-    if citation_report.has_any_citation:
+    if citation_report.has_quality_source:
         writing_summary = (
-            "Citation/source present. Grade Writing on clarity and citation quality, not presence alone."
+            "Quality source cited (URL, reference list, or book/journal line) — "
+            "if the post is clear and understandable, Writing should be exceeds."
+        )
+    elif citation_report.has_any_citation:
+        writing_summary = (
+            "Weak citation attempt only — Writing is typically meets unless the source is clear."
         )
     else:
         writing_summary = (
@@ -320,6 +372,8 @@ def analyze_submission(
         peer_replies=peer_metrics,
         meaningful_peer_count=meaningful,
         substantive_peer_count=substantive,
+        engagement_exceeds_peer_count=exceeds_engagement,
+        engagement_qualifies_for_exceeds=engagement_qualifies_for_exceeds,
         citation_report=citation_report,
         citation_count=citation_count,
         days_late=days_late,

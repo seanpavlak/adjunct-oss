@@ -77,6 +77,15 @@ APA_REFERENCE_ENTRY = re.compile(
     r".*?$"
 )
 
+# Textbook / journal lines without URL (e.g. Griffith, W. T. (2024). Title (10th ed.). Publisher)
+BOOK_REFERENCE_PATTERNS = [
+    re.compile(r",\s*(?:19|20)\d{2}\)\.\s+[A-Za-z]"),
+    re.compile(r"\(\d{1,2}(?:st|nd|rd|th)\s+ed\.?\)", re.I),
+    re.compile(
+        r"\b[A-Za-z][A-Za-z\.\s&']+,\s+(?:[A-Z]\.\s*)*(?:19|20)\d{2}\)",
+    ),
+]
+
 
 @dataclass
 class CitationReport:
@@ -85,6 +94,7 @@ class CitationReport:
     urls: List[str] = field(default_factory=list)
     has_formatted_reference_block: bool = False
     has_traditional_citation: bool = False
+    has_book_or_journal_reference: bool = False
     has_citation_attempt: bool = False
     signal_labels: List[str] = field(default_factory=list)
 
@@ -95,6 +105,8 @@ class CitationReport:
             n += 1
         if self.has_traditional_citation:
             n += 1
+        if self.has_book_or_journal_reference:
+            n += 1
         if self.has_citation_attempt:
             n += 1
         return max(n, len(self.signal_labels))
@@ -102,6 +114,16 @@ class CitationReport:
     @property
     def has_any_citation(self) -> bool:
         return self.total_signals > 0 or bool(self.urls)
+
+    @property
+    def has_quality_source(self) -> bool:
+        """True when the student cited a real source (not only a vague 'Sources:' label)."""
+        return bool(
+            self.urls
+            or self.has_formatted_reference_block
+            or self.has_traditional_citation
+            or self.has_book_or_journal_reference
+        )
 
 
 def normalize_citation_corpus(text: str) -> str:
@@ -190,6 +212,10 @@ def build_citation_report(
     if has_traditional:
         labels.append("Traditional citation marker (APA/DOI/parenthetical)")
 
+    has_book = any(p.search(corpus) for p in BOOK_REFERENCE_PATTERNS)
+    if has_book:
+        labels.append("Book/journal reference (author-year, edition, or publisher)")
+
     has_attempt = any(p.search(corpus) for p in CITATION_ATTEMPT_PATTERNS)
     if has_attempt:
         labels.append("Citation attempt (Sources:, Author year, etc.)")
@@ -198,6 +224,7 @@ def build_citation_report(
         urls=urls,
         has_formatted_reference_block=has_formatted,
         has_traditional_citation=has_traditional,
+        has_book_or_journal_reference=has_book,
         has_citation_attempt=has_attempt,
         signal_labels=labels,
     )
@@ -217,6 +244,8 @@ def count_citations(
     if report.has_formatted_reference_block:
         count += 1
     if report.has_traditional_citation:
+        count += 1
+    if report.has_book_or_journal_reference:
         count += 1
     if report.has_citation_attempt:
         count += 1

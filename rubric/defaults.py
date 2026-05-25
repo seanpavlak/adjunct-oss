@@ -36,13 +36,11 @@ DEFAULT_CRITERION_GRADING_POLICIES: Dict[str, Dict[str, Any]] = {
     },
     "Engagement": {
         "llm_guidance": (
-            "Grade each peer reply to a classmate separately. A substantive reply greets "
-            "the peer and adds detail, an example, a question, or clinical insight — not "
-            "only 'I agree' or 'great point'. Exceeds: two or more substantive replies "
-            "that advance dialogue. Meets: two meaningful replies with adequate explanation. "
-            "Needs: only one substantive reply, or two replies that are thin/agreement-only. "
-            "Below: no replies to classmates. Use the automated peer-reply flags in the "
-            "submission packet."
+            "Grade each peer reply separately. Exceeds: two replies that greet a classmate "
+            "by name and add real content — tie the week's topic to their field, learning, "
+            "or experience (not only 'I agree' or 'great point'). Meets: two on-topic replies "
+            "with some explanation but thinner. Needs: one strong reply or two thin ones. "
+            "Below: no classmate replies. Use exceeds-quality flags in the submission packet."
         ),
         "lenient": True,
         "enforcement": {
@@ -53,16 +51,16 @@ DEFAULT_CRITERION_GRADING_POLICIES: Dict[str, Dict[str, Any]] = {
             "level_when_zero": "below",
             "level_when_insufficient": "needs",
             "level_when_low_quality": "needs",
+            "promote_meets_to_exceeds_when_strong": True,
         },
     },
     "Writing": {
         "llm_guidance": (
-            "Assess clarity and citation practice. Count as citations: any URL or "
-            "hyperlink, APA/MLA-style reference entries, parenthetical author-year, "
-            "and citation attempts (Sources:, Author, 2019, partial refs, et al.). "
-            "Excellent clear writing without any source reference should be meets, "
-            "not exceeds. Do not use below for writing quality alone — reserve below "
-            "for unclear or unintelligible posts."
+            "Assess clarity and citation practice. Exceeds: easily understood writing "
+            "plus at least one real source — URL, APA reference list, or textbook/journal "
+            "line (e.g. Author, I. I. (2024). Title (10th ed.). Publisher). Meets: clear "
+            "writing with no source, or weak citation attempts only. Do not use below for "
+            "writing quality alone."
         ),
         "lenient": True,
         "enforcement": {
@@ -71,6 +69,7 @@ DEFAULT_CRITERION_GRADING_POLICIES: Dict[str, Dict[str, Any]] = {
             "require_citation": True,
             "level_when_zero": "meets",
             "level_when_insufficient": "meets",
+            "promote_meets_to_exceeds_when_cited": True,
         },
     },
 }

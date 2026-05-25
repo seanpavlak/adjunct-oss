@@ -75,25 +75,52 @@ def _apply_min_peer_replies(ctx: EnforcementContext) -> RubricLevel:
             "level_when_low_quality",
             ctx.params.get("level_when_insufficient", "needs"),
         )
+
+    qualifies_exceeds = (
+        ctx.analysis.engagement_qualifies_for_exceeds
+        if ctx.analysis is not None
+        else False
+    )
+    if (
+        ctx.level == "meets"
+        and qualifies_exceeds
+        and ctx.params.get("promote_meets_to_exceeds_when_strong", True)
+    ):
+        return "exceeds"
     return ctx.level
 
 
 def _apply_min_citations(ctx: EnforcementContext) -> RubricLevel:
     """
-    Citation enforcement caps Writing — it does not zero out the criterion.
+    Writing citation enforcement:
 
-    Clear writing without a citation may earn meets but not exceeds.
+    - No quality source → cap at meets (not exceeds).
+    - Clear writing with URL, APA list, or book/journal line (e.g. Author (2024). Title)
+      → may promote meets to exceeds when the LLM was conservative.
     """
     if not ctx.params.get("require_citation", True):
         return ctx.level
+
+    from grading.citations import build_citation_report
+
+    report = (
+        ctx.analysis.citation_report
+        if ctx.analysis is not None
+        else build_citation_report(submission=ctx.submission)
+    )
     citation_count = count_citations(submission=ctx.submission)
     min_count = int(ctx.params.get("min_count", 1))
-    if citation_count == 0:
+
+    if citation_count == 0 or not report.has_quality_source:
         ceiling = ctx.params.get("level_when_zero", "meets")
         return _cap_at_most(ctx.level, ceiling)
     if citation_count < min_count:
         ceiling = ctx.params.get("level_when_insufficient", "meets")
         return _cap_at_most(ctx.level, ceiling)
+
+    if ctx.level == "meets" and report.has_quality_source:
+        if ctx.params.get("promote_meets_to_exceeds_when_cited", True):
+            return "exceeds"
     return ctx.level
 
 

@@ -61,7 +61,36 @@ class TestSubstantivePeerReplies:
         assert levels["Engagement"] == "needs"
 
 
-from grading.fixtures import BRISTER_THIN_INITIAL, BRITO_RICH_INITIAL, LESLEY_ADEQUATE_INITIAL
+from grading.fixtures import (
+    BRISTER_THIN_INITIAL,
+    BRITO_RICH_INITIAL,
+    LESLEY_ADEQUATE_INITIAL,
+    TIONNA_PEER_REPLY_CHEYENE,
+    TIONNA_PEER_REPLY_LIDIA,
+)
+from grading.analysis import is_engagement_exceeds_quality
+
+
+class TestEngagementExceedsQuality:
+    def test_tionna_style_replies_qualify(self):
+        assert is_engagement_exceeds_quality(TIONNA_PEER_REPLY_LIDIA, 40)
+        assert is_engagement_exceeds_quality(TIONNA_PEER_REPLY_CHEYENE, 40)
+
+    def test_engagement_exceeds_bar_with_tionna_replies(self):
+        sub = DiscussionSubmission(
+            initial_post=LESLEY_ADEQUATE_INITIAL,
+            peer_replies=[TIONNA_PEER_REPLY_LIDIA, TIONNA_PEER_REPLY_CHEYENE],
+        )
+        analysis = analyze_submission(sub)
+        assert analysis.engagement_qualifies_for_exceeds
+        config = build_rubric_grading_config([{"name": n} for n in CRITERION_ORDER])
+        processor = RubricPostProcessor(config)
+        levels = processor.apply(
+            {"Engagement": "meets", "Comprehension": "meets", "Timeliness": "meets", "Writing": "meets"},
+            sub,
+            analysis=analysis,
+        )
+        assert levels["Engagement"] == "exceeds"
 
 
 class TestInitialPostRichness:

@@ -58,6 +58,7 @@ class SubmissionEvaluation:
             f"  Initial post: {len(self.submission.initial_post) if self.submission else 0} chars",
             f"  Peer replies (meaningful): {self.peer_reply_count}",
             f"  Substantive peer replies: {self.analysis.substantive_peer_count if self.analysis else '—'}",
+            f"  Engagement exceeds bar: {'yes' if self.analysis and self.analysis.engagement_qualifies_for_exceeds else 'no'}",
             f"  Comprehension exceeds bar: {'yes' if self.analysis and self.analysis.initial_richness.qualifies_for_exceeds else 'no'}",
             f"  Citations found: {self.citation_count}",
         ])
