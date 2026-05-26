@@ -204,8 +204,27 @@ def get_course_selector():
     return display_to_key.get(selected_display) if selected_display else None
 
 
+def get_current_week_selector():
+    """Optional week override; empty input auto-calculates current calendar week."""
+    while True:
+        try:
+            week_input = Prompt.ask(
+                "Enter week number (or press Enter for current week)",
+                default="",
+            )
+            if week_input.strip() == "":
+                return None
+            week_id = int(week_input)
+            if 1 <= week_id <= 8:
+                return week_id
+            else:
+                console.print("[red]Week must be between 1 and 8[/red]")
+        except ValueError:
+            console.print("[red]Please enter a valid number[/red]")
+
+
 def get_week_selector():
-    """Get week selector from user"""
+    """Week selector for grading (defaults to previous calendar week when empty)."""
     while True:
         try:
             week_input = Prompt.ask(
@@ -296,7 +315,7 @@ def run_discussion_action(args=None):
         if not course_selector:
             return
 
-        week_id = get_week_selector()
+        week_id = get_current_week_selector()
         llm_provider = get_llm_provider()
         if not llm_provider:
             return
@@ -403,7 +422,7 @@ def run_plagiarism_action_cli(args=None):
         course_selector = get_course_selector()
         if not course_selector:
             return
-        week_id = get_week_selector()
+        week_id = get_current_week_selector()
         similarity_threshold = 0.92
         min_words = 80
 
@@ -570,7 +589,9 @@ Examples:
         )
         discussion_parser.add_argument("--course", default="A", help="Course selector (default: A)")
         discussion_parser.add_argument(
-            "--week", type=int, help="Week ID (auto-calculated if not specified)"
+            "--week",
+            type=int,
+            help="Week ID override (default: current calendar week from course start)",
         )
 
         plagiarism_parser = subparsers.add_parser(
@@ -581,7 +602,9 @@ Examples:
             "--course", default="A", help="Course selector (default: A)"
         )
         plagiarism_parser.add_argument(
-            "--week", type=int, help="Week ID (auto-calculated if not specified)"
+            "--week",
+            type=int,
+            help="Week ID override (default: current calendar week from course start)",
         )
         plagiarism_parser.add_argument(
             "--threshold",

@@ -123,7 +123,11 @@ def main():
         epilog="💡 Find this helpful? https://buymeacoffee.com/seanpavlak",
     )
     parser.add_argument("--course", default="A", help="Course selector (default: A)")
-    parser.add_argument("--week", type=int, help="Week ID (auto-calculated if not specified)")
+    parser.add_argument(
+        "--week",
+        type=int,
+        help="Week ID override (default: current calendar week from course start)",
+    )
     parser.add_argument(
         "--threshold",
         type=float,
