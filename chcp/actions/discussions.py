@@ -8,6 +8,7 @@ import time
 from dotenv import load_dotenv
 
 from chcp.canvas.service import CanvasService
+from chcp.core.pause_control import get_pause_controller
 from chcp.core.course_utils import (
     calculate_current_week,
     get_week_prompt,
@@ -125,14 +126,19 @@ def run_discussion_action(
         "deepseek_key": deepseek_key,
     }
 
-    with CanvasService(headless=False) as canvas:
-        canvas.login(email, password)
-        canvas.navigate_to_discussion(course_id, topic_id)
+    pause = get_pause_controller()
+    pause.enable()
+    try:
+        with CanvasService(headless=False) as canvas:
+            canvas.login(email, password)
+            canvas.navigate_to_discussion(course_id, topic_id)
 
-        canvas.run_discussion_loop(week_id, llm_config, course_selector)
+            canvas.run_discussion_loop(week_id, llm_config, course_selector)
 
-        canvas.expand_discussion_if_needed()
-        canvas.run_discussion_loop(week_id, llm_config, course_selector)
+            canvas.expand_discussion_if_needed()
+            canvas.run_discussion_loop(week_id, llm_config, course_selector)
+    finally:
+        pause.disable()
 
 
 def main():

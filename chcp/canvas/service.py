@@ -20,6 +20,7 @@ from chcp.grading import (
     is_citable_url,
     parse_discussion_submission,
 )
+from chcp.core.pause_control import get_pause_controller
 from chcp.plagiarism.checker import DiscussionPost
 from chcp.submission_models import DiscussionSubmission, SubmissionEvaluation
 
@@ -113,7 +114,10 @@ class CanvasService:
             deepseek_key=llm_config.get("deepseek_key", ""),
         )
 
+        pause = get_pause_controller()
+
         for author in authors:
+            pause.wait_if_paused()
             try:
                 author_id = author.get_attribute("data-authorid")
                 full_name = author.query_selector('[data-testid="author_name"]').text_content()
@@ -147,8 +151,12 @@ class CanvasService:
         self, week_id: int, llm_config: dict, course_selector: str = "A"
     ) -> None:
         """Run the main discussion processing loop"""
+        pause = get_pause_controller()
+
         while True:
             try:
+                pause.wait_if_paused()
+
                 authors = self.page.query_selector_all("[data-authorid]")
                 success = self.process_discussion_authors(
                     authors, week_id, llm_config, course_selector
@@ -159,7 +167,12 @@ class CanvasService:
                     print("Browser window closed, stopping processing...")
                     return
 
-                stop = input("Press 'y' to stop or any other key to continue: ").lower()
+                pause.wait_if_paused()
+
+                with pause.reserve_stdin():
+                    stop = input(
+                        "Press 'y' to stop or any other key to continue: "
+                    ).lower()
                 if stop == "y":
                     break
             except Exception as e:
