@@ -45,12 +45,12 @@ class CanvasConfig:
     DAYS_LATE_INPUT: Final[str] = "days-late-input"
     NEXT_STUDENT_BUTTON: Final[str] = "next-student-button"
     CURRENT_STUDENT_INDEX: Final[str] = "current-student-index"
-    SPEED_GRADER_WAIT_TIME: Final[int] = 4
-    RUBRIC_PANEL_OPEN_WAIT: Final[int] = 2
+    SPEED_GRADER_WAIT_TIME: Final[int] = 2
+    RUBRIC_PANEL_OPEN_WAIT: Final[int] = 1
     RUBRIC_RATING_CLICK_WAIT: Final[int] = 1
-    RUBRIC_SAVE_WAIT: Final[int] = 4
-    GRADE_INPUT_WAIT: Final[int] = 2
-    AFTER_GRADE_SAVE_WAIT: Final[int] = 3
+    RUBRIC_SAVE_WAIT: Final[int] = 2
+    GRADE_INPUT_WAIT: Final[int] = 1
+    AFTER_GRADE_SAVE_WAIT: Final[int] = 2
 
 
 @dataclass(frozen=True)

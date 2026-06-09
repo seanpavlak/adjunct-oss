@@ -367,7 +367,7 @@ class CanvasService:
         try:
             frame = self._submission_preview_frame()
             frame.locator("body").click(timeout=5000)
-            time.sleep(0.5)
+            time.sleep(0.3)
         except Exception:
             pass
 
@@ -466,7 +466,7 @@ class CanvasService:
             total_el = self.page.get_by_test_id(canvas_config.RUBRIC_TOTAL)
             total_el.wait_for(state="visible", timeout=5000)
             total_el.click()
-            time.sleep(0.3)
+            time.sleep(0.2)
             raw = total_el.inner_text()
             points = parse_rubric_total_points(raw)
             if points is not None:
@@ -511,9 +511,9 @@ class CanvasService:
 
             grade_input = self.page.get_by_test_id(canvas_config.GRADE_INPUT)
             grade_input.click()
-            time.sleep(0.5)
+            time.sleep(0.3)
             grade_input.fill(grade_to_enter)
-            time.sleep(0.5)
+            time.sleep(0.3)
             grade_input.press("Enter")
             time.sleep(canvas_config.AFTER_GRADE_SAVE_WAIT)
             return True
@@ -527,7 +527,7 @@ class CanvasService:
             index_el = self.page.get_by_test_id(canvas_config.CURRENT_STUDENT_INDEX)
             index_el.wait_for(state="visible", timeout=5000)
             index_el.click()
-            time.sleep(1)
+            time.sleep(0.5)
             return parse_student_index(index_el.inner_text())
         except Exception:
             return None
