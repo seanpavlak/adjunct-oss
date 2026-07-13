@@ -227,6 +227,23 @@ class CanvasService:
 
         return posts
 
+    def _dismiss_rce_autosave_modal(self) -> None:
+        """Dismiss Canvas RCE 'Restore auto-save?' modal if it appears (click No)."""
+        modal = self.page.get_by_test_id(canvas_config.RCE_RESTORE_AUTOSAVE_MODAL)
+        try:
+            modal.wait_for(
+                state="visible", timeout=canvas_config.RCE_AUTOSAVE_DISMISS_TIMEOUT
+            )
+        except Exception:
+            return
+
+        try:
+            modal.get_by_role("button", name="No").click()
+            modal.wait_for(state="hidden", timeout=canvas_config.RCE_AUTOSAVE_DISMISS_TIMEOUT)
+            print("Dismissed RCE auto-save restore modal")
+        except Exception as e:
+            print(f"Warning: could not dismiss RCE auto-save modal: {e}")
+
     def create_announcement(
         self, course_id: str, title: str, content: str, scheduled_date: str
     ) -> bool:
@@ -235,6 +252,8 @@ class CanvasService:
         announcement_url = f"https://chcp.instructure.com/courses/{course_id}/discussion_topics/new?is_announcement=true"
         self.page.goto(announcement_url)
         time.sleep(2)
+        # After a prior save, Canvas may offer to restore auto-saved RCE content
+        self._dismiss_rce_autosave_modal()
 
         try:
             # Fill in the title

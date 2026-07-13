@@ -34,6 +34,8 @@ class CanvasConfig:
     ANNOUNCEMENT_CONTENT_SELECTOR: Final[str] = "html code editor91"
     ANNOUNCEMENT_DATE_SELECTOR: Final[str] = "announcement-available-from-date"
     ANNOUNCEMENT_SUBMIT_SELECTOR: Final[str] = "announcement-submit-button"
+    RCE_RESTORE_AUTOSAVE_MODAL: Final[str] = "RCE_RestoreAutoSaveModal"
+    RCE_AUTOSAVE_DISMISS_TIMEOUT: Final[int] = 1500
 
     # Speed Grader selectors (data-testid values)
     SUBMISSION_PREVIEW_IFRAME: Final[str] = "submission-preview-iframe"
