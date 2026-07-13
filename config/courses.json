@@ -301,12 +301,12 @@
       }
     },
     "B": {
-      "name": "OL PHYS 100 General Physics-C260511BHybridPavlak",
-      "course_id": "93375",
-      "course_start_date": "2026-05-11",
+      "name": "OL PHYS 100 General Physics-C260713BHybridPavlak",
+      "course_id": "95887",
+      "course_start_date": "2026-07-13",
       "weeks": {
         "1": {
-          "topic_id": "1153595",
+          "topic_id": "1186778",
           "discussion_prompt": "It seems that the whole world except the Unites States has adopted the Metric System of measurement, The United States is the largest country in the world where the metric system is not in use. What do you think are some of the reasons why this is the case. Can you think of any areas where the metric system is widely used in the United States? What are your experiences with the metric system? What do you know about physics? WHat makes you curious about physics?",
           "discussion_data": [
             {
@@ -331,11 +331,11 @@
             }
           ],
           "speed_grader": {
-            "assignment_id": "3783971"
+            "assignment_id": "3885443"
           }
         },
         "2": {
-          "topic_id": "1153597",
+          "topic_id": "1186780",
           "discussion_prompt": "For this discussion, share what you feel is the most valuable takeaway from your learning with the materials for the week. Specifically… Describe your most valuable takeaway (most important information you learned). Explain why this was important to your learning and how it will help you in your field.",
           "discussion_data": [
             {
@@ -356,11 +356,11 @@
             }
           ],
           "speed_grader": {
-            "assignment_id": "3783973"
+            "assignment_id": "3885445"
           }
         },
         "3": {
-          "topic_id": "1153596",
+          "topic_id": "1186779",
           "discussion_prompt": "Use the following article to explain Newton's laws in the context of biomechanics. Specifically, how they could be applied in the athletic development of children. Come up with examples or situations on how using Newton's laws could be helpful in improving athletic performance as children grow. Does it only have to do with strength, or does technique play a significant role?",
           "discussion_data": [
             {
@@ -381,11 +381,11 @@
             }
           ],
           "speed_grader": {
-            "assignment_id": "3783972"
+            "assignment_id": "3885444"
           }
         },
         "4": {
-          "topic_id": "1153599",
+          "topic_id": "1186782",
           "discussion_prompt": "There are two forces that act on the log, causing it to float. Identify and define these forces. Beyond the two acting forces, the volume and density of objects also play a role in their buoyancy. How so, exactly? Finally, Archimedes' Principle revealed a fundamental idea about buoyant force. Is this force present regardless of whether the log (or any given object) floats or sinks? How did Archimedes discover this? (Hint: what was the problem he was tasked with investigating that led to his discovery?)",
           "discussion_data": [
             {
@@ -418,11 +418,11 @@
             }
           ],
           "speed_grader": {
-            "assignment_id": "3783975"
+            "assignment_id": "3885447"
           }
         },
         "5": {
-          "topic_id": "1153594",
+          "topic_id": "1186777",
           "discussion_prompt": "The battery of a vehicle is an intricate system with many key components. In your opinion, what are the three main components? Identify and define these parts. Afterward, envision the AA and AAA batteries commonly found around your home. Are these components present within those batteries, as well? Finally, consider how the battery in a vehicle is charged. What is the primary element involved in this action, and how does it work? Does greater engine activity (such as revving the engine) charge the battery faster? If you believe yes, how so?",
           "discussion_data": [
             {
@@ -443,11 +443,11 @@
             }
           ],
           "speed_grader": {
-            "assignment_id": "3783970"
+            "assignment_id": "3885442"
           }
         },
         "6": {
-          "topic_id": "1153598",
+          "topic_id": "1186781",
           "discussion_prompt": "Consider that with a printing process, there are two key parts to the question. Our eyes, and the monitors on which we initially view the photographs. Briefly describe how our eyes process color, as well as how monitors are able to depict color. Now, consider that the photographs are printed on standard paper using a home printer. Are the colors more or less vivid than they were on the monitor? Why is that? Is it our eyes that are playing a primary role in this, or more so the monitor we were initially viewing on?",
           "discussion_data": [
             {
@@ -468,11 +468,11 @@
             }
           ],
           "speed_grader": {
-            "assignment_id": "3783974"
+            "assignment_id": "3885446"
           }
         },
         "7": {
-          "topic_id": "1153593",
+          "topic_id": "1186776",
           "discussion_prompt": "The periodic table was created by Dmitri Mendeleev and currently depicts 118 known elements. By what property did he decide to arrange these elements? Now consider the atoms that make up these elements. Are two atoms of the same element identical? We know historically that Mendeleev rejected the existence of electrons (among other key parts), but we now know them to be integral to atomic bonding. Define valence electrons and consider the following: how do atoms bond through their electrons? Is there a reason for this bonding? Can a bond between two atoms result in instability?",
           "discussion_data": [
             {
@@ -493,11 +493,11 @@
             }
           ],
           "speed_grader": {
-            "assignment_id": "3783969"
+            "assignment_id": "3885441"
           }
         },
         "8": {
-          "topic_id": "1153592",
+          "topic_id": "1186775",
           "discussion_prompt": "What did you learn about physics this term? What would you still like to know? What suggestions would you offer future students? Hopefully, the course was not a big black hole. What is a black hole? When do black holes form? Can scientists see a black hole? What is the \"event horizon\" of a black hole? Find out information about black holes and share it with your classmates or choose another topic in physics and create a thread.",
           "discussion_data": [
             {
@@ -518,7 +518,7 @@
             }
           ],
           "speed_grader": {
-            "assignment_id": "3783968"
+            "assignment_id": "3885440"
           }
         }
       },
