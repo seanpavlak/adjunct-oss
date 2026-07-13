@@ -1,14 +1,14 @@
 {
   "courses": {
     "A": {
-      "name": "OL PHYS 100 General Physics-C260511AHybridPavlak",
-      "course_id": "93374",
-      "course_start_date": "2026-05-11",
+      "name": "OL PHYS 100 General Physics-C260713AHybridPavlak",
+      "course_id": "95886",
+      "course_start_date": "2026-07-13",
       "weeks": {
         "1": {
-          "topic_id": "1153568",
+          "topic_id": "1186767",
           "speed_grader": {
-            "assignment_id": "3783916"
+            "assignment_id": "3885404"
           },
           "discussion_prompt": "It seems that the whole world except the Unites States has adopted the Metric System of measurement, The United States is the largest country in the world where the metric system is not in use. What do you think are some of the reasons why this is the case. Can you think of any areas where the metric system is widely used in the United States? What are your experiences with the metric system? What do you know about physics? WHat makes you curious about physics?",
           "discussion_data": [
@@ -35,8 +35,8 @@
           ]
         },
         "2": {
-          "topic_id": "1153566",
-          "discussion_prompt": "For this discussion, share what you feel is the most valuable takeaway from your learning with the materials for the week. Specifically\u2026 Describe your most valuable takeaway (most important information you learned). Explain why this was important to your learning and how it will help you in your field.",
+          "topic_id": "1186765",
+          "discussion_prompt": "For this discussion, share what you feel is the most valuable takeaway from your learning with the materials for the week. Specifically… Describe your most valuable takeaway (most important information you learned). Explain why this was important to your learning and how it will help you in your field.",
           "discussion_data": [
             {
               "post": "Physics teaches us knowledgable information that we may think we dont need to know but its very useful to use especially regarding our different career paths . The most valuable takeaway I've learned is all the different equations that I've learned so far in physics learning how to get distance or velocity and speed , knowing that when I'm driving my ''mph'' means something more that how fast I'm just going. It is important to learn this because it could help you further your knowledge about physics and what you know now , I could help with some peoples career especially careers that may be going into the science field or things to due with physics as well. Physics can be an important part in many people's career field.",
@@ -56,11 +56,11 @@
             }
           ],
           "speed_grader": {
-            "assignment_id": "3783914"
+            "assignment_id": "3885402"
           }
         },
         "3": {
-          "topic_id": "1153567",
+          "topic_id": "1186766",
           "discussion_prompt": "Use the following article to explain Newton's laws in the context of biomechanics. Specifically, how they could be applied in the athletic development of children. Come up with examples or situations on how using Newton's laws could be helpful in improving athletic performance as children grow. Does it only have to do with strength, or does technique play a significant role?",
           "discussion_data": [
             {
@@ -81,11 +81,11 @@
             }
           ],
           "speed_grader": {
-            "assignment_id": "3783915"
+            "assignment_id": "3885403"
           }
         },
         "4": {
-          "topic_id": "1153573",
+          "topic_id": "1186772",
           "discussion_prompt": "There are two forces that act on the log, causing it to float. Identify and define these forces. Beyond the two acting forces, the volume and density of objects also play a role in their buoyancy. How so, exactly? Finally, Archimedes' Principle revealed a fundamental idea about buoyant force. Is this force present regardless of whether the log (or any given object) floats or sinks? How did Archimedes discover this? (Hint: what was the problem he was tasked with investigating that led to his discovery?)",
           "discussion_data": [
             {
@@ -118,16 +118,16 @@
             }
           ],
           "speed_grader": {
-            "assignment_id": "3783921"
+            "assignment_id": "3885409"
           }
         },
         "5": {
-          "topic_id": "1153569",
+          "topic_id": "1186768",
           "discussion_prompt": "The battery of a vehicle is an intricate system with many key components. In your opinion, what are the three main components? Identify and define these parts. Afterward, envision the AA and AAA batteries commonly found around your home. Are these components present within those batteries, as well? Finally, consider how the battery in a vehicle is charged. What is the primary element involved in this action, and how does it work? Does greater engine activity (such as revving the engine) charge the battery faster? If you believe yes, how so?",
           "discussion_data": [
             {
               "post": "According to an article I read, the three main components are an anode (Electrons flow out from the anode in a device connected to a circuit.), a cathode (Electrons flow into the cathode in a device connected to a circuit.), and an electrolyte (The electrolyte is the substance, often a liquid or gel, that is capable of transporting ions between the chemical reactions that happen at the anode and cathode.) (Hymel). Viewing batteries, I do believe they contain the anode, cathode, and electrolyte components. The battery in a vehicle is charged by running the car for a certain amount of time, I don't know the specifics of it, but the alternator works with the generator to charge the battery while the car drives. My dad taught me this when my brothers car sat in the driveway for 6 months and I had to drive the car for at least 50 miles or so to charge the battery enough to stay alive. According to KwikFit, revving the engine does charge the battery faster because it increases the rpms. (n.a.)\n\nHymel, S. (n.d). What is a battery?. What is a Battery? - SparkFun Learn. https://learn.sparkfun.com/tutorials/what-is-a-battery/components#:~:text=Batteries%20are%20made%20up%20of,a%20cathode%2C%20and%20an%20electrolyteLinks to an external site..\n\nn.a. (n.d). Does a car battery charge while idling?. Kwik Fit. https://www.kwik-fit.com/blog/-does-car-battery-charge-while-idling#\n\n",
-              "response": "Great job identifying the three main components of a battery and their functions. You've explained the roles of the anode, cathode, and electrolyte very well. It's also good to see that you've applied real-life experience and additional resources to understand how a vehicle's battery is charged. Remember, the alternator is key in this system\u2014it converts mechanical energy from the engine into electrical energy that charges the battery."
+              "response": "Great job identifying the three main components of a battery and their functions. You've explained the roles of the anode, cathode, and electrolyte very well. It's also good to see that you've applied real-life experience and additional resources to understand how a vehicle's battery is charged. Remember, the alternator is key in this system—it converts mechanical energy from the engine into electrical energy that charges the battery."
             },
             {
               "post": "If I'm being honest, I have not a single clue when it comes to vehicles. I grew up fortunate enough to have a grandfather that took care of all my car needs. It would be beneficial to maybe look under the hood one day. It wouldn't be fair to explain what I think those main parts are of a car battery since I'm not familiar. I do know that cables play an important role when needing to give another car/truck a jump. \n\n  Looking in my home and noticing how all the batteries have similarities. I noticed how all batteries have a negative and positive component. This is essential because that is how power operates, it needs an opposite to function. I think when the car is turned off properly, the battery charges. I know leaving a light on for several hours could cause the battery to die. Therefore, if your car is parked and turned off, this allows times for the battery to power on. \n\n",
@@ -143,11 +143,11 @@
             }
           ],
           "speed_grader": {
-            "assignment_id": "3783917"
+            "assignment_id": "3885405"
           }
         },
         "6": {
-          "topic_id": "1153572",
+          "topic_id": "1186771",
           "discussion_prompt": "Consider that with a printing process, there are two key parts to the question. Our eyes, and the monitors on which we initially view the photographs. Briefly describe how our eyes process color, as well as how monitors are able to depict color. Now, consider that the photographs are printed on standard paper using a home printer. Are the colors more or less vivid than they were on the monitor? Why is that? Is it our eyes that are playing a primary role in this, or more so the monitor we were initially viewing on?",
           "discussion_data": [
             {
@@ -168,11 +168,11 @@
             }
           ],
           "speed_grader": {
-            "assignment_id": "3783920"
+            "assignment_id": "3885408"
           }
         },
         "7": {
-          "topic_id": "1153570",
+          "topic_id": "1186769",
           "discussion_prompt": "The periodic table was created by Dmitri Mendeleev and currently depicts 118 known elements. By what property did he decide to arrange these elements? Now consider the atoms that make up these elements. Are two atoms of the same element identical? We know historically that Mendeleev rejected the existence of electrons (among other key parts), but we now know them to be integral to atomic bonding. Define valence electrons and consider the following: how do atoms bond through their electrons? Is there a reason for this bonding? Can a bond between two atoms result in instability?",
           "discussion_data": [
             {
@@ -193,15 +193,15 @@
             }
           ],
           "speed_grader": {
-            "assignment_id": "3783918"
+            "assignment_id": "3885406"
           }
         },
         "8": {
-          "topic_id": "1153571",
+          "topic_id": "1186770",
           "discussion_prompt": "What did you learn about physics this term? What would you still like to know? What suggestions would you offer future students? Hopefully, the course was not a big black hole. What is a black hole? When do black holes form? Can scientists see a black hole? What is the \"event horizon\" of a black hole? Find out information about black holes and share it with your classmates or choose another topic in physics and create a thread.",
           "discussion_data": [
             {
-              "post": "Physics is all about understanding matter and energy in the universe, with applications in engineering, technology, medicine, and environmental science. For future physics students, it's crucial to build a strong foundation, practice problem-solving, use resources like textbooks, and collaborate with classmates. Staying curious about the latest developments and connecting what you learn to the real world are important too. A black hole is a space region with incredibly strong gravity, trapping everything, even light. They form when big stars run out of fuel and explode in a supernova, with the remaining core collapsing into an extremely dense point called a singularity. This point is surrounded by an invisible boundary called the event horizon. Black holes can't be seen directly because they don't emit light, but scientists can figure out their presence by observing how they affect nearby matter. The Event Horizon Telescope made history by capturing the first image of a black hole in 2019, showing its silhouette against bright surroundings. The event horizon is crucial\u2014it's the boundary where nothing, not even light, can escape the black hole's gravitational pull. Once something crosses it, it's pulled into the black hole, and any information about it is lost to the external universe, adding to the mysterious nature of black holes.",
+              "post": "Physics is all about understanding matter and energy in the universe, with applications in engineering, technology, medicine, and environmental science. For future physics students, it's crucial to build a strong foundation, practice problem-solving, use resources like textbooks, and collaborate with classmates. Staying curious about the latest developments and connecting what you learn to the real world are important too. A black hole is a space region with incredibly strong gravity, trapping everything, even light. They form when big stars run out of fuel and explode in a supernova, with the remaining core collapsing into an extremely dense point called a singularity. This point is surrounded by an invisible boundary called the event horizon. Black holes can't be seen directly because they don't emit light, but scientists can figure out their presence by observing how they affect nearby matter. The Event Horizon Telescope made history by capturing the first image of a black hole in 2019, showing its silhouette against bright surroundings. The event horizon is crucial—it's the boundary where nothing, not even light, can escape the black hole's gravitational pull. Once something crosses it, it's pulled into the black hole, and any information about it is lost to the external universe, adding to the mysterious nature of black holes.",
               "response": "100% agree a strong foundation is fundamental to understanding physics and building off previous concepts. You also perfectly described black holes, and if you haven't googled the pictures EHT and JWST have taken of black holes I would highly recommend it."
             },
             {
@@ -218,7 +218,7 @@
             }
           ],
           "speed_grader": {
-            "assignment_id": "3783919"
+            "assignment_id": "3885407"
           }
         }
       },
@@ -296,7 +296,7 @@
         },
         "grading_defaults": {
           "lenient": true,
-          "global_llm_guidance": "Rubric levels (1\u20134): 1=below, 2=needs, 3=meets, 4=exceeds. You receive an AUTOMATED PRE-GRADE CHECKLIST \u2014 treat it as ground truth for counts (peer replies, citations, lateness) unless the student text clearly contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) within those facts. LENIENCY: When the work clearly fits one level, keep it. When genuinely torn between adjacent levels only (1\u21942 or 3\u21944), set borderline=true and pick the lower level; post-processing may bump one step. Reserve below for missing or clearly inadequate work."
+          "global_llm_guidance": "Rubric levels (1–4): 1=below, 2=needs, 3=meets, 4=exceeds. You receive an AUTOMATED PRE-GRADE CHECKLIST — treat it as ground truth for counts (peer replies, citations, lateness) unless the student text clearly contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) within those facts. LENIENCY: When the work clearly fits one level, keep it. When genuinely torn between adjacent levels only (1↔2 or 3↔4), set borderline=true and pick the lower level; post-processing may bump one step. Reserve below for missing or clearly inadequate work."
         }
       }
     },
@@ -336,7 +336,7 @@
         },
         "2": {
           "topic_id": "1153597",
-          "discussion_prompt": "For this discussion, share what you feel is the most valuable takeaway from your learning with the materials for the week. Specifically\u2026 Describe your most valuable takeaway (most important information you learned). Explain why this was important to your learning and how it will help you in your field.",
+          "discussion_prompt": "For this discussion, share what you feel is the most valuable takeaway from your learning with the materials for the week. Specifically… Describe your most valuable takeaway (most important information you learned). Explain why this was important to your learning and how it will help you in your field.",
           "discussion_data": [
             {
               "post": "Physics teaches us knowledgable information that we may think we dont need to know but its very useful to use especially regarding our different career paths . The most valuable takeaway I've learned is all the different equations that I've learned so far in physics learning how to get distance or velocity and speed , knowing that when I'm driving my ''mph'' means something more that how fast I'm just going. It is important to learn this because it could help you further your knowledge about physics and what you know now , I could help with some peoples career especially careers that may be going into the science field or things to due with physics as well. Physics can be an important part in many people's career field.",
@@ -427,7 +427,7 @@
           "discussion_data": [
             {
               "post": "According to an article I read, the three main components are an anode (Electrons flow out from the anode in a device connected to a circuit.), a cathode (Electrons flow into the cathode in a device connected to a circuit.), and an electrolyte (The electrolyte is the substance, often a liquid or gel, that is capable of transporting ions between the chemical reactions that happen at the anode and cathode.) (Hymel). Viewing batteries, I do believe they contain the anode, cathode, and electrolyte components. The battery in a vehicle is charged by running the car for a certain amount of time, I don't know the specifics of it, but the alternator works with the generator to charge the battery while the car drives. My dad taught me this when my brothers car sat in the driveway for 6 months and I had to drive the car for at least 50 miles or so to charge the battery enough to stay alive. According to KwikFit, revving the engine does charge the battery faster because it increases the rpms. (n.a.)\n\nHymel, S. (n.d). What is a battery?. What is a Battery? - SparkFun Learn. https://learn.sparkfun.com/tutorials/what-is-a-battery/components#:~:text=Batteries%20are%20made%20up%20of,a%20cathode%2C%20and%20an%20electrolyteLinks to an external site..\n\nn.a. (n.d). Does a car battery charge while idling?. Kwik Fit. https://www.kwik-fit.com/blog/-does-car-battery-charge-while-idling#\n\n",
-              "response": "Great job identifying the three main components of a battery and their functions. You've explained the roles of the anode, cathode, and electrolyte very well. It's also good to see that you've applied real-life experience and additional resources to understand how a vehicle's battery is charged. Remember, the alternator is key in this system\u2014it converts mechanical energy from the engine into electrical energy that charges the battery."
+              "response": "Great job identifying the three main components of a battery and their functions. You've explained the roles of the anode, cathode, and electrolyte very well. It's also good to see that you've applied real-life experience and additional resources to understand how a vehicle's battery is charged. Remember, the alternator is key in this system—it converts mechanical energy from the engine into electrical energy that charges the battery."
             },
             {
               "post": "If I'm being honest, I have not a single clue when it comes to vehicles. I grew up fortunate enough to have a grandfather that took care of all my car needs. It would be beneficial to maybe look under the hood one day. It wouldn't be fair to explain what I think those main parts are of a car battery since I'm not familiar. I do know that cables play an important role when needing to give another car/truck a jump. \n\n  Looking in my home and noticing how all the batteries have similarities. I noticed how all batteries have a negative and positive component. This is essential because that is how power operates, it needs an opposite to function. I think when the car is turned off properly, the battery charges. I know leaving a light on for several hours could cause the battery to die. Therefore, if your car is parked and turned off, this allows times for the battery to power on. \n\n",
@@ -501,7 +501,7 @@
           "discussion_prompt": "What did you learn about physics this term? What would you still like to know? What suggestions would you offer future students? Hopefully, the course was not a big black hole. What is a black hole? When do black holes form? Can scientists see a black hole? What is the \"event horizon\" of a black hole? Find out information about black holes and share it with your classmates or choose another topic in physics and create a thread.",
           "discussion_data": [
             {
-              "post": "Physics is all about understanding matter and energy in the universe, with applications in engineering, technology, medicine, and environmental science. For future physics students, it's crucial to build a strong foundation, practice problem-solving, use resources like textbooks, and collaborate with classmates. Staying curious about the latest developments and connecting what you learn to the real world are important too. A black hole is a space region with incredibly strong gravity, trapping everything, even light. They form when big stars run out of fuel and explode in a supernova, with the remaining core collapsing into an extremely dense point called a singularity. This point is surrounded by an invisible boundary called the event horizon. Black holes can't be seen directly because they don't emit light, but scientists can figure out their presence by observing how they affect nearby matter. The Event Horizon Telescope made history by capturing the first image of a black hole in 2019, showing its silhouette against bright surroundings. The event horizon is crucial\u2014it's the boundary where nothing, not even light, can escape the black hole's gravitational pull. Once something crosses it, it's pulled into the black hole, and any information about it is lost to the external universe, adding to the mysterious nature of black holes.",
+              "post": "Physics is all about understanding matter and energy in the universe, with applications in engineering, technology, medicine, and environmental science. For future physics students, it's crucial to build a strong foundation, practice problem-solving, use resources like textbooks, and collaborate with classmates. Staying curious about the latest developments and connecting what you learn to the real world are important too. A black hole is a space region with incredibly strong gravity, trapping everything, even light. They form when big stars run out of fuel and explode in a supernova, with the remaining core collapsing into an extremely dense point called a singularity. This point is surrounded by an invisible boundary called the event horizon. Black holes can't be seen directly because they don't emit light, but scientists can figure out their presence by observing how they affect nearby matter. The Event Horizon Telescope made history by capturing the first image of a black hole in 2019, showing its silhouette against bright surroundings. The event horizon is crucial—it's the boundary where nothing, not even light, can escape the black hole's gravitational pull. Once something crosses it, it's pulled into the black hole, and any information about it is lost to the external universe, adding to the mysterious nature of black holes.",
               "response": "100% agree a strong foundation is fundamental to understanding physics and building off previous concepts. You also perfectly described black holes, and if you haven't googled the pictures EHT and JWST have taken of black holes I would highly recommend it."
             },
             {
@@ -596,7 +596,7 @@
         },
         "grading_defaults": {
           "lenient": true,
-          "global_llm_guidance": "Rubric levels (1\u20134): 1=below, 2=needs, 3=meets, 4=exceeds. You receive an AUTOMATED PRE-GRADE CHECKLIST \u2014 treat it as ground truth for counts (peer replies, citations, lateness) unless the student text clearly contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) within those facts. LENIENCY: When the work clearly fits one level, keep it. When genuinely torn between adjacent levels only (1\u21942 or 3\u21944), set borderline=true and pick the lower level; post-processing may bump one step. Reserve below for missing or clearly inadequate work."
+          "global_llm_guidance": "Rubric levels (1–4): 1=below, 2=needs, 3=meets, 4=exceeds. You receive an AUTOMATED PRE-GRADE CHECKLIST — treat it as ground truth for counts (peer replies, citations, lateness) unless the student text clearly contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) within those facts. LENIENCY: When the work clearly fits one level, keep it. When genuinely torn between adjacent levels only (1↔2 or 3↔4), set borderline=true and pick the lower level; post-processing may bump one step. Reserve below for missing or clearly inadequate work."
         }
       }
     }
