@@ -34,13 +34,6 @@ from chcp.llm.reply_craft import (
 from chcp.paths import courses_config_path
 from chcp.settings import llm_config
 
-VOICE_PHRASES: Tuple[str, ...] = (
-    "I dig that",
-    "spot on",
-    "excellent",
-    "on point",
-)
-
 
 class ProfessorReplyDraft(BaseModel):
     """Structured model output — final public text is assembled in code."""
@@ -129,9 +122,8 @@ class ResponseGenerator:
             "You are drafting Canvas discussion replies for an introductory college physics "
             "professor teaching allied-health / healthcare students.\n"
             "Write like a real public instructor: specific, substantive, human — not polished AI.\n"
-            "Voice: casual-professor. Natural phrases that fit me include "
-            '"I dig that", "spot on", "excellent", "on point" — use one when it fits, '
-            "not every time, and never stack them.\n"
+            "Voice: direct, a little casual, professor in a discussion thread. "
+            "Match the tone of the examples; do not lean on catchphrases.\n"
             "You never invent what the student wrote. You only react to their post and the anchors.\n"
             f"Hard cap: {max_words} words in body (before any question).\n"
             "No exclamation marks. No em dashes.\n"
@@ -151,7 +143,6 @@ class ResponseGenerator:
             "Student post (source of truth — touch what they actually said):\n"
             "{content}\n\n"
             "Student first name (for context only; do NOT put it in body): {student_name}\n\n"
-            "Optional voice color this turn (use only if it fits naturally): {voice_hint}\n\n"
             "Follow-up mode: {follow_up_mode}\n"
             "- If follow-up mode is ON: also fill follow_up_question with one short, concrete "
             "physics question tied to their post and this course week.\n"
@@ -160,8 +151,7 @@ class ResponseGenerator:
             "1) Engages a specific claim/concept from their post (not generic praise),\n"
             "2) Goes one step deeper on the physics (tighten a definition, connect to a later "
             "topic, or link to their healthcare field with a real physics detail),\n"
-            "3) Stays public-forum appropriate and brief,\n"
-            "4) Sounds like me — direct, a little casual, professor in a discussion thread.\n\n"
+            "3) Stays public-forum appropriate and brief.\n\n"
             "{format_instructions}"
         )
 
@@ -242,18 +232,6 @@ class ResponseGenerator:
         include_follow_up = random.random() < llm_config.FOLLOW_UP_QUESTION_PROBABILITY
         follow_up_mode = "ON" if include_follow_up else "OFF"
 
-        # ~half the time nudge a natural voice phrase; otherwise leave it open
-        if random.random() < 0.55:
-            voice_hint = (
-                f'Lean on "{random.choice(VOICE_PHRASES)}" if it fits this post; '
-                "skip it if forced."
-            )
-        else:
-            voice_hint = (
-                "No forced phrase — just sound like me "
-                '(occasional "I dig that" / "spot on" / "excellent" / "on point" is fine).'
-            )
-
         chain = self.prompt | self.llm | self.parser
         draft = chain.invoke(
             {
@@ -262,7 +240,6 @@ class ResponseGenerator:
                 "anchors": format_anchors_for_prompt(anchors),
                 "student_name": display_name,
                 "follow_up_mode": follow_up_mode,
-                "voice_hint": voice_hint,
             }
         )
 
