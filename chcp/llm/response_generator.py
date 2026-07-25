@@ -1,26 +1,64 @@
 """
-LLM-based response generator for Canvas discussions
+LLM-based response generator for Canvas discussions.
+
+Pipeline (prompt + code):
+1. Refuse if the student post is unreadable.
+2. Extract physics/career anchors from the post in code.
+3. Select few-shots by text + concept overlap.
+4. Ask the model for structured body (+ optional follow-up question).
+5. Assemble the final reply in code: Title-Case name lead, cleanup, ~20% questions.
 """
+
+from __future__ import annotations
 
 import difflib
 import json
-import os
 import random
 from dataclasses import dataclass, field
-from typing import List, Literal, Tuple
+from typing import List, Literal, Optional, Tuple
 
-from langchain_anthropic import ChatAnthropic
 from langchain_core.language_models import BaseChatModel
 from langchain_core.output_parsers import JsonOutputParser
-from langchain_core.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
-from pydantic import BaseModel
+from langchain_core.prompts import ChatPromptTemplate
+from pydantic import BaseModel, Field
 
+from chcp.canvas.parsers import is_usable_student_post
+from chcp.llm.manager import LLMManager
+from chcp.llm.reply_craft import (
+    analyze_student_post,
+    assemble_reply,
+    concept_overlap_score,
+    format_anchors_for_prompt,
+    format_display_name,
+)
 from chcp.paths import courses_config_path
+from chcp.settings import llm_config
+
+VOICE_PHRASES: Tuple[str, ...] = (
+    "I dig that",
+    "spot on",
+    "excellent",
+    "on point",
+)
 
 
-class Response(BaseModel):
-    value: str
+class ProfessorReplyDraft(BaseModel):
+    """Structured model output — final public text is assembled in code."""
+
+    body: str = Field(
+        ...,
+        description=(
+            "2-3 sentence professor reply body WITHOUT the student name lead and "
+            "WITHOUT a closing question. Dig into a concrete physics idea from their post."
+        ),
+    )
+    follow_up_question: Optional[str] = Field(
+        default=None,
+        description=(
+            "One short course-relevant physics question tied to their post, or null "
+            "when follow-ups are disabled."
+        ),
+    )
 
 
 @dataclass
@@ -35,183 +73,139 @@ class ResponseGenerator:
     deepseek_key: str = field(init=True, repr=False, default="")
     student_name: str = field(init=True, repr=False, default="")
     llm: BaseChatModel = field(init=False)
-    prompt: PromptTemplate = field(init=False, default=None)
+    parser: JsonOutputParser = field(init=False, default=None)
+    dq_prompt: str = field(init=False, default="")
+    prompt: ChatPromptTemplate = field(init=False, default=None)
 
-    def _get_week_prompt(self) -> str:
+    def _load_courses(self) -> dict:
         courses_path = courses_config_path()
         if not courses_path.exists():
             raise FileNotFoundError(f"courses.json not found: {courses_path}")
-
         with open(courses_path, encoding="utf-8") as f:
             config = json.load(f)
-
         courses = config.get("courses", {})
         if not courses:
             raise ValueError("No courses found in courses.json")
+        return courses
 
+    def _resolve_course(self, courses: dict) -> dict:
         if self.course_selector in courses:
-            course = courses[self.course_selector]
-        else:
-            course = next(
-                (c for c in courses.values() if c.get("course_id") == str(self.course_selector)),
-                None,
-            )
-
+            return courses[self.course_selector]
+        course = next(
+            (c for c in courses.values() if c.get("course_id") == str(self.course_selector)),
+            None,
+        )
         if not course:
             raise ValueError(f"Course '{self.course_selector}' not found in courses.json")
+        return course
 
-        weeks = course.get("weeks", {})
-        week_data = weeks.get(str(self.week))
-
+    def _get_week_data(self) -> dict:
+        course = self._resolve_course(self._load_courses())
+        week_data = course.get("weeks", {}).get(str(self.week))
         if not week_data:
             raise ValueError(f"Week {self.week} data not found in course {self.course_selector}")
+        return week_data
 
-        prompt = week_data.get("discussion_prompt")
+    def _get_week_prompt(self) -> str:
+        prompt = self._get_week_data().get("discussion_prompt")
         if not prompt:
             raise ValueError(
                 f"No discussion prompt found for week {self.week} in course {self.course_selector}"
             )
-
         return prompt
 
     def __post_init__(self):
-        # Initialize LLM based on provider
-        self.llm = self._initialize_llm()
-        self.parser = JsonOutputParser(pydantic_object=Response)
-        dq_prompt_text = self._get_week_prompt()
-        base_template = (
-            'I need you to analyze this CSV, column "Post" is the students '
-            'initial reply to the prompt, and column "Response" is my feedback. '
-            "Then understand how it relates to this prompt:\n{dq_prompt}\n\n"
-            "Student and Professor Response Examples:\n{examples}\n\n"
-            "I need you to read this reply, and respond with simple short 3-4 "
-            "sentence feedback (max 80 words) that a college student would "
-            "understand and it has to be in the exact same style as the replies "
-            "in the listed csv:\n{content}\n\n"
-            "{format_instructions}\n\n"
-            "Guidelines: Match the tone and style exactly from the examples. "
-            "Use natural, human language like {preferred_phrases}. "
-            "Strike a balance between friendly and professional - sound like a "
-            'real person, not an AI. Avoid generic phrases like "good job" or '
-            '"well done". Never use exclamation marks. Avoid formulaic closing '
-            'sentences that start with "Keep..." or end with encouraging phrases '
-            "about future learning. {name_instruction}"
+        api_key = {
+            "openai": self.openai_key,
+            "anthropic": self.anthropic_key,
+            "deepseek": self.deepseek_key,
+        }.get(self.provider, "")
+        self.llm = LLMManager.create_llm(self.provider, api_key)
+        self.parser = JsonOutputParser(pydantic_object=ProfessorReplyDraft)
+        self.dq_prompt = self._get_week_prompt()
+        max_words = llm_config.MAX_RESPONSE_WORDS
+
+        system = (
+            "You are drafting Canvas discussion replies for an introductory college physics "
+            "professor teaching allied-health / healthcare students.\n"
+            "Write like a real public instructor: specific, substantive, human — not polished AI.\n"
+            "Voice: casual-professor. Natural phrases that fit me include "
+            '"I dig that", "spot on", "excellent", "on point" — use one when it fits, '
+            "not every time, and never stack them.\n"
+            "You never invent what the student wrote. You only react to their post and the anchors.\n"
+            f"Hard cap: {max_words} words in body (before any question).\n"
+            "No exclamation marks. No em dashes.\n"
+            "Avoid fake-AI filler "
+            '("I appreciate how you", "great insights", "delve", "keep up the great work", '
+            '"good job", "well done").\n'
+            "Do not start the body with the student name — code adds the name lead.\n"
+            "Do not put a question in body; use follow_up_question only when asked."
         )
 
-        self.follow_up_instruction = (
-            " Additionally, ask a thoughtful follow-up question to deepen the student's thinking."
+        human = (
+            "Course discussion prompt:\n{dq_prompt}\n\n"
+            "Anchors extracted from THIS student's post (use at least one concept deeply):\n"
+            "{anchors}\n\n"
+            "Examples of my real replies (match tone; dig into physics like these do):\n"
+            "{examples}\n\n"
+            "Student post (source of truth — touch what they actually said):\n"
+            "{content}\n\n"
+            "Student first name (for context only; do NOT put it in body): {student_name}\n\n"
+            "Optional voice color this turn (use only if it fits naturally): {voice_hint}\n\n"
+            "Follow-up mode: {follow_up_mode}\n"
+            "- If follow-up mode is ON: also fill follow_up_question with one short, concrete "
+            "physics question tied to their post and this course week.\n"
+            "- If follow-up mode is OFF: set follow_up_question to null and do not ask a question.\n\n"
+            "Write body that:\n"
+            "1) Engages a specific claim/concept from their post (not generic praise),\n"
+            "2) Goes one step deeper on the physics (tighten a definition, connect to a later "
+            "topic, or link to their healthcare field with a real physics detail),\n"
+            "3) Stays public-forum appropriate and brief,\n"
+            "4) Sounds like me — direct, a little casual, professor in a discussion thread.\n\n"
+            "{format_instructions}"
         )
 
-        # Phrases to randomly inject into prompts
-        self.preferred_phrases = [
-            "excellent",
-            "I appreciate how you",
-            "that's exactly correct",
-            "spot on",
-            "it's really interesting that",
-            "that's a great point",
-            "nice observation",
-            "you're onto something there"
-        ]
-
-        # Create name instruction based on whether student name is provided
-        name_instruction = ""
-        if self.student_name:
-            name_instruction = f"Always address the student by their name '{self.student_name}' in your response."
-        else:
-            name_instruction = "If a student name is provided, use it naturally in your response."
-
-        self.prompt = PromptTemplate(
-            template=base_template,
-            input_variables=["content", "examples", "preferred_phrases"],
-            partial_variables={
-                "dq_prompt": dq_prompt_text,
-                "format_instructions": self.parser.get_format_instructions(),
-                "name_instruction": name_instruction,
-            },
+        self.prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", system),
+                ("human", human),
+            ]
+        ).partial(
+            dq_prompt=self.dq_prompt,
+            format_instructions=self.parser.get_format_instructions(),
         )
 
-    def _initialize_llm(self) -> BaseChatModel:
-        """Initialize the appropriate LLM based on the provider"""
-        if self.provider == "openai":
-            if not self.openai_key:
-                raise ValueError("OpenAI API key is required when using OpenAI provider")
-            return ChatOpenAI(
-                model="gpt-5-nano", temperature=0.8, openai_api_key=self.openai_key, verbose=True
-            )
-        elif self.provider == "anthropic":
-            if not self.anthropic_key:
-                raise ValueError("Anthropic API key is required when using Anthropic provider")
-            return ChatAnthropic(
-                model="claude-3-5-sonnet-20241022",
-                temperature=0.8,
-                anthropic_api_key=self.anthropic_key,
-                verbose=True,
-            )
-        elif self.provider == "deepseek":
-            if not self.deepseek_key:
-                raise ValueError("DeepSeek API key is required when using DeepSeek provider")
-            # DeepSeek uses OpenAI-compatible API
-            return ChatOpenAI(
-                model="deepseek-chat",
-                temperature=0.8,
-                openai_api_key=self.deepseek_key,
-                base_url="https://api.deepseek.com/v1",
-                verbose=True,
-            )
-        else:
-            raise ValueError(f"Unsupported provider: {self.provider}")
+    def _provider_api_key(self) -> str:
+        return {
+            "openai": self.openai_key,
+            "anthropic": self.anthropic_key,
+            "deepseek": self.deepseek_key,
+        }.get(self.provider, "")
 
     def _load_discussion_examples(self) -> List[Tuple[str, str]]:
-        """Load discussion examples from courses.json instead of CSV files"""
-        courses_path = courses_config_path()
-        if not courses_path.exists():
-            raise FileNotFoundError(f"courses.json not found: {courses_path}")
-
-        with open(courses_path, encoding="utf-8") as f:
-            config = json.load(f)
-
-        courses = config.get("courses", {})
-        if not courses:
-            raise ValueError("No courses found in courses.json")
-
-        if self.course_selector in courses:
-            course = courses[self.course_selector]
-        else:
-            course = next(
-                (c for c in courses.values() if c.get("course_id") == str(self.course_selector)),
-                None,
-            )
-
-        if not course:
-            raise ValueError(f"Course '{self.course_selector}' not found in courses.json")
-
-        weeks = course.get("weeks", {})
-        week_data = weeks.get(str(self.week))
-
-        if not week_data:
-            raise ValueError(f"Week {self.week} data not found in course {self.course_selector}")
-
+        week_data = self._get_week_data()
         discussion_data = week_data.get("discussion_data", [])
         if not discussion_data:
             raise ValueError(
                 f"No discussion data found for week {self.week} in course {self.course_selector}"
             )
-
         examples: List[Tuple[str, str]] = []
         for item in discussion_data:
             post = item.get("post", "").strip()
             response = item.get("response", "").strip()
             if post and response:
                 examples.append((post, response))
-
         return examples
 
     def _select_few_shots(
         self, content: str, examples: List[Tuple[str, str]], k: int = 3
     ) -> List[Tuple[str, str]]:
         def score(example_post: str) -> float:
-            return difflib.SequenceMatcher(None, content.lower(), example_post.lower()).ratio()
+            text_sim = difflib.SequenceMatcher(
+                None, content.lower(), example_post.lower()
+            ).ratio()
+            concept_sim = concept_overlap_score(content, example_post)
+            return 0.55 * text_sim + 0.45 * concept_sim
 
         ranked = sorted(examples, key=lambda pr: score(pr[0]), reverse=True)
         return ranked[:k]
@@ -219,79 +213,74 @@ class ResponseGenerator:
     def _format_examples(self, few_shots: List[Tuple[str, str]]) -> str:
         lines: List[str] = []
         for post, response in few_shots:
-            lines.append(f"Post: {post[:1000]}\nResponse: {response[:800]}")
+            lines.append(f"Post: {post[:550]}\nResponse: {response[:320]}")
         return "\n\n".join(lines)
 
-    def _generate_preferred_phrases(self) -> str:
-        """Generate a random combination of preferred phrases (always at least 1)"""
-        # Always include at least one phrase
-        selected_phrases = [random.choice(self.preferred_phrases)]
-
-        # Randomly add more phrases (30% chance for each additional phrase)
-        for phrase in self.preferred_phrases:
-            if phrase not in selected_phrases and random.random() < 0.3:
-                selected_phrases.append(phrase)
-
-        # Format as comma-separated list with "and" before the last item
-        if len(selected_phrases) == 1:
-            return f'"{selected_phrases[0]}"'
-        elif len(selected_phrases) == 2:
-            return f'"{selected_phrases[0]}" and "{selected_phrases[1]}"'
-        else:
-            return f'"{", ".join(selected_phrases[:-1])}" and "{selected_phrases[-1]}"'
-
-    def reply(self, content, student_name: str = None) -> str:
+    def reply(self, content, student_name: str = None) -> Optional[str]:
         if not self.llm:
             print("Error: No LLM Init'd")
             return None
-        
-        # Use provided student_name or fall back to instance student_name
-        name_to_use = student_name or self.student_name
-        
-        examples = self._load_discussion_examples()
-        few_shots = self._select_few_shots(content, examples, k=3)
-        examples_text = self._format_examples(few_shots)
-        preferred_phrases = self._generate_preferred_phrases()
 
-        # Create name instruction based on whether student name is available
-        name_instruction = ""
-        if name_to_use:
-            name_instruction = f"Always address the student by their name '{name_to_use}' in your response."
-        else:
-            name_instruction = "If a student name is provided, use it naturally in your response."
-
-        # Create dynamic prompt with name instruction
-        dynamic_prompt = PromptTemplate(
-            template=self.prompt.template,
-            input_variables=self.prompt.input_variables,
-            partial_variables={
-                **self.prompt.partial_variables,
-                "name_instruction": name_instruction,
-            },
-        )
-
-        if random.random() < 0.40:
-            modified_template = dynamic_prompt.template + self.follow_up_instruction
-            modified_prompt = PromptTemplate(
-                template=modified_template,
-                input_variables=dynamic_prompt.input_variables,
-                partial_variables=dynamic_prompt.partial_variables,
+        if not is_usable_student_post(content):
+            print(
+                "REFUSING to generate reply: student post was empty/unreadable. "
+                "No text will be posted."
             )
-            chain = modified_prompt | self.llm | self.parser
-        else:
-            chain = dynamic_prompt | self.llm | self.parser
+            return None
 
-        response = chain.invoke(
+        raw_name = student_name or self.student_name
+        display_name = format_display_name(raw_name)
+        if not display_name:
+            print("REFUSING to generate reply: missing student first name.")
+            return None
+
+        anchors = analyze_student_post(content)
+        examples = self._load_discussion_examples()
+        few_shots = self._select_few_shots(content, examples, k=llm_config.FEW_SHOT_K)
+        examples_text = self._format_examples(few_shots)
+
+        include_follow_up = random.random() < llm_config.FOLLOW_UP_QUESTION_PROBABILITY
+        follow_up_mode = "ON" if include_follow_up else "OFF"
+
+        # ~half the time nudge a natural voice phrase; otherwise leave it open
+        if random.random() < 0.55:
+            voice_hint = (
+                f'Lean on "{random.choice(VOICE_PHRASES)}" if it fits this post; '
+                "skip it if forced."
+            )
+        else:
+            voice_hint = (
+                "No forced phrase — just sound like me "
+                '(occasional "I dig that" / "spot on" / "excellent" / "on point" is fine).'
+            )
+
+        chain = self.prompt | self.llm | self.parser
+        draft = chain.invoke(
             {
                 "content": content,
                 "examples": examples_text,
-                "preferred_phrases": preferred_phrases,
+                "anchors": format_anchors_for_prompt(anchors),
+                "student_name": display_name,
+                "follow_up_mode": follow_up_mode,
+                "voice_hint": voice_hint,
             }
         )
-        
-        # Post-process to ensure no exclamation marks slip through
-        response_text = response["value"]
-        response_text = response_text.replace("!", ".")
-        response_text = response_text.replace("—", ",")
-        
-        return response_text
+
+        # JsonOutputParser may return dict or model depending on version
+        if isinstance(draft, ProfessorReplyDraft):
+            body = draft.body
+            question = draft.follow_up_question
+        else:
+            body = (draft or {}).get("body", "")
+            question = (draft or {}).get("follow_up_question")
+
+        if not body or not str(body).strip():
+            print("REFUSING to post: model returned empty body.")
+            return None
+
+        return assemble_reply(
+            student_name=display_name,
+            body=str(body),
+            follow_up_question=str(question) if question else None,
+            include_follow_up=include_follow_up,
+        )

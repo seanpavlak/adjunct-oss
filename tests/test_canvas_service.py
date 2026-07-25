@@ -3,10 +3,47 @@ Unit tests for Canvas service helpers (no browser)
 """
 
 from chcp.canvas.parsers import (
+    is_usable_student_post,
+    normalize_discussion_content,
     parse_days_late_value,
     parse_rubric_total_points,
     parse_student_index,
 )
+
+
+class TestNormalizeDiscussionContent:
+    def test_joins_and_collapses_whitespace(self):
+        assert (
+            normalize_discussion_content(["  Hello  world  ", "More\ntext"])
+            == "Hello world More text"
+        )
+
+    def test_empty_inputs(self):
+        assert normalize_discussion_content([]) == ""
+        assert normalize_discussion_content(["", "  ", None]) == ""  # type: ignore[list-item]
+
+    def test_single_paragraph_without_p_tags(self):
+        assert normalize_discussion_content(["My takeaway is Newton's laws."]) == (
+            "My takeaway is Newton's laws."
+        )
+
+
+class TestIsUsableStudentPost:
+    def test_rejects_empty_and_sentinel(self):
+        assert not is_usable_student_post("")
+        assert not is_usable_student_post(None)
+        assert not is_usable_student_post("Content not found or not loaded.")
+        assert not is_usable_student_post("   content not found  ")
+
+    def test_rejects_too_short(self):
+        assert not is_usable_student_post("Too short.")
+
+    def test_accepts_real_post(self):
+        post = (
+            "My most valuable takeaway was instantaneous speed versus average speed, "
+            "especially how that connects to ultrasound wave propagation."
+        )
+        assert is_usable_student_post(post)
 
 
 class TestParseStudentIndex:

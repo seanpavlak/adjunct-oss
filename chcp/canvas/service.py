@@ -8,6 +8,9 @@ from typing import Any, List, Optional, Tuple
 from playwright.sync_api import sync_playwright
 
 from chcp.canvas.parsers import (
+    DISCUSSION_CONTENT_SELECTORS,
+    is_usable_student_post,
+    normalize_discussion_content,
     parse_days_late_value,
     parse_rubric_total_points,
     parse_student_index,
@@ -62,14 +65,28 @@ class CanvasService:
         time.sleep(3)  # Wait for login to complete
 
     def extract_content(self, author) -> str:
-        """Extract content from a discussion author element"""
-        content = ""
-        content_containers = author.query_selector_all("span.user_content.enhanced")
-        for container in content_containers:
-            paragraphs = container.query_selector_all("p")
-            for p in paragraphs:
-                content += p.text_content().strip() + " "
-        return content if content else "Content not found or not loaded."
+        """Extract post body from a discussion entry rooted at ``[data-authorid]``.
+
+        As of mid-2026 on chcp.instructure.com, student posts are in
+        ``div.userMessage`` and may no longer include ``span.user_content``.
+        """
+        for selector in DISCUSSION_CONTENT_SELECTORS:
+            containers = author.query_selector_all(selector)
+            if not containers:
+                continue
+            texts = []
+            for container in containers:
+                try:
+                    text = container.inner_text()
+                except Exception:
+                    text = container.text_content() or ""
+                if not (text or "").strip():
+                    text = container.text_content() or ""
+                texts.append(text or "")
+            content = normalize_discussion_content(texts)
+            if content:
+                return content
+        return ""
 
     def _extract_first_name(self, full_name: str) -> str:
         """Extract first name from 'Last Name, First Name' format"""
@@ -120,24 +137,47 @@ class CanvasService:
             pause.wait_if_paused()
             try:
                 author_id = author.get_attribute("data-authorid")
-                full_name = author.query_selector('[data-testid="author_name"]').text_content()
+                name_el = author.query_selector('[data-testid="author_name"]')
+                full_name = name_el.text_content() if name_el else ""
                 content = self.extract_content(author)
-
-                # Extract first name from "Last Name, First Name" format
                 first_name = self._extract_first_name(full_name)
 
-                print(f"Author ID: {author_id}, Full Name: {full_name}, First Name: {first_name}, Content: {content}")
+                if not is_usable_student_post(content):
+                    print(
+                        f"SKIP (unreadable post — no reply will be posted): "
+                        f"Author ID={author_id}, Name={full_name!r}, "
+                        f"scraped_chars={len(content or '')}"
+                    )
+                    continue
+
+                print(
+                    f"Author ID: {author_id}, Full Name: {full_name}, "
+                    f"First Name: {first_name}, Content: {content}"
+                )
 
                 reply_button = author.query_selector('[data-testid="threading-toolbar-reply"]')
-                if reply_button:
-                    reply_button.click()
-                    time.sleep(2)
-
-                    # Generate and type response
-                    response = generator.reply(content, student_name=first_name)
-                    self.page.keyboard.type(response)
-                else:
+                if not reply_button:
                     print("Reply button not found for this author.")
+                    continue
+
+                # Only open the editor after we know we have real post text
+                reply_button.click()
+                time.sleep(2)
+
+                response = generator.reply(content, student_name=first_name)
+                if not response or not str(response).strip():
+                    print(
+                        f"SKIP (LLM refused/empty — leaving editor unused): "
+                        f"Author ID={author_id}, Name={full_name!r}"
+                    )
+                    # Escape/cancel so we do not leave a blank reply box focused
+                    try:
+                        self.page.keyboard.press("Escape")
+                    except Exception:
+                        pass
+                    continue
+
+                self.page.keyboard.type(response)
             except Exception as e:
                 if "Target page, context or browser has been closed" in str(e):
                     # Browser was closed, return False to signal this
@@ -189,15 +229,27 @@ class CanvasService:
             f"https://chcp.instructure.com/courses/{course_id}/discussion_topics/{topic_id}"
         )
         self.page.goto(discussion_url)
-        time.sleep(2)
+        try:
+            self.page.wait_for_selector(
+                canvas_config.CONTENT_SELECTOR,
+                state="attached",
+                timeout=canvas_config.DEFAULT_TIMEOUT,
+            )
+        except Exception:
+            time.sleep(canvas_config.NAVIGATION_WAIT_TIME)
 
     def expand_discussion_if_needed(self) -> None:
-        """Expand threaded discussion view (same control as discussion reply flow)."""
+        """Expand all threads via the stable Expand Threads toolbar control.
+
+        The old emotion CSS class hash (``css-jbies6-...``) breaks whenever
+        Canvas/InstUI restyles the button; use ``data-testid`` instead.
+        """
         try:
-            self.page.locator(
-                'button[type="button"][tabindex="0"].css-jbies6-view--inlineBlock-baseButton'
-            ).click()
-            time.sleep(2)
+            button = self.page.locator(canvas_config.EXPAND_THREADS_SELECTOR)
+            if button.count() == 0:
+                return
+            button.first.click()
+            time.sleep(canvas_config.NAVIGATION_WAIT_TIME)
         except Exception:
             pass
 
@@ -212,6 +264,12 @@ class CanvasService:
                 name_el = author.query_selector('[data-testid="author_name"]')
                 full_name = name_el.text_content().strip() if name_el else "Unknown"
                 content = self.extract_content(author)
+                if not is_usable_student_post(content):
+                    print(
+                        f"SKIP scrape (unreadable): {full_name} "
+                        f"(chars={len(content or '')})"
+                    )
+                    continue
                 posts.append(
                     DiscussionPost(
                         author_id=author_id,

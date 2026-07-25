@@ -26,7 +26,11 @@ class CanvasConfig:
     AUTHOR_SELECTOR: Final[str] = "[data-authorid]"
     AUTHOR_NAME_SELECTOR: Final[str] = '[data-testid="author_name"]'
     REPLY_BUTTON_SELECTOR: Final[str] = '[data-testid="threading-toolbar-reply"]'
-    CONTENT_SELECTOR: Final[str] = "span.user_content.enhanced"
+    # Live Canvas discussion bodies live under div.userMessage (user_content may be absent)
+    CONTENT_SELECTOR: Final[str] = "div.userMessage"
+    EXPAND_THREADS_SELECTOR: Final[str] = (
+        '[data-testid="ExpandCollapseThreads-button"][data-action-state="expandButton"]'
+    )
 
     # Announcement selectors
     ANNOUNCEMENT_TITLE_SELECTOR: Final[str] = "discussion-topic-title"
@@ -60,17 +64,18 @@ class LLMConfig:
     """LLM provider configuration constants"""
 
     # Model names
-    OPENAI_MODEL: Final[str] = "gpt-4o"
+    # gpt-4.1-mini: strong instruction-following for short replies without gpt-4o cost
+    OPENAI_MODEL: Final[str] = "gpt-4.1-mini"
     ANTHROPIC_MODEL: Final[str] = "claude-3-5-sonnet-20241022"
     DEEPSEEK_MODEL: Final[str] = "deepseek-chat"
     DEEPSEEK_BASE_URL: Final[str] = "https://api.deepseek.com/v1"
 
     # Generation parameters
-    TEMPERATURE: Final[float] = 0.8
-    MAX_RESPONSE_WORDS: Final[int] = 80
+    TEMPERATURE: Final[float] = 0.7
+    MAX_RESPONSE_WORDS: Final[int] = 75
     FEW_SHOT_K: Final[int] = 3
-    FOLLOW_UP_QUESTION_PROBABILITY: Final[float] = 0.05
-    PHRASE_SELECTION_PROBABILITY: Final[float] = 0.3
+    FOLLOW_UP_QUESTION_PROBABILITY: Final[float] = 0.20
+    PHRASE_SELECTION_PROBABILITY: Final[float] = 0.0
 
 
 @dataclass(frozen=True)
