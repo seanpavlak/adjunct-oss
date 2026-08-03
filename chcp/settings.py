@@ -31,6 +31,10 @@ class CanvasConfig:
     EXPAND_THREADS_SELECTOR: Final[str] = (
         '[data-testid="ExpandCollapseThreads-button"][data-action-state="expandButton"]'
     )
+    # Visible when threads are already expanded (Canvas default for many courses).
+    COLLAPSE_THREADS_SELECTOR: Final[str] = (
+        '[data-testid="ExpandCollapseThreads-button"][data-action-state="collapseButton"]'
+    )
 
     # Announcement selectors
     ANNOUNCEMENT_TITLE_SELECTOR: Final[str] = "discussion-topic-title"

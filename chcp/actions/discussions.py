@@ -132,7 +132,8 @@ def run_discussion_action(
         with CanvasService(headless=False) as canvas:
             canvas.login(email, password)
             canvas.navigate_to_discussion(course_id, topic_id)
-            canvas.expand_discussion_if_needed()
+            # Collapse nested peer replies so we only reply to top-level posts.
+            canvas.collapse_discussion_if_needed()
             canvas.run_discussion_loop(week_id, llm_config, course_selector)
     finally:
         pause.disable()

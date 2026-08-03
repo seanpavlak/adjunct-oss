@@ -253,6 +253,23 @@ class CanvasService:
         except Exception:
             pass
 
+    def collapse_discussion_if_needed(self) -> None:
+        """Collapse nested replies so only top-level student posts remain visible.
+
+        Canvas often loads discussions with threads expanded. Collapsing first
+        keeps peer responses (indent replies) out of the reply loop.
+        """
+        try:
+            button = self.page.locator(canvas_config.COLLAPSE_THREADS_SELECTOR)
+            if button.count() == 0:
+                print("Threads already collapsed (or Collapse Threads control not found)")
+                return
+            print("Collapsing discussion threads...")
+            button.first.click()
+            time.sleep(canvas_config.NAVIGATION_WAIT_TIME)
+        except Exception as e:
+            print(f"Warning: could not collapse discussion threads: {e}")
+
     def scrape_discussion_posts(self) -> list[DiscussionPost]:
         """Collect all student discussion posts without posting replies."""
         posts: list[DiscussionPost] = []
