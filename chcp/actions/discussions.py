@@ -54,6 +54,7 @@ def run_discussion_action(
     course_selector: str = None,
     week_id: int = None,
     llm_provider: str = None,
+    otp_provider=None,
 ) -> None:
     """Main function to run discussion scraping and response generation"""
     if not email or not password:
@@ -130,7 +131,7 @@ def run_discussion_action(
     pause.enable()
     try:
         with CanvasService(headless=False) as canvas:
-            canvas.login(email, password)
+            canvas.login(email, password, otp_provider=otp_provider)
             canvas.navigate_to_discussion(course_id, topic_id)
             # Collapse nested peer replies so we only reply to top-level posts.
             canvas.collapse_discussion_if_needed()
@@ -157,18 +158,16 @@ def main():
 
     args = parser.parse_args()
 
-    username = os.getenv("CANVAS_USERNAME")
-    password = os.getenv("CANVAS_PASSWORD")
+    from chcp.core.credentials import resolve_canvas_credentials
 
-    if not username or not password:
-        raise ValueError("CANVAS_USERNAME and CANVAS_PASSWORD environment variables must be set")
-
+    creds = resolve_canvas_credentials()
     run_discussion_action(
-        email=username,
-        password=password,
+        email=creds.username,
+        password=creds.password,
         course_selector=args.course,
         week_id=args.week,
         llm_provider=args.provider,
+        otp_provider=creds.get_otp if creds.has_otp_provider else None,
     )
 
 

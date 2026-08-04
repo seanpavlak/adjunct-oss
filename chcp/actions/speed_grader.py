@@ -30,6 +30,7 @@ def run_speed_grader_action(
     max_students: int = None,
     dry_run: bool = False,
     llm_provider: str = None,
+    otp_provider=None,
 ) -> None:
     """Log in to Canvas and auto-grade discussion submissions in Speed Grader"""
     if not email or not password:
@@ -122,7 +123,7 @@ def run_speed_grader_action(
     print(f"  LLM provider: {llm_provider} (lenient rubric grading)")
 
     with CanvasService(headless=False) as canvas:
-        canvas.login(email, password)
+        canvas.login(email, password, otp_provider=otp_provider)
         canvas.navigate_to_speed_grader(course_id, assignment_id)
 
         graded, failed = canvas.run_speed_grader_loop(
@@ -170,21 +171,19 @@ def main():
     )
     args = parser.parse_args()
 
-    username = os.getenv("CANVAS_USERNAME")
-    password = os.getenv("CANVAS_PASSWORD")
+    from chcp.core.credentials import resolve_canvas_credentials
 
-    if not username or not password:
-        raise ValueError("CANVAS_USERNAME and CANVAS_PASSWORD environment variables must be set")
-
+    creds = resolve_canvas_credentials()
     run_speed_grader_action(
-        email=username,
-        password=password,
+        email=creds.username,
+        password=creds.password,
         course_selector=args.course,
         week_id=args.week,
         grade_override=args.grade,
         max_students=args.max_students,
         dry_run=args.dry_run,
         llm_provider=args.provider,
+        otp_provider=creds.get_otp if creds.has_otp_provider else None,
     )
 
 

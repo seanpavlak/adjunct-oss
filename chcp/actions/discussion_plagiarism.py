@@ -33,6 +33,7 @@ def run_plagiarism_action(
     similarity_threshold: float = DEFAULT_SIMILARITY_THRESHOLD,
     min_words: int = DEFAULT_MIN_WORDS,
     min_matching_fraction: float = DEFAULT_MIN_MATCHING_FRACTION,
+    otp_provider=None,
 ) -> None:
     """Log in, scrape discussion posts, and print suspected plagiarism pairs."""
     if not email or not password:
@@ -79,7 +80,7 @@ def run_plagiarism_action(
     )
 
     with CanvasService(headless=False) as canvas:
-        canvas.login(email, password)
+        canvas.login(email, password, otp_provider=otp_provider)
         canvas.navigate_to_discussion(course_id, topic_id)
         canvas.expand_discussion_if_needed()
 
@@ -142,18 +143,17 @@ def main():
     )
     args = parser.parse_args()
 
-    username = os.getenv("CANVAS_USERNAME")
-    password = os.getenv("CANVAS_PASSWORD")
-    if not username or not password:
-        raise ValueError("CANVAS_USERNAME and CANVAS_PASSWORD environment variables must be set")
+    from chcp.core.credentials import resolve_canvas_credentials
 
+    creds = resolve_canvas_credentials()
     run_plagiarism_action(
-        email=username,
-        password=password,
+        email=creds.username,
+        password=creds.password,
         course_selector=args.course,
         week_id=args.week,
         similarity_threshold=args.threshold,
         min_words=args.min_words,
+        otp_provider=creds.get_otp if creds.has_otp_provider else None,
     )
 
 

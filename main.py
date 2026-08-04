@@ -296,12 +296,9 @@ def get_llm_provider():
 def run_discussion_action(args=None):
     """Run the discussion scraping action"""
     from chcp.actions.discussions import run_discussion_action
+    from chcp.core.credentials import resolve_canvas_credentials
 
-    username = os.getenv("CANVAS_USERNAME")
-    password = os.getenv("CANVAS_PASSWORD")
-
-    if not username or not password:
-        raise ValueError("CANVAS_USERNAME and CANVAS_PASSWORD environment variables must be set")
+    creds = resolve_canvas_credentials()
 
     # If args provided (from CLI), use them; otherwise use interactive mode
     if args:
@@ -330,11 +327,12 @@ def run_discussion_action(args=None):
 
     try:
         run_discussion_action(
-            email=username,
-            password=password,
+            email=creds.username,
+            password=creds.password,
             course_selector=course_selector,
             week_id=week_id,
             llm_provider=llm_provider,
+            otp_provider=creds.get_otp if creds.has_otp_provider else None,
         )
     except Exception as e:
         if not browser_closed:
@@ -345,12 +343,9 @@ def run_discussion_action(args=None):
 def run_speed_grader_action_cli(args=None):
     """Run the Speed Grader auto-grading action"""
     from chcp.actions.speed_grader import run_speed_grader_action
+    from chcp.core.credentials import resolve_canvas_credentials
 
-    username = os.getenv("CANVAS_USERNAME")
-    password = os.getenv("CANVAS_PASSWORD")
-
-    if not username or not password:
-        raise ValueError("CANVAS_USERNAME and CANVAS_PASSWORD environment variables must be set")
+    creds = resolve_canvas_credentials()
 
     if args:
         course_selector = args.course
@@ -387,14 +382,15 @@ def run_speed_grader_action_cli(args=None):
 
     try:
         run_speed_grader_action(
-            email=username,
-            password=password,
+            email=creds.username,
+            password=creds.password,
             course_selector=course_selector,
             week_id=week_id,
             grade_override=grade_override,
             max_students=max_students,
             dry_run=dry_run,
             llm_provider=llm_provider,
+            otp_provider=creds.get_otp if creds.has_otp_provider else None,
         )
     except Exception as e:
         if not browser_closed:
@@ -405,12 +401,9 @@ def run_speed_grader_action_cli(args=None):
 def run_plagiarism_action_cli(args=None):
     """Run many-to-many discussion plagiarism comparison"""
     from chcp.actions.discussion_plagiarism import run_plagiarism_action
+    from chcp.core.credentials import resolve_canvas_credentials
 
-    username = os.getenv("CANVAS_USERNAME")
-    password = os.getenv("CANVAS_PASSWORD")
-
-    if not username or not password:
-        raise ValueError("CANVAS_USERNAME and CANVAS_PASSWORD environment variables must be set")
+    creds = resolve_canvas_credentials()
 
     if args:
         course_selector = args.course
@@ -434,12 +427,13 @@ def run_plagiarism_action_cli(args=None):
 
     try:
         run_plagiarism_action(
-            email=username,
-            password=password,
+            email=creds.username,
+            password=creds.password,
             course_selector=course_selector,
             week_id=week_id,
             similarity_threshold=similarity_threshold,
             min_words=min_words,
+            otp_provider=creds.get_otp if creds.has_otp_provider else None,
         )
     except Exception as e:
         if not browser_closed:
@@ -450,12 +444,9 @@ def run_plagiarism_action_cli(args=None):
 def run_announcement_action(args=None):
     """Run the announcement scheduling action"""
     from chcp.actions.announcements import schedule_announcements
+    from chcp.core.credentials import resolve_canvas_credentials
 
-    username = os.getenv("CANVAS_USERNAME")
-    password = os.getenv("CANVAS_PASSWORD")
-
-    if not username or not password:
-        raise ValueError("CANVAS_USERNAME and CANVAS_PASSWORD environment variables must be set")
+    creds = resolve_canvas_credentials()
 
     # If args provided (from CLI), use them; otherwise use interactive mode
     if args:
@@ -476,7 +467,12 @@ def run_announcement_action(args=None):
     signal.signal(signal.SIGTERM, signal_handler)
 
     try:
-        schedule_announcements(username, password, course_selector)
+        schedule_announcements(
+            creds.username,
+            creds.password,
+            course_selector,
+            otp_provider=creds.get_otp if creds.has_otp_provider else None,
+        )
     except Exception as e:
         if not browser_closed:
             console.print(f"[red]Error: {e}[/red]")

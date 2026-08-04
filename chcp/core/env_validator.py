@@ -4,7 +4,7 @@ Environment variable validation using Pydantic
 
 from typing import Optional
 
-from pydantic import Field, field_validator
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings
 
 
@@ -15,9 +15,13 @@ class Settings(BaseSettings):
     Automatically loads from .env file if present
     """
 
-    # Required credentials
-    CANVAS_USERNAME: str = Field(..., description="Canvas LMS username/email")
-    CANVAS_PASSWORD: str = Field(..., description="Canvas LMS password")
+    # 1Password Login item (required for Canvas auth + MFA OTP)
+    CANVAS_OP_ITEM: str = Field(
+        ..., description="1Password Login item name/ID for Canvas credentials + OTP"
+    )
+    CANVAS_OP_VAULT: Optional[str] = Field(
+        None, description="Optional 1Password vault containing CANVAS_OP_ITEM"
+    )
 
     # Optional LLM API keys (at least one required)
     OPENAI_API_KEY: Optional[str] = Field(None, description="OpenAI API key")
@@ -31,21 +35,16 @@ class Settings(BaseSettings):
         "extra": "ignore",  # Ignore extra environment variables
     }
 
-    @field_validator("CANVAS_USERNAME")
-    @classmethod
-    def validate_username(cls, v: str) -> str:
-        """Validate username is not empty"""
-        if not v or not v.strip():
-            raise ValueError("CANVAS_USERNAME cannot be empty")
-        return v.strip()
-
-    @field_validator("CANVAS_PASSWORD")
-    @classmethod
-    def validate_password(cls, v: str) -> str:
-        """Validate password is not empty"""
-        if not v or not v.strip():
-            raise ValueError("CANVAS_PASSWORD cannot be empty")
-        return v
+    @model_validator(mode="after")
+    def validate_credentials(self) -> "Settings":
+        """Require a 1Password Login item reference."""
+        item = (self.CANVAS_OP_ITEM or "").strip()
+        if not item:
+            raise ValueError(
+                "Set CANVAS_OP_ITEM to your 1Password Login item UUID or name"
+            )
+        self.CANVAS_OP_ITEM = item
+        return self
 
     def validate_llm_keys(self) -> None:
         """Ensure at least one LLM API key is set"""

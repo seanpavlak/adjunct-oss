@@ -26,7 +26,7 @@ Automate Canvas LMS tasks including AI-powered discussion responses and announce
 ## 📋 Prerequisites
 
 - Python 3.10 or higher
-- Canvas LMS account credentials
+- [1Password CLI](https://developer.1password.com/docs/cli/get-started/) (`op`) with a Login item that has username, password, and OTP
 - At least one LLM API key (OpenAI, Anthropic, or DeepSeek)
 
 ## 🚀 Installation
@@ -59,11 +59,20 @@ Automate Canvas LMS tasks including AI-powered discussion responses and announce
    playwright install chromium
    ```
 
+5. **Install / sign in to 1Password CLI**
+   ```bash
+   # macOS (Homebrew)
+   brew install 1password-cli
+
+   # Sign in (or enable Settings → Developer → Integrate with 1Password CLI)
+   op signin
+   ```
+
 ## ⚙️ Configuration
 
 ### 1. Environment Variables
 
-Copy `.env.example` to `.env` and fill in your credentials:
+Copy `.env.example` to `.env` and fill in values:
 
 ```bash
 cp .env.example .env
@@ -72,15 +81,27 @@ cp .env.example .env
 Edit `.env`:
 
 ```env
-# Canvas LMS Credentials (Required)
-CANVAS_USERNAME=your.email@example.com
-CANVAS_PASSWORD=your_password
+# 1Password Login item UUID or name (username + password + OTP)
+CANVAS_OP_ITEM=b5nkn55u4rkekiirexp4e3irdi
+# CANVAS_OP_VAULT=Personal
 
-# LLM API Keys (At least one required)
+# LLM API Keys (at least one required)
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 DEEPSEEK_API_KEY=sk-...
 ```
+
+**Verify auth works** (should print your email and an OTP):
+
+```bash
+# Use the same item UUID/name as CANVAS_OP_ITEM in .env
+op item get b5nkn55u4rkekiirexp4e3irdi --fields label=username,label=password --reveal
+op item get b5nkn55u4rkekiirexp4e3irdi --otp
+
+python -c "from dotenv import load_dotenv; load_dotenv(); from chcp.core.credentials import resolve_canvas_credentials as r; c=r(); print(c.source, c.username, 'otp=' + (c.get_otp() or 'none'))"
+```
+
+Credentials are never stored in `.env` — only the 1Password item reference. OTP is fetched when Canvas shows the MFA screen.
 
 ### 2. Course Configuration
 
@@ -197,9 +218,11 @@ Edit `config/announcements.json` to configure announcements:
 
 ### Interactive Mode (Recommended)
 
-Simply run without arguments for guided experience:
-
 ```bash
+# Sign in to 1Password first (if needed)
+op signin
+
+# Launch the menu
 python main.py
 ```
 
@@ -388,9 +411,9 @@ black .
 
 ## 🔐 Security Notes
 
-- Never commit `.env` file to version control
-- Store API keys securely
-- Canvas credentials are never logged
+- Never commit `.env` to version control
+- Store Canvas login + OTP only in 1Password; `.env` holds `CANVAS_OP_ITEM` and LLM keys
+- Canvas credentials and OTP codes are never logged
 - Use read-only API keys when possible
 
 ## 📄 License

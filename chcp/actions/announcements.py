@@ -3,7 +3,6 @@ Canvas Announcement Scheduler - Automates scheduling of course announcements
 """
 
 import argparse
-import os
 
 from dotenv import load_dotenv
 
@@ -19,7 +18,12 @@ from chcp.core.course_utils import (
 load_dotenv()
 
 
-def schedule_announcements(email: str, password: str, course_selector: str) -> None:
+def schedule_announcements(
+    email: str,
+    password: str,
+    course_selector: str,
+    otp_provider=None,
+) -> None:
     """Main function to schedule all announcements for a course"""
     # Load configurations
     courses_config = load_courses_config()
@@ -42,7 +46,7 @@ def schedule_announcements(email: str, password: str, course_selector: str) -> N
 
     # Use CanvasService for browser automation
     with CanvasService(headless=False) as canvas:
-        canvas.login(email, password)
+        canvas.login(email, password, otp_provider=otp_provider)
 
         # Schedule announcements
         successful_announcements, failed_announcements = canvas.schedule_announcements(
@@ -66,18 +70,21 @@ def main():
 
     args = parser.parse_args()
 
-    username = os.getenv("CANVAS_USERNAME")
-    password = os.getenv("CANVAS_PASSWORD")
+    from chcp.core.credentials import resolve_canvas_credentials
 
-    if not username or not password:
-        raise ValueError("CANVAS_USERNAME and CANVAS_PASSWORD environment variables must be set")
+    creds = resolve_canvas_credentials()
 
     print("=== Canvas Announcement Scheduler ===")
     print(f"Course: {args.course}")
-    print(f"Username: {username}")
+    print(f"Username: {creds.username}")
 
     try:
-        schedule_announcements(username, password, args.course)
+        schedule_announcements(
+            creds.username,
+            creds.password,
+            args.course,
+            otp_provider=creds.get_otp if creds.has_otp_provider else None,
+        )
         print("\n💡 Saved you time? Consider supporting: https://buymeacoffee.com/seanpavlak")
     except Exception as e:
         print(f"Error: {e}")

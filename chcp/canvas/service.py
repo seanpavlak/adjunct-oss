@@ -3,8 +3,9 @@ Canvas Service for browser automation and Canvas LMS operations
 """
 
 import time
-from typing import Any, List, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple
 
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import sync_playwright
 
 from chcp.canvas.parsers import (
@@ -55,14 +56,51 @@ class CanvasService:
         if self.playwright:
             self.playwright.stop()
 
-    def login(self, email: str, password: str) -> None:
-        """Login to Canvas with provided credentials"""
-        self.page.goto("https://chcp.instructure.com/login/canvas")
-        self.page.wait_for_selector("input#pseudonym_session_unique_id", state="attached")
-        self.page.fill("input#pseudonym_session_unique_id", email)
-        self.page.fill('input[name="pseudonym_session[password]"]', password)
-        self.page.press('input[name="pseudonym_session[password]"]', "Enter")
-        time.sleep(3)  # Wait for login to complete
+    def login(
+        self,
+        email: str,
+        password: str,
+        otp_provider: Optional[Callable[[], Optional[str]]] = None,
+    ) -> None:
+        """Login to Canvas with credentials, completing MFA OTP when prompted."""
+        self.page.goto(canvas_config.LOGIN_URL)
+        self.page.wait_for_selector(canvas_config.USERNAME_SELECTOR, state="attached")
+        self.page.fill(canvas_config.USERNAME_SELECTOR, email)
+        self.page.fill(canvas_config.PASSWORD_SELECTOR, password)
+        self.page.press(canvas_config.PASSWORD_SELECTOR, "Enter")
+
+        otp_input = self.page.locator(canvas_config.OTP_SELECTOR)
+        try:
+            otp_input.wait_for(state="visible", timeout=canvas_config.OTP_WAIT_TIMEOUT_MS)
+        except PlaywrightTimeoutError:
+            time.sleep(canvas_config.LOGIN_WAIT_TIME)
+            return
+
+        if otp_provider is None:
+            raise ValueError(
+                "Canvas MFA verification code required, but no OTP provider is configured. "
+                "Set CANVAS_OP_ITEM to your 1Password Login item (with a one-time password)."
+            )
+
+        otp = otp_provider()
+        if not otp:
+            raise ValueError(
+                "Canvas MFA verification code required, but OTP provider returned no code."
+            )
+
+        otp_input.fill(str(otp).strip())
+        verify = self.page.locator(canvas_config.OTP_SUBMIT_SELECTOR).filter(has_text="Verify")
+        if verify.count() > 0:
+            verify.first.click()
+        else:
+            otp_input.press("Enter")
+
+        # Wait for MFA page to clear before continuing
+        try:
+            otp_input.wait_for(state="hidden", timeout=canvas_config.DEFAULT_TIMEOUT)
+        except PlaywrightTimeoutError:
+            pass
+        time.sleep(canvas_config.LOGIN_WAIT_TIME)
 
     def extract_content(self, author) -> str:
         """Extract post body from a discussion entry rooted at ``[data-authorid]``.

@@ -23,6 +23,9 @@ class CanvasConfig:
     # Selectors
     USERNAME_SELECTOR: Final[str] = "input#pseudonym_session_unique_id"
     PASSWORD_SELECTOR: Final[str] = 'input[name="pseudonym_session[password]"]'
+    OTP_SELECTOR: Final[str] = "input#otp_login_verification_code"
+    OTP_SUBMIT_SELECTOR: Final[str] = 'button[type="submit"].Button--primary'
+    OTP_WAIT_TIMEOUT_MS: Final[int] = 10000
     AUTHOR_SELECTOR: Final[str] = "[data-authorid]"
     AUTHOR_NAME_SELECTOR: Final[str] = '[data-testid="author_name"]'
     REPLY_BUTTON_SELECTOR: Final[str] = '[data-testid="threading-toolbar-reply"]'
