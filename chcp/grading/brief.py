@@ -88,8 +88,9 @@ def format_grading_brief(
         [
             "",
             "=== GRADING INSTRUCTIONS FOR THIS SUBMISSION ===",
-            "1. Comprehension: Judge ONLY the initial post against the discussion prompt — "
-            "organization, critical thinking, examples, and depth.",
+            "1. Comprehension: Judge ONLY the initial post against the discussion prompt. "
+            "Prefer exceeds for a complete, organized answer with some analysis, examples, "
+            "or experience. Meets only if the post is thin or misses a requested part.",
             "2. Timeliness: Use the timeliness note above; do not assign exceeds for timeliness.",
             "3. Engagement: Judge EACH peer reply. Exceeds when two replies greet a classmate and "
             "discuss the topic/field (see exceeds-quality flags). Meets for two thinner replies; zero → below.",

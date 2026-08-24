@@ -265,7 +265,7 @@
           "require_citation": true,
           "min_initial_post_chars": 100,
           "min_peer_reply_chars": 40,
-          "min_comprehension_richness_signals": 3,
+          "min_comprehension_richness_signals": 2,
           "lenient": true
         },
         "rubric_rating_levels": {
@@ -296,7 +296,7 @@
         },
         "grading_defaults": {
           "lenient": true,
-          "global_llm_guidance": "Rubric levels (1–4): 1=below, 2=needs, 3=meets, 4=exceeds. You receive an AUTOMATED PRE-GRADE CHECKLIST — treat it as ground truth for counts (peer replies, citations, lateness) unless the student text clearly contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) within those facts. LENIENCY: When the work clearly fits one level, keep it. When genuinely torn between adjacent levels only (1↔2 or 3↔4), set borderline=true and pick the lower level; post-processing may bump one step. Reserve below for missing or clearly inadequate work."
+          "global_llm_guidance": "Rubric levels (1–4): 1=below, 2=needs, 3=meets, 4=exceeds. You receive an AUTOMATED PRE-GRADE CHECKLIST — treat it as ground truth for counts (peer replies, citations, lateness) unless the student text clearly contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) within those facts. LENIENCY: When the work clearly fits one level, keep it. When genuinely torn between adjacent levels only (1↔2 or 3↔4), set borderline=true. For Comprehension, prefer exceeds over meets when torn. For other criteria, pick the lower level; post-processing may bump one step. Reserve below for missing or clearly inadequate work."
         }
       }
     },
@@ -565,7 +565,7 @@
           "require_citation": true,
           "min_initial_post_chars": 100,
           "min_peer_reply_chars": 40,
-          "min_comprehension_richness_signals": 3,
+          "min_comprehension_richness_signals": 2,
           "lenient": true
         },
         "rubric_rating_levels": {
@@ -596,7 +596,7 @@
         },
         "grading_defaults": {
           "lenient": true,
-          "global_llm_guidance": "Rubric levels (1–4): 1=below, 2=needs, 3=meets, 4=exceeds. You receive an AUTOMATED PRE-GRADE CHECKLIST — treat it as ground truth for counts (peer replies, citations, lateness) unless the student text clearly contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) within those facts. LENIENCY: When the work clearly fits one level, keep it. When genuinely torn between adjacent levels only (1↔2 or 3↔4), set borderline=true and pick the lower level; post-processing may bump one step. Reserve below for missing or clearly inadequate work."
+          "global_llm_guidance": "Rubric levels (1–4): 1=below, 2=needs, 3=meets, 4=exceeds. You receive an AUTOMATED PRE-GRADE CHECKLIST — treat it as ground truth for counts (peer replies, citations, lateness) unless the student text clearly contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) within those facts. LENIENCY: When the work clearly fits one level, keep it. When genuinely torn between adjacent levels only (1↔2 or 3↔4), set borderline=true. For Comprehension, prefer exceeds over meets when torn. For other criteria, pick the lower level; post-processing may bump one step. Reserve below for missing or clearly inadequate work."
         }
       }
     }

@@ -129,7 +129,7 @@ def _apply_comprehension_effort(ctx: EnforcementContext) -> RubricLevel:
     Floor very short posts at below.
 
     Promote meets → exceeds only when the initial post passes richness signals
-    (multi-paragraph, ~130+ words, references/URLs — not length alone).
+    (multi-paragraph, ~110+ words, references/URLs — not length alone).
     """
     if ctx.analysis is not None:
         initial_len = ctx.analysis.initial_char_count

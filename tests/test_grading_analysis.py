@@ -65,6 +65,7 @@ from chcp.grading.fixtures import (
     BRISTER_THIN_INITIAL,
     BRITO_RICH_INITIAL,
     LESLEY_ADEQUATE_INITIAL,
+    SOLID_TWO_PARAGRAPH_INITIAL,
     TIONNA_PEER_REPLY_CHEYENE,
     TIONNA_PEER_REPLY_LIDIA,
 )
@@ -108,6 +109,12 @@ class TestInitialPostRichness:
         r = assess_initial_post_richness(LESLEY_ADEQUATE_INITIAL)
         assert not r.qualifies_for_exceeds
 
+    def test_two_paragraph_solid_post_qualifies(self):
+        r = assess_initial_post_richness(SOLID_TWO_PARAGRAPH_INITIAL)
+        assert r.paragraph_count >= 2
+        assert r.signal_count >= 2
+        assert r.qualifies_for_exceeds
+
     def test_lesley_like_meets_stays_meets_after_enforcement(self):
         sub = DiscussionSubmission(initial_post=LESLEY_ADEQUATE_INITIAL)
         analysis = analyze_submission(sub)
@@ -130,3 +137,4 @@ class TestGradingBrief:
         assert "Week 3" in brief
         assert "AUTOMATED PRE-GRADE CHECKLIST" in brief
         assert "INITIAL POST" in brief
+        assert "Prefer exceeds" in brief

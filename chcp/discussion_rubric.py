@@ -17,7 +17,7 @@ GRADING_REQUIREMENTS: Dict[str, Any] = {
     "min_citations": 1,
     "require_citation": True,
     "min_initial_post_chars": 100,
-    "min_comprehension_richness_signals": 3,
+    "min_comprehension_richness_signals": 2,
     "min_peer_reply_chars": 40,
     "lenient": True,
 }

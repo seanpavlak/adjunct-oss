@@ -73,16 +73,16 @@ def _paragraph_count(text: str) -> int:
 def assess_initial_post_richness(
     initial_post: str,
     *,
-    min_words: int = 130,
-    min_chars: int = 700,
+    min_words: int = 110,
+    min_chars: int = 650,
     min_paragraphs: int = 2,
-    min_signals_for_exceeds: int = 3,
+    min_signals_for_exceeds: int = 2,
 ) -> InitialPostRichness:
     """
     Richness bar for Comprehension exceeds (not raw length alone).
 
-    Typical exceeds profile: multi-paragraph, ~130+ words, optional references/URLs
-    (e.g. Beatriz-style). Thin single-paragraph posts (e.g. Brister-style) do not qualify
+    Typical exceeds profile: multi-paragraph with ~110+ words, or a solid block
+    plus a source. Thin single-paragraph posts (e.g. Brister-style) do not qualify
     even if they clear the course minimum length (~100 chars).
     """
     initial = (initial_post or "").strip()
@@ -246,7 +246,7 @@ def analyze_submission(
     initial = (submission.initial_post or "").strip()
     initial_chars = len(initial)
     initial_words = _word_count(initial)
-    min_richness_signals = int(req.get("min_comprehension_richness_signals", 3))
+    min_richness_signals = int(req.get("min_comprehension_richness_signals", 2))
     initial_richness = assess_initial_post_richness(
         initial,
         min_signals_for_exceeds=min_richness_signals,
@@ -352,12 +352,13 @@ def analyze_submission(
     if initial_richness.qualifies_for_exceeds:
         comprehension_summary = (
             "Initial post meets exceeds richness bar (depth, structure, and/or sources) — "
-            "Comprehension may be exceeds if the prompt is fully addressed with critical thinking."
+            "prefer Comprehension exceeds unless the prompt is unanswered or the post is off-topic."
         )
     elif initial_chars >= min_initial:
         comprehension_summary = (
-            "Initial post meets minimum length but not exceeds richness (single thin block or "
-            "no sources) — Comprehension typically meets unless the LLM finds strong depth."
+            "Initial post meets minimum length but not the richness auto-bump. Still prefer "
+            "exceeds when the prompt is addressed with organization and some analysis, "
+            "example, or experience. Use meets only if the answer is thin or incomplete."
         )
     elif initial_chars >= 30:
         comprehension_summary = (

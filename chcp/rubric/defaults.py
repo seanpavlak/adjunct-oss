@@ -10,11 +10,13 @@ DEFAULT_CRITERION_GRADING_POLICIES: Dict[str, Dict[str, Any]] = {
     "Comprehension": {
         "llm_guidance": (
             "Read the discussion prompt first, then judge ONLY the initial post (not peer "
-            "replies). Exceeds: fully addresses all parts of the prompt with critical "
-            "thinking, analysis, and rich examples (healthcare, sonography, personal "
-            "experience). Meets: addresses the prompt with adequate detail. Needs: "
-            "partially addresses the prompt or lacks depth/organization. Below: missing, "
-            "off-topic, or far too short to demonstrate understanding."
+            "replies). Be slightly generous at the undergraduate level. Exceeds: addresses "
+            "the prompt with organization plus some critical thinking, analysis, example, "
+            "or experience (healthcare, sonography, personal) — a complete solid answer "
+            "counts; do not require exhaustive or graduate-level depth. Meets: addresses "
+            "the prompt but is thin, one-note, or missing a requested part. Needs: "
+            "partially addresses the prompt or lacks organization. Below: missing, "
+            "off-topic, or far too short. When torn between meets and exceeds, choose exceeds."
         ),
         "lenient": True,
         "enforcement": {
@@ -82,8 +84,9 @@ RUBRIC_GRADING_DEFAULTS: Dict[str, Any] = {
         "counts (peer replies, citations, lateness) unless the student text clearly "
         "contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) "
         "within those facts. LENIENCY: When the work clearly fits one level, keep it. "
-        "When genuinely torn between adjacent levels only (1↔2 or 3↔4), set borderline=true "
-        "and pick the lower level; post-processing may bump one step. "
+        "When genuinely torn between adjacent levels only (1↔2 or 3↔4), set "
+        "borderline=true. For Comprehension, prefer exceeds over meets when torn. "
+        "For other criteria, pick the lower level; post-processing may bump one step. "
         "Reserve below for missing or clearly inadequate work."
     ),
 }

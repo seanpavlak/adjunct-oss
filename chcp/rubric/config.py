@@ -20,7 +20,7 @@ class GradingRequirements(BaseModel):
     require_citation: bool = True
     min_initial_post_chars: int = 100
     min_peer_reply_chars: int = 40
-    min_comprehension_richness_signals: int = 3
+    min_comprehension_richness_signals: int = 2
     lenient: bool = True
 
 

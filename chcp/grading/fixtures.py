@@ -67,3 +67,14 @@ LESLEY_ADEQUATE_INITIAL = (
     "will be times when we have to move the probe around or even reposition the patient "
     "to be able to get a clearer image of where we neeed to scan."
 )
+
+# Two organized paragraphs, no citations — should clear the eased exceeds bar.
+SOLID_TWO_PARAGRAPH_INITIAL = (
+    "The metric system is easier to use in science because units scale by tens. "
+    "In sonography that matters when we record distances and speeds, such as "
+    "blood-flow velocity, without converting inches to centimeters by hand. "
+    "Keeping measurements consistent also reduces calculation errors in lab work.\n\n"
+    "I have seen this when we compared customary and metric values in class. "
+    "Working in meters and seconds made the formulas simpler and helped me understand "
+    "why hospitals already chart in milliliters and milligrams for patient care."
+)

@@ -163,7 +163,7 @@ If Canvas changes rubric button IDs, update `rubric_ratings` in the course `disc
 **Grading pipeline** (Speed Grader):
 
 1. **Parse** (`grading/parse.py`) — Canvas `discussion_entry` DOM: first post = initial, rest = peer replies; fallback text heuristics.
-2. **Analyze** (`grading/analysis.py`) — checklist: meaningful vs substantive peer replies, citation signals, timeliness, **comprehension richness** (multi-paragraph, ~130+ words, references/URLs — not length alone).
+2. **Analyze** (`grading/analysis.py`) — checklist: meaningful vs substantive peer replies, citation signals, timeliness, **comprehension richness** (multi-paragraph, ~110+ words, references/URLs — not length alone).
 3. **Brief** (`grading/brief.py`) — discussion prompt + checklist + full student text for the LLM.
 4. **LLM** (`rubric_grader.py`) — structured `RubricAssessment` per criterion.
 5. **Post-process** (`rubric/pipeline.py`) — leniency (`borderline=true`) then enforcement using the same `SubmissionAnalysis`.
@@ -175,7 +175,7 @@ If Canvas changes rubric button IDs, update `rubric_ratings` in the course `disc
 | Substantive peer replies | ≥2 that add detail (not agreement-only) |
 | On time | Canvas `days-late-input` or preview |
 | Citations | URLs, APA/refs, or citation attempts |
-| Comprehension exceeds | 3+ richness signals (not 120 chars alone) |
+| Comprehension exceeds | 2+ richness signals (not 120 chars alone) |
 
 ```bash
 python main.py grade --course A --week 1 --dry-run   # log full LLM I/O for student on screen

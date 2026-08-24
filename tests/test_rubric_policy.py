@@ -137,3 +137,4 @@ class TestPromptBuilding:
         text = build_grading_instructions(config)
         assert "borderline" in text.lower() or "LENIENCY" in text
         assert "Engagement:" in text
+        assert "prefer exceeds over meets" in text.lower()
