@@ -12,3 +12,7 @@ def courses_config_path() -> Path:
 
 def announcements_config_path() -> Path:
     return CONFIG_DIR / "announcements.json"
+
+
+def voice_profile_path() -> Path:
+    return CONFIG_DIR / "VOICE.md"

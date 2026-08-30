@@ -78,11 +78,15 @@ class LLMConfig:
     DEEPSEEK_BASE_URL: Final[str] = "https://api.deepseek.com/v1"
 
     # Generation parameters
-    TEMPERATURE: Final[float] = 0.7
+    TEMPERATURE: Final[float] = 0.85
+    HUMANIZE_TEMPERATURE: Final[float] = 0.35
     MAX_RESPONSE_WORDS: Final[int] = 75
     FEW_SHOT_K: Final[int] = 3
     FOLLOW_UP_QUESTION_PROBABILITY: Final[float] = 0.20
     PHRASE_SELECTION_PROBABILITY: Final[float] = 0.0
+    HUMANIZE_PASS: Final[bool] = True
+    MIN_EXAMPLE_RESPONSE_WORDS: Final[int] = 12
+    SLOP_REWRITE_THRESHOLD: Final[int] = 2
 
 
 @dataclass(frozen=True)

@@ -4,9 +4,10 @@ LLM-based response generator for Canvas discussions.
 Pipeline (prompt + code):
 1. Refuse if the student post is unreadable.
 2. Extract physics/career anchors from the post in code.
-3. Select few-shots by text + concept overlap.
-4. Ask the model for structured body (+ optional follow-up question).
-5. Assemble the final reply in code: Title-Case name lead, cleanup, ~20% questions.
+3. Select authentic few-shots by text + concept overlap (skip AI-slop examples).
+4. Ask the model for structured body in the instructor voice (+ optional question).
+5. Humanize pass when the draft still has machine tells (voice rewrite, no new facts).
+6. Assemble the final reply in code: Title-Case name lead, cleanup, ~20% questions.
 """
 
 from __future__ import annotations
@@ -23,6 +24,12 @@ from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field
 
 from chcp.canvas.parsers import is_usable_student_post
+from chcp.llm.humanize import (
+    humanize_body,
+    load_voice_profile,
+    needs_rewrite,
+    prefer_authentic_examples,
+)
 from chcp.llm.manager import LLMManager
 from chcp.llm.reply_craft import (
     analyze_student_post,
@@ -66,8 +73,10 @@ class ResponseGenerator:
     deepseek_key: str = field(init=True, repr=False, default="")
     student_name: str = field(init=True, repr=False, default="")
     llm: BaseChatModel = field(init=False)
+    humanize_llm: Optional[BaseChatModel] = field(init=False, default=None)
     parser: JsonOutputParser = field(init=False, default=None)
     dq_prompt: str = field(init=False, default="")
+    voice_profile: str = field(init=False, default="")
     prompt: ChatPromptTemplate = field(init=False, default=None)
 
     def _load_courses(self) -> dict:
@@ -116,29 +125,30 @@ class ResponseGenerator:
         self.llm = LLMManager.create_llm(self.provider, api_key)
         self.parser = JsonOutputParser(pydantic_object=ProfessorReplyDraft)
         self.dq_prompt = self._get_week_prompt()
+        self.voice_profile = load_voice_profile()
         max_words = llm_config.MAX_RESPONSE_WORDS
 
         system = (
-            "You are drafting Canvas discussion replies for an introductory college physics "
-            "professor teaching allied-health / healthcare students.\n"
-            "Write like a real public instructor: specific, substantive, human — not polished AI.\n"
-            "Voice: direct, a little casual, professor in a discussion thread. "
-            "Match the tone of the examples; do not lean on catchphrases.\n"
-            "You never invent what the student wrote. You only react to their post and the anchors.\n"
+            "You are drafting Canvas discussion replies as this instructor, for an "
+            "introductory college physics course (allied-health / healthcare students).\n"
+            "Write in their voice first. Then strip machine smoothness. Do not invent a persona.\n"
+            "Variance over synonym-swapping: uneven sentence lengths, not a thesaurus pass. "
+            "A short line next to a longer one is correct. A tidy 2-3 sentence template is not.\n"
+            "You never invent what the student wrote, and you never invent physics facts, "
+            "stories, numbers, or quotes to sound concrete. If you lack a detail, say less.\n"
             f"Hard cap: {max_words} words in body (before any question).\n"
             "No exclamation marks. No em dashes.\n"
-            "Avoid fake-AI filler "
-            '("I appreciate how you", "great insights", "delve", "keep up the great work", '
-            '"good job", "well done").\n'
             "Do not start the body with the student name — code adds the name lead.\n"
-            "Do not put a question in body; use follow_up_question only when asked."
+            "Do not put a question in body; use follow_up_question only when asked.\n"
+            "Do not recap their post, grade their post, or close with career payoff.\n\n"
+            "Voice profile:\n{voice}"
         )
 
         human = (
             "Course discussion prompt:\n{dq_prompt}\n\n"
             "Anchors extracted from THIS student's post (use at least one concept deeply):\n"
             "{anchors}\n\n"
-            "Examples of my real replies (match tone; dig into physics like these do):\n"
+            "Examples of my real replies (match cadence and stance, not their sentences):\n"
             "{examples}\n\n"
             "Student post (source of truth — touch what they actually said):\n"
             "{content}\n\n"
@@ -146,12 +156,12 @@ class ResponseGenerator:
             "Follow-up mode: {follow_up_mode}\n"
             "- If follow-up mode is ON: also fill follow_up_question with one short, concrete "
             "physics question tied to their post and this course week.\n"
-            "- If follow-up mode is OFF: set follow_up_question to null and do not ask a question.\n\n"
+            "- If follow-up mode is OFF: set follow_up_question to null.\n\n"
             "Write body that:\n"
-            "1) Engages a specific claim/concept from their post (not generic praise),\n"
-            "2) Goes one step deeper on the physics (tighten a definition, connect to a later "
-            "topic, or link to their healthcare field with a real physics detail),\n"
-            "3) Stays public-forum appropriate and brief.\n\n"
+            "1) Reacts to a specific claim from their post (not generic praise),\n"
+            "2) Adds one physics step (tighten a definition, later-week hook, or a real "
+            "healthcare physics detail they already raised),\n"
+            "3) Sounds like the voice profile, not like a grading comment.\n\n"
             "{format_instructions}"
         )
 
@@ -162,6 +172,7 @@ class ResponseGenerator:
             ]
         ).partial(
             dq_prompt=self.dq_prompt,
+            voice=self.voice_profile,
             format_instructions=self.parser.get_format_instructions(),
         )
 
@@ -172,19 +183,39 @@ class ResponseGenerator:
             "deepseek": self.deepseek_key,
         }.get(self.provider, "")
 
-    def _load_discussion_examples(self) -> List[Tuple[str, str]]:
-        week_data = self._get_week_data()
-        discussion_data = week_data.get("discussion_data", [])
-        if not discussion_data:
-            raise ValueError(
-                f"No discussion data found for week {self.week} in course {self.course_selector}"
+    def _get_humanize_llm(self) -> BaseChatModel:
+        if self.humanize_llm is None:
+            self.humanize_llm = LLMManager.create_llm(
+                self.provider,
+                self._provider_api_key(),
+                temperature=llm_config.HUMANIZE_TEMPERATURE,
+                verbose=False,
             )
+        return self.humanize_llm
+
+    def _pairs_from_discussion_data(self, discussion_data: list) -> List[Tuple[str, str]]:
         examples: List[Tuple[str, str]] = []
         for item in discussion_data:
             post = item.get("post", "").strip()
             response = item.get("response", "").strip()
             if post and response:
                 examples.append((post, response))
+        return examples
+
+    def _load_discussion_examples(self) -> List[Tuple[str, str]]:
+        week_data = self._get_week_data()
+        examples = self._pairs_from_discussion_data(week_data.get("discussion_data", []))
+        if not examples:
+            raise ValueError(
+                f"No discussion data found for week {self.week} in course {self.course_selector}"
+            )
+        return examples
+
+    def _load_course_examples(self) -> List[Tuple[str, str]]:
+        course = self._resolve_course(self._load_courses())
+        examples: List[Tuple[str, str]] = []
+        for week_data in course.get("weeks", {}).values():
+            examples.extend(self._pairs_from_discussion_data(week_data.get("discussion_data", [])))
         return examples
 
     def _select_few_shots(
@@ -197,13 +228,22 @@ class ResponseGenerator:
             concept_sim = concept_overlap_score(content, example_post)
             return 0.55 * text_sim + 0.45 * concept_sim
 
-        ranked = sorted(examples, key=lambda pr: score(pr[0]), reverse=True)
-        return ranked[:k]
+        return prefer_authentic_examples(
+            examples,
+            extras=self._load_course_examples(),
+            k=k,
+            score_fn=score,
+        )
 
     def _format_examples(self, few_shots: List[Tuple[str, str]]) -> str:
+        if not few_shots:
+            return (
+                "(no stored replies passed the voice filter — match the voice profile, "
+                "not a grading comment)"
+            )
         lines: List[str] = []
         for post, response in few_shots:
-            lines.append(f"Post: {post[:550]}\nResponse: {response[:320]}")
+            lines.append(f"Post: {post[:550]}\nResponse: {response[:600]}")
         return "\n\n".join(lines)
 
     def reply(self, content, student_name: str = None) -> Optional[str]:
@@ -254,6 +294,16 @@ class ResponseGenerator:
         if not body or not str(body).strip():
             print("REFUSING to post: model returned empty body.")
             return None
+
+        body = str(body)
+        if needs_rewrite(body):
+            body = humanize_body(
+                self._get_humanize_llm(),
+                body,
+                voice=self.voice_profile,
+                student_post=str(content),
+                force=True,
+            )
 
         return assemble_reply(
             student_name=display_name,
