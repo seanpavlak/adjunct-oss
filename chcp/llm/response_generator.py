@@ -140,7 +140,9 @@ class ResponseGenerator:
             "No exclamation marks. No em dashes.\n"
             "Do not start the body with the student name — code adds the name lead.\n"
             "Do not put a question in body; use follow_up_question only when asked.\n"
-            "Do not recap their post, grade their post, or close with career payoff.\n\n"
+            "Do not recap their post, grade their post, or close with career payoff.\n"
+            "Never call their post a note. No \"your note on X\", \"note that\", "
+            "\"worth noting\", or \"as you noted\".\n\n"
             "Voice profile:\n{voice}"
         )
 

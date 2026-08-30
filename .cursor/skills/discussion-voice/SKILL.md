@@ -29,7 +29,8 @@ and voice, not detector evasion.
 
 - "Great job identifying" / "You've correctly explained" / "Excellent comprehensive explanation"
 - "This understanding is crucial" / "this will help you in your field"
-- "It's important to note" / "delve" / "tapestry" / "at its core"
+- "It's important to note" / "your note on X" / "note that" / "worth noting"
+- "delve" / "tapestry" / "at its core"
 
 If a stored example in `config/courses.json` sounds like those, do not use it as a voice model. The pipeline already filters them.
 

@@ -41,6 +41,16 @@ SLOP_PATTERNS: Tuple[Tuple[str, str, int], ...] = (
     ("inflated significance", r"\bstands as a testament\b", 3),
     ("inflated significance", r"\bpivotal\b", 2),
     ("filler", r"\bit'?s(?:\s+\w+){0,2}\s+important to note\b", 2),
+    ("note tic", r"\byour notes? on\b", 3),
+    ("note tic", r"\byour notes? about\b", 3),
+    ("note tic", r"\b(?:good|nice|great|solid|interesting) notes? on\b", 3),
+    ("note tic", r"\ba notes? on\b", 2),
+    ("note tic", r"\bas you noted\b", 3),
+    ("note tic", r"\byou noted that\b", 2),
+    ("note tic", r"\bnote that\b", 3),
+    ("note tic", r"\bworth noting\b", 3),
+    ("note tic", r"\bplease note\b", 3),
+    ("note tic", r"\bon a side note\b", 2),
     ("filler", r"\bin conclusion\b", 2),
     ("filler", r"\bfurthermore\b", 2),
     ("filler", r"\bdelve\b", 3),
@@ -69,8 +79,10 @@ HUMANIZE_SYSTEM = (
     "lived experience the draft does not already contain. If a sentence is vague, "
     "shorten it. Never invent a specific to sound human.\n"
     "Strip grading-speak and AI filler (great job identifying, you've correctly "
-    "explained, this is crucial for your field, delve, tapestry, it's important "
-    "to note). Keep physics specifics that are already in the draft.\n"
+    "explained, this is crucial for your field, delve, tapestry).\n"
+    "Never call their post a note. Do not write \"your note on X\", \"note that\", "
+    "\"worth noting\", or \"as you noted\". Name the actual physics they raised.\n"
+    "Keep physics specifics that are already in the draft.\n"
     "Voice phrases like \"I dig that\", \"spot on\", \"on point\", \"excellent\", "
     "\"100% agree\" are allowed at most once, and only if they fit.\n"
     "No exclamation marks. No em dashes. No student name lead. No new question "

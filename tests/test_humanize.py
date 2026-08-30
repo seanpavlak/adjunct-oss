@@ -42,6 +42,17 @@ class TestSlopScore:
         )
         assert needs_rewrite(text)
 
+    def test_your_note_on_is_slop(self):
+        assert needs_rewrite("your note on Doppler is the right ultrasound link")
+        assert needs_rewrite("Good note on metric conversions in dosing")
+        assert needs_rewrite("Note that buoyancy depends on displaced volume")
+        assert needs_rewrite("Worth noting that technique matters as much as strength")
+
+    def test_taking_notes_is_not_slop(self):
+        text = "Taking notes on the formulas first makes the later weeks a lot easier."
+        assert slop_score(text) == 0
+        assert not needs_rewrite(text)
+
     def test_voice_phrases_are_not_slop(self):
         text = "Spot on with the Doppler link. I dig that you tied it to vascular flow."
         assert slop_score(text) == 0
@@ -73,6 +84,11 @@ class TestStripAndAssemble:
         )
         assert "Great job identifying" not in cleaned
         assert "important to note" not in cleaned.lower()
+
+    def test_strips_note_that_filler(self):
+        cleaned = strip_ai_filler("Note that buoyancy depends on displaced volume.")
+        assert "note that" not in cleaned.lower()
+        assert "buoyancy" in cleaned.lower()
 
     def test_keeps_spot_on_and_name_lead(self):
         out = assemble_reply(

@@ -43,13 +43,22 @@ class TestAssembleReply:
         assert out.startswith("Natalie, the metric")
         assert "?" not in out
 
-    def test_lowercases_body_after_name(self):
-        out = assemble_reply(
-            student_name="sean",
-            body="Your post on Doppler is the right ultrasound link",
+    def test_lowercases_your_this_youre_after_name(self):
+        assert assemble_reply(
+            student_name="Delaynee",
+            body="Your take on Doppler is the right ultrasound link",
             include_follow_up=False,
-        )
-        assert out.startswith("Sean, your post")
+        ).startswith("Delaynee, your take")
+        assert assemble_reply(
+            student_name="Delaynee",
+            body="You're right that technique matters as much as strength",
+            include_follow_up=False,
+        ).startswith("Delaynee, you're right")
+        assert assemble_reply(
+            student_name="Delaynee",
+            body="This is the volume-displacement piece",
+            include_follow_up=False,
+        ).startswith("Delaynee, this is")
 
     def test_strips_padded_opener_and_adds_question(self):
         out = assemble_reply(
@@ -58,12 +67,38 @@ class TestAssembleReply:
             follow_up_question="how would a stenosis change the measured frequency shift",
             include_follow_up=True,
         )
-        assert out.startswith("Thomas, doppler shift") or out.startswith("Thomas, Doppler shift")
-        # After stripping name lead from body, first letter is lowercased
-        assert out.startswith("Thomas, ")
-        assert out[len("Thomas, ")].islower()
+        assert out.startswith("Thomas, Doppler shift")
         assert "Exactly" not in out
         assert out.endswith("?")
+
+    def test_keeps_i_and_names_after_name_lead(self):
+        i_out = assemble_reply(
+            student_name="natalie",
+            body="I always liked to think of buoyancy as a normal force",
+            include_follow_up=False,
+        )
+        assert i_out.startswith("Natalie, I always")
+
+        already_lower = assemble_reply(
+            student_name="sean",
+            body="i think the metric dosing point is the one that matters",
+            include_follow_up=False,
+        )
+        assert already_lower.startswith("Sean, I think")
+
+        dash_out = assemble_reply(
+            student_name="Dalaynee",
+            body="Dalaynee — I would start with displaced volume",
+            include_follow_up=False,
+        )
+        assert dash_out.startswith("Dalaynee, I would")
+
+        name_out = assemble_reply(
+            student_name="thomas",
+            body="Doppler shift is the right link to vascular flow",
+            include_follow_up=False,
+        )
+        assert name_out.startswith("Thomas, Doppler shift")
 
     def test_strips_questions_when_follow_up_off(self):
         out = assemble_reply(

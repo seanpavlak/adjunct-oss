@@ -34,6 +34,11 @@ AI_FILLER_PATTERNS: Tuple[re.Pattern[str], ...] = tuple(
         r"\bi appreciate how you\b",
         r"\bgreat insights?\b",
         r"\bit'?s(?:\s+\w+){0,2}\s+important to note(?: that)?\b",
+        r"\bworth noting(?: that)?\b",
+        r"\bplease note(?: that)?\b",
+        r"\bnote that\b",
+        r"\bas you noted,?\b",
+        r"\bon a side note,?\b",
         r"\bdelve(?: into)?\b",
         r"\bfurthermore,?\b",
         r"\bin conclusion,?\b",
@@ -58,8 +63,22 @@ AI_FILLER_PATTERNS: Tuple[re.Pattern[str], ...] = tuple(
 
 QUESTION_SPLIT = re.compile(r"(?<=[.!?])\s+")
 PADDED_NAME_LEAD = re.compile(
-    r"^(?:Exactly|Yeah|Yep|Yes|Totally agree|I agree|Great point|Nice point)\s*,\s*",
+    r"^(?:Exactly|Yeah|Yep|Yes|Totally agree|I agree|Great point|Nice point)"
+    r"\s*[,:.—–-]\s*",
     re.I,
+)
+I_PRONOUN = re.compile(r"^I(?:['’](?:m|ll|d|ve|re))?$", re.I)
+LEAD_TOKEN = re.compile(r"^(\S+)(\s*)(.*)$", re.S)
+
+# After "Name, …" only these stay capped. Everything else is a continuation.
+PROPER_NOUNS = frozenset(
+    {
+        "doppler", "newton", "newton's", "archimedes", "archimedes'",
+        "mendeleev", "einstein", "celsius", "kelvin", "fahrenheit",
+        "nasa", "hubble", "joule", "watt", "pascal", "hertz", "ohm",
+        "tesla", "maxwell", "planck", "galileo", "kepler", "ampere",
+        "volta", "coulomb", "faraday", "bernoulli", "hooke",
+    }
 )
 
 
@@ -196,13 +215,66 @@ def strip_leading_name(text: str, name: str) -> str:
     body = PADDED_NAME_LEAD.sub("", body)
     if name:
         body = re.sub(
-            rf"^{re.escape(name)}\s*[,:]?\s*",
+            rf"^{re.escape(name)}\s*[,:.—–\-\"'“”]*\s*",
             "",
             body,
             count=1,
             flags=re.IGNORECASE,
         )
-    return body.lstrip(" ,.-")
+    return body.lstrip(" ,.-—–\"'“”")
+
+
+def _token_core(token: str) -> str:
+    return re.sub(r"^[^\w'’]+|[^\w'’]+$", "", token)
+
+
+def _is_i_pronoun(core: str) -> bool:
+    return bool(I_PRONOUN.match(core))
+
+
+def _keep_leading_cap(core: str) -> bool:
+    """True only for I, known names, and acronyms — not Your/This/When/etc."""
+    if not core:
+        return False
+    if _is_i_pronoun(core):
+        return True
+    letters = re.sub(r"[^A-Za-z]", "", core)
+    if letters.isupper() and len(letters) >= 2:
+        return True
+    folded = core.casefold()
+    if folded in PROPER_NOUNS:
+        return True
+    if folded.endswith("'s") and folded[:-2] in PROPER_NOUNS:
+        return True
+    if folded.endswith("’s") and folded[:-2] in PROPER_NOUNS:
+        return True
+    return False
+
+
+def fit_body_after_name(body: str) -> str:
+    """Lowercase a continuation after 'Name, ' unless the lead word must stay capped."""
+    text = (body or "").lstrip(" ,")
+    if not text:
+        return text
+    match = LEAD_TOKEN.match(text)
+    if not match:
+        return text
+    token, space, rest = match.group(1), match.group(2), match.group(3)
+    core = _token_core(token)
+    if not core:
+        return text
+    if _is_i_pronoun(core):
+        new_core = "I" + core[1:]
+        return token.replace(core, new_core, 1) + space + rest
+    if _keep_leading_cap(core):
+        letters = re.sub(r"[^A-Za-z]", "", core)
+        if letters.isupper() and len(letters) >= 2:
+            new_core = core
+        else:
+            new_core = core[0].upper() + core[1:]
+        return token.replace(core, new_core, 1) + space + rest
+    new_core = core[0].lower() + core[1:]
+    return token.replace(core, new_core, 1) + space + rest
 
 
 def assemble_reply(
@@ -226,6 +298,7 @@ def assemble_reply(
     body = re.sub(r"\s{2,}", " ", body).strip()
     # Clean " ," artifacts if dash sat next to existing punctuation
     body = re.sub(r",\s*,+", ",", body)
+    body = body.lstrip(" ,")
 
     if not include_follow_up:
         body = strip_trailing_questions(body)
@@ -235,8 +308,7 @@ def assemble_reply(
         body = strip_trailing_questions(body)
         question = ensure_question(follow_up_question or "")
 
-    if body and body[0].isupper():
-        body = body[0].lower() + body[1:]
+    body = fit_body_after_name(body)
     if body and body[-1] not in ".!\"":
         body += "."
 
