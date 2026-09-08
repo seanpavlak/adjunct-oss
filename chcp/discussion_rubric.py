@@ -63,23 +63,26 @@ DISCUSSION_RUBRIC_2021: Dict[str, Any] = {
             "max_points": 40,
             "rating": "Exceeds Expectations (100%)",
             "description": (
-                "Well-organized initial post with critical thinking, "
-                "analysis, or experiences using rich and significant detail."
+                "You develop a well-organized initial post that shows you can think "
+                "critically on the topic by integrating your own thoughts, analysis, or "
+                "experiences using rich and significant detail."
             ),
         },
         {
             "name": "Timeliness",
             "max_points": 10,
             "rating": "Meets Expectations (100%)",
-            "description": "Initial post submitted on time.",
+            "description": "You submit your initial post on time. Exceeds is N/A.",
         },
         {
             "name": "Engagement",
             "max_points": 30,
             "rating": "Exceeds Expectations (100%)",
             "description": (
-                "Meaningful, on-topic peer responses with clarifying detail "
-                "that advance the dialogue."
+                "You provide meaningful responses that are on-topic with clarifying "
+                "explanation and detail by expanding on peers' comments in a value-adding "
+                "way; promoting a collaborative, supportive community that advances the "
+                "dialogue through follow-up questions."
             ),
         },
         {
@@ -87,8 +90,8 @@ DISCUSSION_RUBRIC_2021: Dict[str, Any] = {
             "max_points": 20,
             "rating": "Exceeds Expectations (100%)",
             "description": (
-                "Posts are easily understood, clear, and concise with "
-                "proper citation methods where applicable."
+                "You write posts that are easily understood, clear, and concise using "
+                "proper citation methods where applicable with no errors in citations."
             ),
         },
     ],

@@ -49,13 +49,13 @@ class ProfessorReplyDraft(BaseModel):
         ...,
         description=(
             "2-3 sentence professor reply body WITHOUT the student name lead and "
-            "WITHOUT a closing question. Dig into a concrete physics idea from their post."
+            "WITHOUT a closing question. Dig into a concrete idea from their post."
         ),
     )
     follow_up_question: Optional[str] = Field(
         default=None,
         description=(
-            "One short course-relevant physics question tied to their post, or null "
+            "One short course-relevant question tied to their post, or null "
             "when follow-ups are disabled."
         ),
     )
@@ -77,6 +77,7 @@ class ResponseGenerator:
     parser: JsonOutputParser = field(init=False, default=None)
     dq_prompt: str = field(init=False, default="")
     voice_profile: str = field(init=False, default="")
+    subject: str = field(init=False, default="physics")
     prompt: ChatPromptTemplate = field(init=False, default=None)
 
     def _load_courses(self) -> dict:
@@ -116,6 +117,22 @@ class ResponseGenerator:
             )
         return prompt
 
+    def _subject_copy(self) -> tuple[str, str, str]:
+        """Course label, extra-step instruction, and follow-up noun for prompts."""
+        subject = (self.subject or "physics").strip().lower()
+        if subject in {"critical_thinking", "critical thinking", "crt"}:
+            return (
+                "introductory college critical thinking course (allied-health / healthcare students)",
+                "critical-thinking step (tighten a claim, a reason, or what would count as evidence)",
+                "critical thinking",
+            )
+        return (
+            "introductory college physics course (allied-health / healthcare students)",
+            "physics step (tighten a definition, later-week hook, or a real "
+            "healthcare physics detail they already raised)",
+            "physics",
+        )
+
     def __post_init__(self):
         api_key = {
             "openai": self.openai_key,
@@ -124,17 +141,20 @@ class ResponseGenerator:
         }.get(self.provider, "")
         self.llm = LLMManager.create_llm(self.provider, api_key)
         self.parser = JsonOutputParser(pydantic_object=ProfessorReplyDraft)
+        course = self._resolve_course(self._load_courses())
+        self.subject = (course.get("subject") or "physics").strip()
         self.dq_prompt = self._get_week_prompt()
-        self.voice_profile = load_voice_profile()
+        self.voice_profile = load_voice_profile(course.get("voice") or "VOICE.md")
         max_words = llm_config.MAX_RESPONSE_WORDS
+        course_label, extra_step, follow_up_noun = self._subject_copy()
 
         system = (
             "You are drafting Canvas discussion replies as this instructor, for an "
-            "introductory college physics course (allied-health / healthcare students).\n"
+            f"{course_label}.\n"
             "Write in their voice first. Then strip machine smoothness. Do not invent a persona.\n"
             "Variance over synonym-swapping: uneven sentence lengths, not a thesaurus pass. "
             "A short line next to a longer one is correct. A tidy 2-3 sentence template is not.\n"
-            "You never invent what the student wrote, and you never invent physics facts, "
+            "You never invent what the student wrote, and you never invent facts, "
             "stories, numbers, or quotes to sound concrete. If you lack a detail, say less.\n"
             f"Hard cap: {max_words} words in body (before any question).\n"
             "No exclamation marks. No em dashes.\n"
@@ -157,12 +177,11 @@ class ResponseGenerator:
             "Student first name (for context only; do NOT put it in body): {student_name}\n\n"
             "Follow-up mode: {follow_up_mode}\n"
             "- If follow-up mode is ON: also fill follow_up_question with one short, concrete "
-            "physics question tied to their post and this course week.\n"
+            f"{follow_up_noun} question tied to their post and this course week.\n"
             "- If follow-up mode is OFF: set follow_up_question to null.\n\n"
             "Write body that:\n"
             "1) Reacts to a specific claim from their post (not generic praise),\n"
-            "2) Adds one physics step (tighten a definition, later-week hook, or a real "
-            "healthcare physics detail they already raised),\n"
+            f"2) Adds one {extra_step},\n"
             "3) Sounds like the voice profile, not like a grading comment.\n\n"
             "{format_instructions}"
         )
@@ -206,12 +225,7 @@ class ResponseGenerator:
 
     def _load_discussion_examples(self) -> List[Tuple[str, str]]:
         week_data = self._get_week_data()
-        examples = self._pairs_from_discussion_data(week_data.get("discussion_data", []))
-        if not examples:
-            raise ValueError(
-                f"No discussion data found for week {self.week} in course {self.course_selector}"
-            )
-        return examples
+        return self._pairs_from_discussion_data(week_data.get("discussion_data", []))
 
     def _load_course_examples(self) -> List[Tuple[str, str]]:
         course = self._resolve_course(self._load_courses())

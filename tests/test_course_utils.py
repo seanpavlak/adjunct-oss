@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from chcp.core.course_utils import (
+    announcements_for_course,
     calculate_announcement_dates,
     calculate_current_week,
     calculate_grading_week,
@@ -102,6 +103,32 @@ class TestCalculateAnnouncementDates:
         assert len(dates) == 3
         assert all(week in dates for week in [1, 2, 3])
         assert all(isinstance(date, str) for date in dates.values())
+
+
+class TestAnnouncementsForCourse:
+    def test_selects_by_course_key(self):
+        announcements_config = {
+            "courses": {
+                "A": {"announcements": [{"week": 1, "title": "Phys", "content": "<p>A</p>"}]},
+                "B": {"announcements": [{"week": 1, "title": "Crt", "content": "<p>B</p>"}]},
+            }
+        }
+        picked = announcements_for_course("B", announcements_config)
+        assert picked[0]["title"] == "Crt"
+
+    def test_selects_by_canvas_course_id(self):
+        announcements_config = {
+            "courses": {
+                "B": {"announcements": [{"week": 1, "title": "Crt", "content": "<p>B</p>"}]}
+            }
+        }
+        courses_config = {"courses": {"B": {"course_id": "97094"}}}
+        picked = announcements_for_course("97094", announcements_config, courses_config)
+        assert picked[0]["title"] == "Crt"
+
+    def test_missing_course(self):
+        with pytest.raises(ValueError, match="No announcements"):
+            announcements_for_course("Z", {"courses": {}})
 
 
 class TestResolveCourse:

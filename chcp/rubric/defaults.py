@@ -10,13 +10,14 @@ DEFAULT_CRITERION_GRADING_POLICIES: Dict[str, Dict[str, Any]] = {
     "Comprehension": {
         "llm_guidance": (
             "Read the discussion prompt first, then judge ONLY the initial post (not peer "
-            "replies). Be slightly generous at the undergraduate level. Exceeds: addresses "
-            "the prompt with organization plus some critical thinking, analysis, example, "
-            "or experience (healthcare, sonography, personal) — a complete solid answer "
-            "counts; do not require exhaustive or graduate-level depth. Meets: addresses "
-            "the prompt but is thin, one-note, or missing a requested part. Needs: "
-            "partially addresses the prompt or lacks organization. Below: missing, "
-            "off-topic, or far too short. When torn between meets and exceeds, choose exceeds."
+            "replies). Be slightly generous at the undergraduate level. Exceeds: a "
+            "well-organized post that thinks critically on the topic by integrating the "
+            "student's own thoughts, analysis, or experiences with rich and significant "
+            "detail — a complete solid answer counts; do not require exhaustive or "
+            "graduate-level depth. Meets: organized and on-topic with adequate detail, "
+            "but thinner or missing a requested part. Needs: gaps in organization or only "
+            "a basic understanding, lacking adequate detail. Below: missing, off-topic, "
+            "or far too short. When torn between meets and exceeds, choose exceeds."
         ),
         "lenient": True,
         "enforcement": {

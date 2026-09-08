@@ -7,6 +7,7 @@ from pydantic import ValidationError
 
 from chcp.core.schemas import (
     AnnouncementSchema,
+    AnnouncementsConfig,
     CourseSchema,
     CoursesConfig,
     SpeedGraderConfig,
@@ -112,6 +113,26 @@ class TestAnnouncementSchema:
         data = {"week": 1, "title": "", "content": "Test"}  # Empty
         with pytest.raises(ValidationError):
             AnnouncementSchema(**data)
+
+
+class TestAnnouncementsConfig:
+    def test_valid_per_course_announcements(self):
+        data = {
+            "courses": {
+                "A": {
+                    "announcements": [
+                        {"week": 1, "title": "Welcome", "content": "<p>Hi</p>"}
+                    ]
+                }
+            }
+        }
+        config = AnnouncementsConfig(**data)
+        assert "A" in config.courses
+        assert config.courses["A"].announcements[0].title == "Welcome"
+
+    def test_empty_courses_rejected(self):
+        with pytest.raises(ValidationError):
+            AnnouncementsConfig(**{"courses": {}})
 
 
 class TestCoursesConfig:

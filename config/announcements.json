@@ -1,64 +1,127 @@
 {
-    "announcements": [
-      {
-        "week": 1,
-        "title": "Week 1 - Welcome Video",
-        "content": "<p>Welcome to PHYS 100! I'm Mr. Pavlak, and I am excited to get started with you.</p><p>Please begin the course by watching this short welcome video.</p><p><a href=\"https://youtu.be/UwnC0dBnHNk\" target=\"_blank\" rel=\"noopener\">Click here to watch the Pavlak PHYS 100 Welcome Video</a></p><p>After you watch, introduce yourself in the discussion board and review the course syllabus.</p>"
-      },
-      {
-        "week": 1,
-        "title": "Week 1 - Course Policies and Getting Started",
-        "content": "<p>Let's begin with some important details. Please read the syllabus carefully and familiarize yourself with Canvas.</p><p><strong>Key Policy Update:</strong> All graded work may be submitted late with a 5 point per day penalty. Extensions are not needed, as late work is always accepted.</p><p>This week we will review math skills, the metric system, and the foundations of physics as a science.</p><ul><li><a href=\"https://www.mheducation.com/highered/connect.html\" target=\"_blank\" rel=\"noopener\">McGraw-Hill Connect</a></li></ul><p><strong>Action Item:</strong> Confirm your McGraw-Hill Connect access and complete this week's introductory assignments.</p>"
-      },
-      {
-        "week": 1,
-        "title": "Week 1 - A Taste of Physics",
-        "content": "<p>We are starting the semester with a simple experiment.</p><p>Please watch the short video below and jot down your observations about what you see. At the end of the term, you will revisit this video to reflect on how your understanding has grown.</p><ul><li><a href=\"https://youtu.be/ErMSHiQRnc8?si=BCWAKNpzLrrvQ3UE\" target=\"_blank\" rel=\"noopener\">Physics Animation</a></li></ul><p><strong>Action Item:</strong> Write down your initial thoughts after watching the video and keep them for later comparison.</p>"
-      },
-      {
-        "week": 2,
-        "title": "Week 2 - Motion and Gravity",
-        "content": "<p>Great job completing the first week. Let's build on that momentum.</p><p>This week we will study Newtonian physics: distance, velocity, acceleration, and gravity. We will also connect these ideas to projectiles and free-falling objects.</p><p>Resources:</p><ul><li><a href=\"https://phet.colorado.edu/sims/html/projectile-motion/latest/projectile-motion_all.html\" target=\"_blank\" rel=\"noopener\">Projectile Motion Simulation</a></li><li><a href=\"https://www.youtube.com/shorts/hZlHVwVM1a0?feature=share\" target=\"_blank\" rel=\"noopener\">Projectile Motion Demo (Walter Lewin)</a></li></ul><p><strong>Action Item:</strong> Try the simulation and share one key observation in the discussion post.</p>"
-      },
-      {
-        "week": 2,
-        "title": "Week 2 - Vectors and Acceleration",
-        "content": "<p>Some of the math this week can feel challenging, but it will get easier with practice.</p><p>To strengthen your understanding, use the following resources:</p><ul><li><a href=\"https://www.youtube.com/watch?v=ihNZlp7iUHE\" target=\"_blank\" rel=\"noopener\">Scalars and Vectors</a></li><li><a href=\"https://www.youtube.com/watch?v=MAS6mBRZZXA\" target=\"_blank\" rel=\"noopener\">Acceleration</a></li></ul><p><strong>Action Item:</strong> Review the videos and post one question or insight to help your classmates.</p>"
-      },
-      {
-        "week": 3,
-        "title": "Week 3 - Newton's Laws",
-        "content": "<p>This week we focus on the foundations of classical mechanics.</p><p>We will study Newton's Three Laws of Motion and the Theory of Gravitation, exploring why objects move, stay still, or fall toward Earth.</p><p><strong>Action Item:</strong> Begin the discussion post early. It is more challenging than previous weeks and may take extra time.</p>"
-      },
-      {
-        "week": 4,
-        "title": "Week 4 - Waves and Fluids",
-        "content": "<p>We are at the midpoint of the course. Well done.</p><p>This week we will study waves and oscillations, with a focus on the relationship between kinetic and potential energy. Later in the week, we will cover the physics of fluids, including Pascal's Principle, Boyle's Law, Bernoulli's Principle, and Archimedes' Principle.</p><p>Resources:</p><ul><li><a href=\"https://www.youtube.com/watch?v=77ZF50ve6rs\" target=\"_blank\" rel=\"noopener\">Walter Lewin's Pendulum Experiment</a></li><li><a href=\"https://www.youtube.com/watch?v=ijj58xD5fDI\" target=\"_blank\" rel=\"noopener\">TED Talk: Archimedes Myth</a></li><li><a href=\"https://phet.colorado.edu/sims/html/energy-skate-park/latest/energy-skate-park_all.html\" target=\"_blank\" rel=\"noopener\">Energy Skate Park Simulation</a></li></ul><p><strong>Action Item:</strong> Experiment with the Energy Skate Park simulation and note the relationship between KE and PE.</p>"
-      },
-      {
-        "week": 5,
-        "title": "Week 5 - Circuits and Electricity",
-        "content": "<p>You have made it through the first half of the course. Great work.</p><p>This week we will introduce circuits and focus on Ohm's Law, exploring the relationship between current, voltage, and resistance.</p><p>Resources:</p><ul><li><a href=\"https://phet.colorado.edu/sims/html/ohms-law/latest/ohms-law_all.html\" target=\"_blank\" rel=\"noopener\">Ohm's Law Simulation</a></li><li><a href=\"https://www.youtube.com/watch?v=GP-KWqKvv9I&feature=youtu.be\" target=\"_blank\" rel=\"noopener\">Ohm's Law Demo Video</a></li></ul><p><strong>Action Item:</strong> Complete the simulation and share one real-world example of Ohm's Law in the discussion.</p>"
-      },
-      {
-        "week": 6,
-        "title": "Week 6 - Light and Waves",
-        "content": "<p>This week we move into modern physics.</p><p>We will explore the nature of waves, with a focus on light and the phenomena it creates. One of the central questions we will address: Is light a particle or a wave?</p><ul><li><a href=\"https://www.youtube.com/watch?v=J1yIApZtLos&feature=youtu.be\" target=\"_blank\" rel=\"noopener\">Is Light a Particle or a Wave?</a></li></ul><p><strong>Action Item:</strong> Watch the video and write down one example of light behaving as a wave and one as a particle.</p>"
-      },
-      {
-        "week": 7,
-        "title": "Week 7 - Atomic Physics",
-        "content": "<p>This week we turn our attention to atomic physics.</p><p>We will review the structure of the atom, study the Bohr Model, and reflect on how insights at the microscopic level shaped our understanding of the macroscopic world.</p><p><strong>Action Item:</strong> Summarize in your own words why the Bohr Model was a breakthrough in physics.</p>"
-      },
-      {
-        "week": 8,
-        "title": "Week 8 - Relativity",
-        "content": "<p>You have reached the final week. Congratulations.</p><p>We will study Einstein's theories of special and general relativity, exploring how mass and energy shape spacetime and redefining our understanding of the universe.</p><p><strong>Action Item:</strong> Reflect on one way relativity affects modern technology, such as GPS systems, and share in the discussion.</p>"
-      },
-      {
-        "week": 8,
-        "title": "Week 8 - Final Reflection",
-        "content": "<p>Congratulations on completing PHYS 100. Your effort and persistence have paid off.</p><p>On the first day, we began a term-long experiment. Please re-watch the video below and compare your new insights with the notes you made in Week 1.</p><ul><li><a href=\"https://youtu.be/ErMSHiQRnc8?si=BCWAKNpzLrrvQ3UE\" target=\"_blank\" rel=\"noopener\">Final Reflection Video</a></li></ul><p><strong>Action Item:</strong> Post your reflections on how your understanding of physics has grown since the start of the course.</p>"
-      }
-    ]
+  "courses": {
+    "A": {
+      "announcements": [
+        {
+          "week": 1,
+          "title": "Week 1 - Welcome Video",
+          "content": "<p>Welcome to PHYS 100! I'm Mr. Pavlak, and I am excited to get started with you.</p><p>Please begin the course by watching this short welcome video.</p><p><a href=\"https://youtu.be/UwnC0dBnHNk\" target=\"_blank\" rel=\"noopener\">Click here to watch the Pavlak PHYS 100 Welcome Video</a></p><p>After you watch, introduce yourself in the discussion board and review the course syllabus.</p>"
+        },
+        {
+          "week": 1,
+          "title": "Week 1 - Course Policies and Getting Started",
+          "content": "<p>Let's begin with some important details. Please read the syllabus carefully and familiarize yourself with Canvas.</p><p><strong>Key Policy Update:</strong> All graded work may be submitted late with a 5 point per day penalty. Extensions are not needed, as late work is always accepted.</p><p>This week we will review math skills, the metric system, and the foundations of physics as a science.</p><p>McGraw Hill Connect is already paired in this course. Use <strong>MHE Connect</strong> in the Canvas course menu, then click <strong>Launch</strong>. Do not go to the public McGraw Hill website to sign in.</p><p><strong>Action Item:</strong> Open MHE Connect from Canvas and complete this week's introductory assignments.</p>"
+        },
+        {
+          "week": 1,
+          "title": "Week 1 - A Taste of Physics",
+          "content": "<p>We are starting the semester with a simple experiment.</p><p>Please watch the short video below and jot down your observations about what you see. At the end of the term, you will revisit this video to reflect on how your understanding has grown.</p><ul><li><a href=\"https://youtu.be/ErMSHiQRnc8?si=BCWAKNpzLrrvQ3UE\" target=\"_blank\" rel=\"noopener\">Physics Animation</a></li></ul><p><strong>Action Item:</strong> Write down your initial thoughts after watching the video and keep them for later comparison.</p>"
+        },
+        {
+          "week": 2,
+          "title": "Week 2 - Motion and Gravity",
+          "content": "<p>Great job completing the first week. Let's build on that momentum.</p><p>This week we will study Newtonian physics: distance, velocity, acceleration, and gravity. We will also connect these ideas to projectiles and free-falling objects.</p><p>Resources:</p><ul><li><a href=\"https://phet.colorado.edu/sims/html/projectile-motion/latest/projectile-motion_all.html\" target=\"_blank\" rel=\"noopener\">Projectile Motion Simulation</a></li><li><a href=\"https://www.youtube.com/shorts/hZlHVwVM1a0?feature=share\" target=\"_blank\" rel=\"noopener\">Projectile Motion Demo (Walter Lewin)</a></li></ul><p><strong>Action Item:</strong> Try the simulation and share one key observation in the discussion post.</p>"
+        },
+        {
+          "week": 2,
+          "title": "Week 2 - Vectors and Acceleration",
+          "content": "<p>Some of the math this week can feel challenging, but it will get easier with practice.</p><p>To strengthen your understanding, use the following resources:</p><ul><li><a href=\"https://www.youtube.com/watch?v=ihNZlp7iUHE\" target=\"_blank\" rel=\"noopener\">Scalars and Vectors</a></li><li><a href=\"https://www.youtube.com/watch?v=MAS6mBRZZXA\" target=\"_blank\" rel=\"noopener\">Acceleration</a></li></ul><p><strong>Action Item:</strong> Review the videos and post one question or insight to help your classmates.</p>"
+        },
+        {
+          "week": 3,
+          "title": "Week 3 - Newton's Laws",
+          "content": "<p>This week we focus on the foundations of classical mechanics.</p><p>We will study Newton's Three Laws of Motion and the Theory of Gravitation, exploring why objects move, stay still, or fall toward Earth.</p><p><strong>Action Item:</strong> Begin the discussion post early. It is more challenging than previous weeks and may take extra time.</p>"
+        },
+        {
+          "week": 4,
+          "title": "Week 4 - Waves and Fluids",
+          "content": "<p>We are at the midpoint of the course. Well done.</p><p>This week we will study waves and oscillations, with a focus on the relationship between kinetic and potential energy. Later in the week, we will cover the physics of fluids, including Pascal's Principle, Boyle's Law, Bernoulli's Principle, and Archimedes' Principle.</p><p>Resources:</p><ul><li><a href=\"https://www.youtube.com/watch?v=77ZF50ve6rs\" target=\"_blank\" rel=\"noopener\">Walter Lewin's Pendulum Experiment</a></li><li><a href=\"https://www.youtube.com/watch?v=ijj58xD5fDI\" target=\"_blank\" rel=\"noopener\">TED Talk: Archimedes Myth</a></li><li><a href=\"https://phet.colorado.edu/sims/html/energy-skate-park/latest/energy-skate-park_all.html\" target=\"_blank\" rel=\"noopener\">Energy Skate Park Simulation</a></li></ul><p><strong>Action Item:</strong> Experiment with the Energy Skate Park simulation and note the relationship between KE and PE.</p>"
+        },
+        {
+          "week": 5,
+          "title": "Week 5 - Circuits and Electricity",
+          "content": "<p>You have made it through the first half of the course. Great work.</p><p>This week we will introduce circuits and focus on Ohm's Law, exploring the relationship between current, voltage, and resistance.</p><p>Resources:</p><ul><li><a href=\"https://phet.colorado.edu/sims/html/ohms-law/latest/ohms-law_all.html\" target=\"_blank\" rel=\"noopener\">Ohm's Law Simulation</a></li><li><a href=\"https://www.youtube.com/watch?v=GP-KWqKvv9I&feature=youtu.be\" target=\"_blank\" rel=\"noopener\">Ohm's Law Demo Video</a></li></ul><p><strong>Action Item:</strong> Complete the simulation and share one real-world example of Ohm's Law in the discussion.</p>"
+        },
+        {
+          "week": 6,
+          "title": "Week 6 - Light and Waves",
+          "content": "<p>This week we move into modern physics.</p><p>We will explore the nature of waves, with a focus on light and the phenomena it creates. One of the central questions we will address: Is light a particle or a wave?</p><ul><li><a href=\"https://www.youtube.com/watch?v=J1yIApZtLos&feature=youtu.be\" target=\"_blank\" rel=\"noopener\">Is Light a Particle or a Wave?</a></li></ul><p><strong>Action Item:</strong> Watch the video and write down one example of light behaving as a wave and one as a particle.</p>"
+        },
+        {
+          "week": 7,
+          "title": "Week 7 - Atomic Physics",
+          "content": "<p>This week we turn our attention to atomic physics.</p><p>We will review the structure of the atom, study the Bohr Model, and reflect on how insights at the microscopic level shaped our understanding of the macroscopic world.</p><p><strong>Action Item:</strong> Summarize in your own words why the Bohr Model was a breakthrough in physics.</p>"
+        },
+        {
+          "week": 8,
+          "title": "Week 8 - Relativity",
+          "content": "<p>You have reached the final week. Congratulations.</p><p>We will study Einstein's theories of special and general relativity, exploring how mass and energy shape spacetime and redefining our understanding of the universe.</p><p><strong>Action Item:</strong> Reflect on one way relativity affects modern technology, such as GPS systems, and share in the discussion.</p>"
+        },
+        {
+          "week": 8,
+          "title": "Week 8 - Final Reflection",
+          "content": "<p>Congratulations on completing PHYS 100. Your effort and persistence have paid off.</p><p>On the first day, we began a term-long experiment. Please re-watch the video below and compare your new insights with the notes you made in Week 1.</p><ul><li><a href=\"https://youtu.be/ErMSHiQRnc8?si=BCWAKNpzLrrvQ3UE\" target=\"_blank\" rel=\"noopener\">Final Reflection Video</a></li></ul><p><strong>Action Item:</strong> Post your reflections on how your understanding of physics has grown since the start of the course.</p>"
+        }
+      ]
+    },
+    "B": {
+      "announcements": [
+        {
+          "week": 1,
+          "title": "Week 1 - Welcome to CRT 100",
+          "content": "<p>Welcome to CRT 100! I'm Mr. Pavlak, and I am glad you are here.</p><p>Start with the syllabus, then introduce yourself in the 0.2 Course Introductions board. Include your name, anything you want to share, and one skill you would instantly master if you could, plus why. There are no wrong answers.</p><p><strong>Action Item:</strong> Post your introduction by Wednesday. Peer replies are due Sunday.</p>"
+        },
+        {
+          "week": 1,
+          "title": "Week 1 - Course Policies and Getting Started",
+          "content": "<p>Please read the syllabus and get comfortable in Canvas.</p><p><strong>Key Policy Update:</strong> All graded work may be submitted late with a 5 point per day penalty. Extensions are not needed, as late work is always accepted.</p><p>Discussions run on a weekly rhythm: initial post by 11:59 pm CT Wednesday, two meaningful peer replies by 11:59 pm CT Sunday.</p><p>This week we look at what critical thinking actually is: analysis, evaluation, and synthesis, not just collecting facts. We will also start naming cognitive biases that get in the way.</p><p>McGraw Hill Connect is already paired in this course. Use <strong>MHE Connect</strong> in the Canvas course menu, then click <strong>Launch</strong>. Do not go to the public McGraw Hill website to sign in.</p><p><strong>Action Item:</strong> Open MHE Connect from Canvas and begin the Chapter 1 SmartBook reading.</p>"
+        },
+        {
+          "week": 1,
+          "title": "Week 1 - Why Critical Thinking Matters",
+          "content": "<p>Knowing what to think is cheap. Learning how to think is the whole course.</p><p>This week we distinguish critical thinking from non-critical thinking, look at qualities like curiosity and open-mindedness, and notice how emotion and personal experience can bend a conclusion before the evidence shows up.</p><p>Discussion 1.2 asks you to talk through a real decision where you had to gather and evaluate evidence.</p><p><strong>Action Item:</strong> Draft 1.2 early enough that you still have time for two real replies on Sunday.</p>"
+        },
+        {
+          "week": 2,
+          "title": "Week 2 - Language and Communication",
+          "content": "<p>Great job getting through week 1. This week we turn to language.</p><p>Language shapes identity and how we see the world, and it can also lock in stereotypes. We will look at how language works, how communication styles shift across contexts, and how language gets used to persuade.</p><p>Discussion 2.2 is the Double-Edged Sword prompt: a loaded word or phrase, a time language reinforced a stereotype, and a short PSA that challenges one.</p><p><strong>Action Item:</strong> Pick one specific word or phrase with cultural weight and sit with how it frames a group or idea before you write.</p>"
+        },
+        {
+          "week": 3,
+          "title": "Week 3 - Knowledge, Evidence, and Errors",
+          "content": "<p>This week is about evidence, and about the mistakes we make when we treat a headline like a fact.</p><p>We will work on strong vs weak evidence, correlation vs causation, and the cognitive biases that make a surprising claim feel true. Social pressure from friends and feeds can lock that in fast.</p><p>Discussion 3.2 puts you in front of a flashy science article. Stay skeptical on purpose.</p><p><strong>Action Item:</strong> For 3.2, check source, data, and method before you decide whether you believe it.</p>"
+        },
+        {
+          "week": 4,
+          "title": "Week 4 - Arguments",
+          "content": "<p>We are at the midpoint of the course. Well done.</p><p>This week is recognizing, analyzing, and constructing arguments. Premises, conclusions, indicator words, and the difference between an argument, an explanation, and a conditional sentence.</p><p>Discussion 4.2 asks you to walk someone through those parts and give two scenarios. It is denser than last week.</p><p><strong>Action Item:</strong> Begin 4.2 early. Mapping an argument into pieces takes more time than it looks.</p>"
+        },
+        {
+          "week": 5,
+          "title": "Week 5 - Inductive Arguments",
+          "content": "<p>You have made it through the first half. This week we look at inductive arguments.</p><p>Generalizations, polling and sampling, analogies, and causal claims. Sample size and representativeness actually matter, and correlation is not causation no matter how tidy the story feels.</p><p>Discussion 5.2 is I'm not Arguing: deduct vs induct, then analogies and causal claims with a couple of examples.</p><p><strong>Action Item:</strong> Bring one everyday \"this caused that\" claim to the post and pressure-test it.</p>"
+        },
+        {
+          "week": 6,
+          "title": "Week 6 - Deductive Arguments",
+          "content": "<p>This week is deduction. If the premises are true, the conclusion is supposed to follow.</p><p>We will separate validity, invalidity, and soundness, then look at elimination arguments, hypothetical syllogisms, and categorical syllogisms. Ordinary language almost never arrives in standard form, so converting it is part of the work.</p><p><strong>Action Item:</strong> For 6.2, convert one messy everyday argument into a cleaner form and say where it got awkward.</p>"
+        },
+        {
+          "week": 7,
+          "title": "Week 7 - Marketing and Advertising",
+          "content": "<p>This week we look at marketing as a persuasion machine.</p><p>Research, SWOT, targeting, and the relationship between big business, advertising, and mass media. Fallacies and rhetorical devices in ads are not accidents. They are the method.</p><p>Discussion 7.2 asks how those moves change consumer behavior, and how spotting them makes you harder to push around.</p><p><strong>Action Item:</strong> Bring one real ad to 7.2 and name the move it is making.</p>"
+        },
+        {
+          "week": 8,
+          "title": "Week 8 - Science Talk",
+          "content": "<p>You have reached the final week. Congratulations.</p><p>We will look at the assumptions under scientific inquiry, how the scientific method evaluates explanations, science vs pseudoscience, experiment types and ethics, and Kuhn on normal science and paradigm shifts.</p><p><strong>Action Item:</strong> For 8.2, pick one paradigm shift you can actually explain, or say what would count as a scientific explanation vs a lookalike.</p>"
+        },
+        {
+          "week": 8,
+          "title": "Week 8 - Final Reflection",
+          "content": "<p>Congratulations on completing CRT 100. The grind was the point.</p><p>If you want a quiet check on whether the course landed, reopen your week 0 introduction and notice whether you now hear claims differently than you did on day one.</p><p><strong>Action Item:</strong> Finish 8.2 and the Chapter 12 work, then give yourself credit for getting through it.</p>"
+        }
+      ]
+    }
   }
+}

@@ -215,10 +215,10 @@ def get_current_week_selector():
             if week_input.strip() == "":
                 return None
             week_id = int(week_input)
-            if 1 <= week_id <= 8:
+            if 0 <= week_id <= 8:
                 return week_id
             else:
-                console.print("[red]Week must be between 1 and 8[/red]")
+                console.print("[red]Week must be between 0 and 8[/red]")
         except ValueError:
             console.print("[red]Please enter a valid number[/red]")
 
@@ -234,10 +234,10 @@ def get_week_selector():
             if week_input.strip() == "":
                 return None
             week_id = int(week_input)
-            if 1 <= week_id <= 8:
+            if 0 <= week_id <= 8:
                 return week_id
             else:
-                console.print("[red]Week must be between 1 and 8[/red]")
+                console.print("[red]Week must be between 0 and 8[/red]")
         except ValueError:
             console.print("[red]Please enter a valid number[/red]")
 

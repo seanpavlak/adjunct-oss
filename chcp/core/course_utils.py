@@ -80,8 +80,40 @@ def load_announcements_config(
         logger.debug("Validating announcements configuration")
         validate_announcements_config(config)
 
-    logger.info(f"Loaded {len(config.get('announcements', []))} announcement(s)")
+    total = sum(
+        len(course.get("announcements", []))
+        for course in (config.get("courses") or {}).values()
+    )
+    logger.info(f"Loaded {total} announcement(s) across {len(config.get('courses', {}))} course(s)")
     return config
+
+
+def announcements_for_course(
+    course_selector: str,
+    announcements_config: Dict[str, Any],
+    courses_config: Optional[Dict[str, Any]] = None,
+) -> list:
+    """Return the announcement list for a course key or Canvas course_id."""
+    by_course = announcements_config.get("courses") or {}
+    if course_selector in by_course:
+        return by_course[course_selector]["announcements"]
+
+    courses = (courses_config or {}).get("courses") or {}
+    key = None
+    if course_selector in courses:
+        key = course_selector
+    else:
+        key = next(
+            (
+                course_key
+                for course_key, course in courses.items()
+                if course.get("course_id") == str(course_selector)
+            ),
+            None,
+        )
+    if key and key in by_course:
+        return by_course[key]["announcements"]
+    raise ValueError(f"No announcements configured for course {course_selector}")
 
 
 def resolve_course(course_selector: str, config: Dict[str, Any]) -> Dict[str, Any]:

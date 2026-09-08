@@ -20,6 +20,13 @@ PHYSICS_CONCEPTS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
     ("atoms / periodic table", ("atom", "electron", "valence", "periodic", "element", "bond")),
     ("motion / kinematics", ("motion", "displacement", "distance", "kinematics")),
     ("scientific method / models", ("scientific method", "hypothesis", "model", "predict")),
+    ("critical thinking", ("critical thinking", "critical thinker", "analyze", "analysis")),
+    ("belief vs evidence", ("belief", "evidence", "fact vs", "opinion")),
+    ("arguments / disagreement", ("argument", "disagree", "disagreement", "counter", "rebut")),
+    ("deduction / induction", ("deductive", "inductive", "premise", "conclusion", "valid", "sound")),
+    ("fallacies", ("fallacy", "ad hominem", "straw man", "slippery slope", "false dilemma")),
+    ("bias", ("bias", "confirmation", "heuristic", "assumption")),
+    ("advertising / persuasion", ("advertis", "marketing", "persuasion", "rhetoric", "slogan")),
 )
 
 CAREER_HOOKS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (

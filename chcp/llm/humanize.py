@@ -81,8 +81,8 @@ HUMANIZE_SYSTEM = (
     "Strip grading-speak and AI filler (great job identifying, you've correctly "
     "explained, this is crucial for your field, delve, tapestry).\n"
     "Never call their post a note. Do not write \"your note on X\", \"note that\", "
-    "\"worth noting\", or \"as you noted\". Name the actual physics they raised.\n"
-    "Keep physics specifics that are already in the draft.\n"
+    "\"worth noting\", or \"as you noted\". Name the actual idea they raised.\n"
+    "Keep course specifics that are already in the draft.\n"
     "Voice phrases like \"I dig that\", \"spot on\", \"on point\", \"excellent\", "
     "\"100% agree\" are allowed at most once, and only if they fit.\n"
     "No exclamation marks. No em dashes. No student name lead. No new question "
@@ -96,8 +96,8 @@ FALLBACK_VOICE = (
 )
 
 
-def load_voice_profile() -> str:
-    path = voice_profile_path()
+def load_voice_profile(filename: str = "VOICE.md") -> str:
+    path = voice_profile_path(filename)
     if not path.exists():
         return FALLBACK_VOICE
     text = path.read_text(encoding="utf-8").strip()

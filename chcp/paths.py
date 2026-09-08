@@ -14,5 +14,6 @@ def announcements_config_path() -> Path:
     return CONFIG_DIR / "announcements.json"
 
 
-def voice_profile_path() -> Path:
-    return CONFIG_DIR / "VOICE.md"
+def voice_profile_path(filename: str = "VOICE.md") -> Path:
+    name = Path(filename or "VOICE.md").name
+    return CONFIG_DIR / name

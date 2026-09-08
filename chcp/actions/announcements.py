@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 from chcp.canvas.service import CanvasService
 from chcp.core.course_utils import (
+    announcements_for_course,
     calculate_announcement_dates,
     load_announcements_config,
     load_courses_config,
@@ -40,8 +41,9 @@ def schedule_announcements(
     print(f"Course ID: {course_id}")
     print(f"Course Start Date: {course_start_date}")
 
-    # Calculate announcement dates
-    announcements = announcements_config.get("announcements", [])
+    announcements = announcements_for_course(
+        course_selector, announcements_config, courses_config
+    )
     announcement_dates = calculate_announcement_dates(course_start_date, announcements)
 
     # Use CanvasService for browser automation

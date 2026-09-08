@@ -153,6 +153,14 @@ class CourseSchema(BaseModel):
     course_id: str = Field(..., min_length=1, description="Canvas course ID")
     course_start_date: str = Field(..., description="Course start date in YYYY-MM-DD format")
     name: Optional[str] = Field(default="Unnamed Course", description="Course display name")
+    subject: Optional[str] = Field(
+        default=None,
+        description="Course subject for reply generation (physics, critical_thinking)",
+    )
+    voice: Optional[str] = Field(
+        default=None,
+        description="Voice profile filename in config/ (defaults to VOICE.md)",
+    )
     discussion_rubric: Optional[DiscussionRubricSchema] = Field(
         default=None,
         description="Shared Discussion Rubric (2021) for all weekly discussion assignments",
@@ -202,12 +210,27 @@ class AnnouncementSchema(BaseModel):
     content: str = Field(..., min_length=1, description="Announcement HTML content")
 
 
-class AnnouncementsConfig(BaseModel):
-    """Schema for announcements.json configuration file"""
+class CourseAnnouncementsSchema(BaseModel):
+    """Announcement list for one course key (A, B, ...)"""
 
     announcements: List[AnnouncementSchema] = Field(
         ..., min_length=1, description="List of course announcements"
     )
+
+
+class AnnouncementsConfig(BaseModel):
+    """Schema for announcements.json configuration file"""
+
+    courses: Dict[str, CourseAnnouncementsSchema] = Field(
+        ..., description="Announcements keyed by course selector"
+    )
+
+    @field_validator("courses")
+    @classmethod
+    def validate_announcement_courses_not_empty(cls, v: Dict) -> Dict:
+        if not v:
+            raise ValueError("At least one course must have announcements")
+        return v
 
 
 def validate_courses_config(config: dict) -> CoursesConfig:
