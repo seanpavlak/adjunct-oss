@@ -122,6 +122,65 @@
           "content": "<p>Congratulations on completing CRT 100. The grind was the point.</p><p>If you want a quiet check on whether the course landed, reopen your week 0 introduction and notice whether you now hear claims differently than you did on day one.</p><p><strong>Action Item:</strong> Finish 8.2 and the Chapter 12 work, then give yourself credit for getting through it.</p>"
         }
       ]
+    },
+    "C": {
+      "announcements": [
+        {
+          "week": 1,
+          "title": "Week 1 - Welcome to CRT 100",
+          "content": "<p>Welcome to CRT 100! I'm Mr. Pavlak, and I am glad you are here.</p><p>Start with the syllabus, then introduce yourself in the 0.2 Course Introductions board. Include your name, anything you want to share, and one skill you would instantly master if you could, plus why. There are no wrong answers.</p><p><strong>Action Item:</strong> Post your introduction by Wednesday. Peer replies are due Sunday.</p>"
+        },
+        {
+          "week": 1,
+          "title": "Week 1 - Course Policies and Getting Started",
+          "content": "<p>Please read the syllabus and get comfortable in Canvas.</p><p><strong>Key Policy Update:</strong> All graded work may be submitted late with a 5 point per day penalty. Extensions are not needed, as late work is always accepted.</p><p>Discussions run on a weekly rhythm: initial post by 11:59 pm CT Wednesday, two meaningful peer replies by 11:59 pm CT Sunday.</p><p>This week we look at what critical thinking actually is: analysis, evaluation, and synthesis, not just collecting facts. We will also start naming cognitive biases that get in the way.</p><p>McGraw Hill Connect is already paired in this course. Use <strong>MHE Connect</strong> in the Canvas course menu, then click <strong>Launch</strong>. Do not go to the public McGraw Hill website to sign in.</p><p><strong>Action Item:</strong> Open MHE Connect from Canvas and begin the Chapter 1 SmartBook reading.</p>"
+        },
+        {
+          "week": 1,
+          "title": "Week 1 - Why Critical Thinking Matters",
+          "content": "<p>Knowing what to think is cheap. Learning how to think is the whole course.</p><p>This week we distinguish critical thinking from non-critical thinking, look at qualities like curiosity and open-mindedness, and notice how emotion and personal experience can bend a conclusion before the evidence shows up.</p><p>Discussion 1.2 asks you to talk through a real decision where you had to gather and evaluate evidence.</p><p><strong>Action Item:</strong> Draft 1.2 early enough that you still have time for two real replies on Sunday.</p>"
+        },
+        {
+          "week": 2,
+          "title": "Week 2 - Language and Communication",
+          "content": "<p>Great job getting through week 1. This week we turn to language.</p><p>Language shapes identity and how we see the world, and it can also lock in stereotypes. We will look at how language works, how communication styles shift across contexts, and how language gets used to persuade.</p><p>Discussion 2.2 is the Double-Edged Sword prompt: a loaded word or phrase, a time language reinforced a stereotype, and a short PSA that challenges one.</p><p><strong>Action Item:</strong> Pick one specific word or phrase with cultural weight and sit with how it frames a group or idea before you write.</p>"
+        },
+        {
+          "week": 3,
+          "title": "Week 3 - Knowledge, Evidence, and Errors",
+          "content": "<p>This week is about evidence, and about the mistakes we make when we treat a headline like a fact.</p><p>We will work on strong vs weak evidence, correlation vs causation, and the cognitive biases that make a surprising claim feel true. Social pressure from friends and feeds can lock that in fast.</p><p>Discussion 3.2 puts you in front of a flashy science article. Stay skeptical on purpose.</p><p><strong>Action Item:</strong> For 3.2, check source, data, and method before you decide whether you believe it.</p>"
+        },
+        {
+          "week": 4,
+          "title": "Week 4 - Arguments",
+          "content": "<p>We are at the midpoint of the course. Well done.</p><p>This week is recognizing, analyzing, and constructing arguments. Premises, conclusions, indicator words, and the difference between an argument, an explanation, and a conditional sentence.</p><p>Discussion 4.2 asks you to walk someone through those parts and give two scenarios. It is denser than last week.</p><p><strong>Action Item:</strong> Begin 4.2 early. Mapping an argument into pieces takes more time than it looks.</p>"
+        },
+        {
+          "week": 5,
+          "title": "Week 5 - Inductive Arguments",
+          "content": "<p>You have made it through the first half. This week we look at inductive arguments.</p><p>Generalizations, polling and sampling, analogies, and causal claims. Sample size and representativeness actually matter, and correlation is not causation no matter how tidy the story feels.</p><p>Discussion 5.2 is I'm not Arguing: deduct vs induct, then analogies and causal claims with a couple of examples.</p><p><strong>Action Item:</strong> Bring one everyday \"this caused that\" claim to the post and pressure-test it.</p>"
+        },
+        {
+          "week": 6,
+          "title": "Week 6 - Deductive Arguments",
+          "content": "<p>This week is deduction. If the premises are true, the conclusion is supposed to follow.</p><p>We will separate validity, invalidity, and soundness, then look at elimination arguments, hypothetical syllogisms, and categorical syllogisms. Ordinary language almost never arrives in standard form, so converting it is part of the work.</p><p><strong>Action Item:</strong> For 6.2, convert one messy everyday argument into a cleaner form and say where it got awkward.</p>"
+        },
+        {
+          "week": 7,
+          "title": "Week 7 - Marketing and Advertising",
+          "content": "<p>This week we look at marketing as a persuasion machine.</p><p>Research, SWOT, targeting, and the relationship between big business, advertising, and mass media. Fallacies and rhetorical devices in ads are not accidents. They are the method.</p><p>Discussion 7.2 asks how those moves change consumer behavior, and how spotting them makes you harder to push around.</p><p><strong>Action Item:</strong> Bring one real ad to 7.2 and name the move it is making.</p>"
+        },
+        {
+          "week": 8,
+          "title": "Week 8 - Science Talk",
+          "content": "<p>You have reached the final week. Congratulations.</p><p>We will look at the assumptions under scientific inquiry, how the scientific method evaluates explanations, science vs pseudoscience, experiment types and ethics, and Kuhn on normal science and paradigm shifts.</p><p><strong>Action Item:</strong> For 8.2, pick one paradigm shift you can actually explain, or say what would count as a scientific explanation vs a lookalike.</p>"
+        },
+        {
+          "week": 8,
+          "title": "Week 8 - Final Reflection",
+          "content": "<p>Congratulations on completing CRT 100. The grind was the point.</p><p>If you want a quiet check on whether the course landed, reopen your week 0 introduction and notice whether you now hear claims differently than you did on day one.</p><p><strong>Action Item:</strong> Finish 8.2 and the Chapter 12 work, then give yourself credit for getting through it.</p>"
+        }
+      ]
     }
   }
 }

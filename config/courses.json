@@ -457,6 +457,164 @@
           "global_llm_guidance": "Rubric levels (1–4): 1=below, 2=needs, 3=meets, 4=exceeds. You receive an AUTOMATED PRE-GRADE CHECKLIST — treat it as ground truth for counts (peer replies, citations, lateness) unless the student text clearly contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) within those facts. LENIENCY: When the work clearly fits one level, keep it. When genuinely torn between adjacent levels only (1↔2 or 3↔4), set borderline=true. For Comprehension, prefer exceeds over meets when torn. For other criteria, pick the lower level; post-processing may bump one step. Reserve below for missing or clearly inadequate work."
         }
       }
+    },
+    "C": {
+      "name": "OL CRT 100 Critical Thinking-C260908BHybridPavlak",
+      "course_id": "98483",
+      "course_start_date": "2026-09-08",
+      "subject": "critical_thinking",
+      "voice": "VOICE_CRT.md",
+      "weeks": {
+        "0": {
+          "topic_id": "1232012",
+          "discussion_prompt": "Welcome! Each week you will participate in discussions that will help you learn more in your field and discuss hot topics with your future colleagues. Your initial responses will be due by 11:59 pm CT Wednesdays and your peer responses will be due by 11:59 pm CT Sundays. You're highly encouraged to review lesson materials before working on discussions, so you have the knowledge needed participate and earn the grade you wish to receive.\n\nThis discussion is your first opportunity to earn participation points in your class by introducing yourself to the class! Please include the following in your introduction (1 response due Wednesday) and then chat with at least two peers (2 peer responses due Sunday).\n\nYour name\nAny information you would like to share about yourself.\nIf you could instantly become an expert in any one skill, what would you choose and why? It can be related to your future career or something completely unrelated. There are no wrong answers, so have some fun with it!\n\nDISCUSSION ASSIGNMENT GUIDELINES:\n\nInitial Discussion Response DUE: by 11:59 pm CT Wednesday in Week 1\n\nYour initial post should include all items listed above to earn your participation points. Remember to follow the rules of Netiquette with your instructor and peers at all times to show respect in online learning.\n\nMinimum of Two meaningful responses to your peers DUE: by 11:59 pm CT Sunday in Week 1\n\nRead your classmates introductions from the Wednesday post and choose a minimum of two (2) in which you would like to respond, and be sure to respond to any classmates that commented on your initial post as time permits. Again, remember to follow the rules of Netiquette with your instructor and peers at all times to show respect in online learning.",
+          "discussion_data": [],
+          "speed_grader": {
+            "assignment_id": "4015849"
+          }
+        },
+        "1": {
+          "topic_id": "1232011",
+          "discussion_prompt": "Critical thinking is essential for intellectual and personal development, requiring a variety of skills to effectively judge, determine, and make decisions. Critical thinking is more than just knowing facts; it also requires comprehending how to think analytically and logically. Discuss the value of learning how to think critically rather than simply knowing what to think. How do logic and analytical skills influence critical thinking?\n\nConsider a situation in which you had to use critical thinking to solve a problem or reach a decision. How did you collect and evaluate evidence? What was your strategy, and how did you use critical thinking and logic principles to make your decision? Share your experiences and perspectives on the importance of critical thinking in everyday life and academic pursuits.\n\nHow will you be graded?\n\nYour discussion scores will be based on the Discussion Rubric (circa late 2020). Below are some basic guidelines as well.\n\nInitial Discussion Post DUE by 11:59 pm CT Wednesday in Week 1\n\nYour initial post should be 150-180 words (~ 2 paragraphs). Show that you can think critically on the topic by integrating your own thoughts, analysis, or experiences. The posting is intended to be a discussion and should be written in your own words. If you do research the topic or use your textbook as a reference, remember to cite your references at the bottom of the post. Be sure to pay close attention to your form and grammar AND check for spelling errors.\n\nNote: The references do not have to be in perfect APA format but must be clear as to where you retrieved the information. Make sure you DO NOT copy and paste content to submit as your original work.\n\nMinimum of Two (2) Meaningful Responses to Peers DUE by 11:59 pm CT Sunday in Week 1\n\nRead your classmates' initial discussion posts from Wednesday and choose a minimum of two (2) that you found interesting and informative. Post a 3-5 sentence reply to each of these two initial discussions and be sure to respond to any classmates that commented on your initial post as time permits. Expand on a classmate’s comments in a value-adding, topic-related way. Promote a collaborative, supportive community, and advance the dialogue through follow-up questions. Reply posts cannot be one-liners, off-topic posts, vague statements, unsupported opinions, inadequate explanations, or simply say, “I agree” or “good job.”",
+          "discussion_data": [],
+          "speed_grader": {
+            "assignment_id": "4015848"
+          }
+        },
+        "2": {
+          "topic_id": "1232010",
+          "discussion_prompt": "Language is a double-edged sword: it shapes identities while also reinforcing stereotypes. Language shapes our identities and understanding of the world. However, it can also reinforce stereotypes and narrow our perspectives.\n\nConsider a specific word or phrase in your language that has strong cultural connotations. How does this word influence your understanding of a specific group or concept?\nHave you ever been in a situation where language was used to reinforce stereotypes? How did this make you feel, and how did it change the situation?\nAnd lastly, assume you're tasked with developing a public service announcement that uses language to challenge a stereotype in a positive way. What message would you send, and how would you use language to achieve your goal, explain?\n\nHow will you be graded?\n\nYour discussion scores will be based on the Discussion Rubric (circa late 2020). Below are some basic guidelines as well.\n\nInitial Discussion Post DUE by 11:59 pm CT Wednesday in Week 2\n\nYour initial post should be 150-180 words (~ 2 paragraphs). Show that you can think critically on the topic by integrating your own thoughts, analysis, or experiences. The posting is intended to be a discussion and should be written in your own words. If you do research the topic or use your textbook as a reference, remember to cite your references at the bottom of the post. Be sure to pay close attention to your form and grammar AND check for spelling errors.\n\nNote: The references do not have to be in perfect APA format but must be clear as to where you retrieved the information. Make sure you DO NOT copy and paste content to submit as your original work.\n\nMinimum of Two (2) Meaningful Responses to Peers DUE by 11:59 pm CT Sunday in Week 2\n\nRead your classmates' initial discussion posts from Wednesday and choose a minimum of two (2) that you found interesting and informative. Post a 3-5 sentence reply to each of these two initial discussions and be sure to respond to any classmates that commented on your initial post as time permits. Expand on a classmate’s comments in a value-adding, topic-related way. Promote a collaborative, supportive community, and advance the dialogue through follow-up questions. Reply posts cannot be one-liners, off-topic posts, vague statements, unsupported opinions, inadequate explanations, or simply say, “I agree” or “good job.”",
+          "discussion_data": [],
+          "speed_grader": {
+            "assignment_id": "4015847"
+          }
+        },
+        "3": {
+          "topic_id": "1232009",
+          "discussion_prompt": "Assume you come across an online news article that claims a surprising scientific discovery (for example, a breakthrough in the battle against cancer). You are intrigued but also skeptical. How would you approach this information, distinguishing between fact and fiction?\n\nConsider the following.\n\nWhat types of evidence would you look for to determine the claim's credibility? (Think about source, data, and methodology.)\nHow might cognitive biases, such as self-serving or confirmation bias, affect your initial reaction to the news?\nHow can social pressure from friends or online communities impair your judgment and what strategies can you use to become a more discerning information consumer in today's digital age?\n\nHow will you be graded?\n\nYour discussion scores will be based on the Discussion Rubric (circa late 2020). Below are some basic guidelines as well.\n\nInitial Discussion Post DUE by 11:59 pm CT Wednesday in Week 3\n\nYour initial post should be 150-180 words (~ 2 paragraphs). Show that you can think critically on the topic by integrating your own thoughts, analysis, or experiences. The posting is intended to be a discussion and should be written in your own words. If you do research the topic or use your textbook as a reference, remember to cite your references at the bottom of the post. Be sure to pay close attention to your form and grammar AND check for spelling errors.\n\nNote: The references do not have to be in perfect APA format but must be clear as to where you retrieved the information. Make sure you DO NOT copy and paste content to submit as your original work.\n\nMinimum of Two (2) Meaningful Responses to Peers DUE by 11:59 pm CT Sunday in Week 3\n\nRead your classmates' initial discussion posts from Wednesday and choose a minimum of two (2) that you found interesting and informative. Post a 3-5 sentence reply to each of these two initial discussions and be sure to respond to any classmates that commented on your initial post as time permits. Expand on a classmate’s comments in a value-adding, topic-related way. Promote a collaborative, supportive community, and advance the dialogue through follow-up questions. Reply posts cannot be one-liners, off-topic posts, vague statements, unsupported opinions, inadequate explanations, or simply say, “I agree” or “good job.”",
+          "discussion_data": [],
+          "speed_grader": {
+            "assignment_id": "4015846"
+          }
+        },
+        "4": {
+          "topic_id": "1232008",
+          "discussion_prompt": "Given the fundamentals of argument analysis, how would you help someone identify an issue and recognize key components of an argument, such as premises, conclusions, premise indicators, and conclusion indicators? Furthermore, how do we distinguish between an argument, an explanation, and a conditional sentence? Discuss the process of dividing an argument into its constituent parts, diagramming arguments for clarity, effectively constructing our own arguments, and investigating the fundamental principles of argument evaluation. Provide 2 scenarios that demonstrate these concepts and their practical applications in critical thinking and discourse analysis?\n\nHow will you be graded?\n\nYour discussion scores will be based on the Discussion Rubric (circa late 2020). Below are some basic guidelines as well.\n\nInitial Discussion Post DUE by 11:59 pm CT Wednesday in Week 4\n\nYour initial post should be 150-180 words (~ 2 paragraphs). Show that you can think critically on the topic by integrating your own thoughts, analysis, or experiences. The posting is intended to be a discussion and should be written in your own words. If you do research the topic or use your textbook as a reference, remember to cite your references at the bottom of the post. Be sure to pay close attention to your form and grammar AND check for spelling errors.\n\nNote: The references do not have to be in perfect APA format but must be clear as to where you retrieved the information. Make sure you DO NOT copy and paste content to submit as your original work.\n\nMinimum of Two (2) Meaningful Responses to Peers DUE by 11:59 pm CT Sunday in Week 4\n\nRead your classmates' initial discussion posts from Wednesday and choose a minimum of two (2) that you found interesting and informative. Post a 3-5 sentence reply to each of these two initial discussions and be sure to respond to any classmates that commented on your initial post as time permits. Expand on a classmate’s comments in a value-adding, topic-related way. Promote a collaborative, supportive community, and advance the dialogue through follow-up questions. Reply posts cannot be one-liners, off-topic posts, vague statements, unsupported opinions, inadequate explanations, or simply say, “I agree” or “good job.”",
+          "discussion_data": [],
+          "speed_grader": {
+            "assignment_id": "4015845"
+          }
+        },
+        "5": {
+          "topic_id": "1232007",
+          "discussion_prompt": "In the realm of argument evaluation, how would you distinguish between deductive and inductive arguments? Identify the key characteristics of an inductive argument and discuss how to recognize and evaluate arguments based on generalization. Furthermore, explore the nuances of polling and sampling methods and their impact on argumentation validity. Delve into the various uses of analogies and the process of recognizing and evaluating arguments using analogical reasoning. Lastly, examine the complexities of causal arguments and the importance of distinguishing between correlation and causal relationships and provide a couple of examples to illustrate these distinctions and their relevance in critical thinking?\n\nHow will you be graded?\n\nYour discussion scores will be based on the Discussion Rubric (circa late 2020). Below are some basic guidelines as well.\n\nInitial Discussion Post DUE by 11:59 pm CT Wednesday in Week 5\n\nYour initial post should be 150-180 words (~ 2 paragraphs). Show that you can think critically on the topic by integrating your own thoughts, analysis, or experiences. The posting is intended to be a discussion and should be written in your own words. If you do research the topic or use your textbook as a reference, remember to cite your references at the bottom of the post. Be sure to pay close attention to your form and grammar AND check for spelling errors.\n\nNote: The references do not have to be in perfect APA format but must be clear as to where you retrieved the information. Make sure you DO NOT copy and paste content to submit as your original work.\n\nMinimum of Two (2) Meaningful Responses to Peers DUE by 11:59 pm CT Sunday in Week 5\n\nRead your classmates' initial discussion posts from Wednesday and choose a minimum of two (2) that you found interesting and informative. Post a 3-5 sentence reply to each of these two initials discussions and be sure to respond to any classmates that commented on your initial post as time permits. Expand on a classmate’s comments in a value-adding, topic-related way. Promote a collaborative, supportive community, and advance the dialogue through follow-up questions. Reply posts cannot be one-liners, off-topic posts, vague statements, unsupported opinions, inadequate explanations, or simply say, “I agree” or “good job.”",
+          "discussion_data": [],
+          "speed_grader": {
+            "assignment_id": "4015844"
+          }
+        },
+        "6": {
+          "topic_id": "1232006",
+          "discussion_prompt": "Deductive arguments are fundamental to critical thinking because they use logic to reach conclusions that are guaranteed to be correct if the premises are true. To gain a better understanding of deductive reasoning, let's look at some of its key features. Discuss how to recognize the key components of a deductive argument and differentiate between validity, invalidity, and soundness.\n\nConsider various types of deductive arguments.\n\nArguments by elimination\nMathematical arguments\nArguments from Definition\nHypothetical syllogisms: modus ponens, modus tollens, and chain arguments\nHow do these types differ, and what are their distinguishing features?\n\nAlso, let's look at categorical syllogisms. How do you identify standard-form categorical syllogisms, and can Venn diagrams be used to assess their validity? Convert a couple of arguments from ordinary language to standard form and discuss the difficulties you face.\n\nShare your thoughts and examples of each type of deductive argument and explain how mastering these concepts improves your critical thinking abilities.\n\nHow will you be graded?\n\nYour discussion scores will be based on the Discussion Rubric (circa late 2020). Below are some basic guidelines as well.\n\nInitial Discussion Post DUE by 11:59 pm CT Wednesday in Week 6\n\nYour initial post should be 150-180 words (~ 2 paragraphs). Show that you can think critically on the topic by integrating your own thoughts, analysis, or experiences. The posting is intended to be a discussion and should be written in your own words. If you do research the topic or use your textbook as a reference, remember to cite your references at the bottom of the post. Be sure to pay close attention to your form and grammar AND check for spelling errors.\n\nNote: The references do not have to be in perfect APA format but must be clear as to where you retrieved the information. Make sure you DO NOT copy and paste content to submit as your original work.\n\nMinimum of Two (2) Meaningful Responses to Peers DUE by 11:59 pm CT Sunday in Week 6\n\nRead your classmates' initial discussion posts from Wednesday and choose a minimum of two (2) that you found interesting and informative. Post a 3-5 sentence reply to each of these two initials discussions and be sure to respond to any classmates that commented on your initial post as time permits. Expand on a classmate’s comments in a value-adding, topic-related way. Promote a collaborative, supportive community, and advance the dialogue through follow-up questions. Reply posts cannot be one-liners, off-topic posts, vague statements, unsupported opinions, inadequate explanations, or simply say, “I agree” or “good job.”",
+          "discussion_data": [],
+          "speed_grader": {
+            "assignment_id": "4015843"
+          }
+        },
+        "7": {
+          "topic_id": "1232005",
+          "discussion_prompt": "In the context of understanding the importance of marketing in business, how do you think the integration of marketing research, the application of the SWOT model, and the strategic use of advertising impact consumer behavior and business success? Discuss the relationship between big business, advertising, and mass media, and provide examples of how fallacious reasoning and rhetorical devices in advertising can influence consumer perception and decision-making. How does being aware of these marketing practices help you become a more informed consumer and business professional?\n\nHow will you be graded?\n\nYour discussion scores will be based on the Discussion Rubric (circa late 2020). Below are some basic guidelines as well.\n\nInitial Discussion Post DUE by 11:59 pm CT Wednesday in Week 7\n\nYour initial post should be 150-180 words (~ 2 paragraphs). Show that you can think critically on the topic by integrating your own thoughts, analysis, or experiences. The posting is intended to be a discussion and should be written in your own words. If you do research the topic or use your textbook as a reference, remember to cite your references at the bottom of the post. Be sure to pay close attention to your form and grammar AND check for spelling errors.\n\nNote: The references do not have to be in perfect APA format but must be clear as to where you retrieved the information. Make sure you DO NOT copy and paste content to submit as your original work.\n\nMinimum of Two (2) Meaningful Responses to Peers DUE by 11:59 pm CT Sunday in Week 7\n\nRead your classmates' initial discussion posts from Wednesday and choose a minimum of two (2) that you found interesting and informative. Post a 3-5 sentence reply to each of these two initials discussions and be sure to respond to any classmates that commented on your initial post as time permits. Expand on a classmate’s comments in a value-adding, topic-related way. Promote a collaborative, supportive community, and advance the dialogue through follow-up questions. Reply posts cannot be one-liners, off-topic posts, vague statements, unsupported opinions, inadequate explanations, or simply say, “I agree” or “good job.”",
+          "discussion_data": [],
+          "speed_grader": {
+            "assignment_id": "4015842"
+          }
+        },
+        "8": {
+          "topic_id": "1232004",
+          "discussion_prompt": "Reflecting on the history of science, identify and critically examine the assumptions that underpin scientific inquiry. How does the scientific method guide the evaluation of scientific explanations, and what criteria can be used to differentiate science from pseudoscience? Discuss the various types of scientific experiments and how to evaluate them. Consider the ethical issues that arise during scientific experimentation. Finally, consider Thomas Kuhn's theories of normal science and paradigm shifts. How do paradigm shifts affect scientific progress, and can you give an example of a significant paradigm shift in science?\n\nHow will you be graded?\n\nYour discussion scores will be based on the Discussion Rubric (circa late 2020). Below are some basic guidelines as well.\n\nInitial Discussion Post DUE by 11:59 pm CT Wednesday in Week 8\n\nYour initial post should be 150-180 words (~ 2 paragraphs). Show that you can think critically on the topic by integrating your own thoughts, analysis, or experiences. The posting is intended to be a discussion and should be written in your own words. If you do research the topic or use your textbook as a reference, remember to cite your references at the bottom of the post. Be sure to pay close attention to your form and grammar AND check for spelling errors.\n\nNote: The references do not have to be in perfect APA format but must be clear as to where you retrieved the information. Make sure you DO NOT copy and paste content to submit as your original work.\n\nMinimum of Two (2) Meaningful Responses to Peers DUE by 11:59 pm CT Sunday in Week 8\n\nRead your classmates' initial discussion posts from Wednesday and choose a minimum of two (2) that you found interesting and informative. Post a 3-5 sentence reply to each of these two initials discussions and be sure to respond to any classmates that commented on your initial post as time permits. Expand on a classmate’s comments in a value-adding, topic-related way. Promote a collaborative, supportive community, and advance the dialogue through follow-up questions. Reply posts cannot be one-liners, off-topic posts, vague statements, unsupported opinions, inadequate explanations, or simply say, “I agree” or “good job.”",
+          "discussion_data": [],
+          "speed_grader": {
+            "assignment_id": "4015841"
+          }
+        }
+      },
+      "discussion_rubric": {
+        "name": "Discussion Rubric (2021)",
+        "grade": "100",
+        "use_rubric": true,
+        "criteria": [
+          {
+            "name": "Comprehension",
+            "max_points": 40,
+            "rating": "Exceeds Expectations (100%)",
+            "description": "You develop a well-organized initial post that shows you can think critically on the topic by integrating your own thoughts, analysis, or experiences using rich and significant detail."
+          },
+          {
+            "name": "Timeliness",
+            "max_points": 10,
+            "rating": "Meets Expectations (100%)",
+            "description": "You submit your initial post on time. Exceeds Expectations is N/A for this criterion."
+          },
+          {
+            "name": "Engagement",
+            "max_points": 30,
+            "rating": "Exceeds Expectations (100%)",
+            "description": "You provide meaningful responses that are on-topic with clarifying explanation and detail by expanding on peers' comments in a value-adding way; promoting a collaborative, supportive community that advances the dialogue through follow-up questions."
+          },
+          {
+            "name": "Writing",
+            "max_points": 20,
+            "rating": "Exceeds Expectations (100%)",
+            "description": "You write posts that are easily understood, clear, and concise using proper citation methods where applicable with no errors in citations."
+          }
+        ],
+        "rubric_ratings": [
+          "traditional-criterion-_6629-ratings-0",
+          "traditional-criterion-_2232-ratings-1",
+          "traditional-criterion-_2213-ratings-0",
+          "traditional-criterion-61199_554-ratings-0"
+        ],
+        "grading_requirements": {
+          "min_peer_replies": 2,
+          "require_on_time": true,
+          "min_citations": 1,
+          "require_citation": true,
+          "min_initial_post_chars": 100,
+          "min_peer_reply_chars": 40,
+          "min_comprehension_richness_signals": 2,
+          "lenient": true
+        },
+        "rubric_rating_levels": {
+          "Comprehension": {
+            "exceeds": "traditional-criterion-_6629-ratings-0",
+            "meets": "traditional-criterion-_6629-ratings-1",
+            "needs": "traditional-criterion-_6629-ratings-2",
+            "below": "traditional-criterion-_6629-ratings-3"
+          },
+          "Timeliness": {
+            "exceeds": "traditional-criterion-_2232-ratings-0",
+            "meets": "traditional-criterion-_2232-ratings-1",
+            "needs": "traditional-criterion-_2232-ratings-2",
+            "below": "traditional-criterion-_2232-ratings-3"
+          },
+          "Engagement": {
+            "exceeds": "traditional-criterion-_2213-ratings-0",
+            "meets": "traditional-criterion-_2213-ratings-1",
+            "needs": "traditional-criterion-_2213-ratings-2",
+            "below": "traditional-criterion-_2213-ratings-3"
+          },
+          "Writing": {
+            "exceeds": "traditional-criterion-61199_554-ratings-0",
+            "meets": "traditional-criterion-61199_554-ratings-1",
+            "needs": "traditional-criterion-61199_554-ratings-2",
+            "below": "traditional-criterion-61199_554-ratings-3"
+          }
+        },
+        "grading_defaults": {
+          "lenient": true,
+          "global_llm_guidance": "Rubric levels (1–4): 1=below, 2=needs, 3=meets, 4=exceeds. You receive an AUTOMATED PRE-GRADE CHECKLIST — treat it as ground truth for counts (peer replies, citations, lateness) unless the student text clearly contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) within those facts. LENIENCY: When the work clearly fits one level, keep it. When genuinely torn between adjacent levels only (1↔2 or 3↔4), set borderline=true. For Comprehension, prefer exceeds over meets when torn. For other criteria, pick the lower level; post-processing may bump one step. Reserve below for missing or clearly inadequate work."
+        }
+      }
     }
   }
 }
