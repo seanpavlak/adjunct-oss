@@ -103,11 +103,22 @@ class PostAnchors:
         return bool(self.concepts or self.career_hooks or self.key_sentences)
 
 
+PARENTHETICAL = re.compile(r"\([^)]*\)")
+
+
+def strip_parentheticals(text: str) -> str:
+    """Drop Canvas pronoun tags and other parentheticals, e.g. (She/Her)."""
+    cleaned = PARENTHETICAL.sub("", text or "")
+    return re.sub(r"\s+", " ", cleaned).strip()
+
+
 def format_display_name(name: Optional[str]) -> str:
     """Normalize a first name to Title Case for public replies."""
     if not name or not name.strip():
         return ""
-    cleaned = re.sub(r"\s+", " ", name.strip())
+    cleaned = strip_parentheticals(name)
+    if not cleaned:
+        return ""
     parts: List[str] = []
     for chunk in cleaned.split(" "):
         sub: List[str] = []

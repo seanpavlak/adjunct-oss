@@ -16,6 +16,7 @@ from chcp.canvas.parsers import (
     parse_rubric_total_points,
     parse_student_index,
 )
+from chcp.llm.reply_craft import strip_parentheticals
 from chcp.settings import canvas_config
 from chcp.grading import (
     analyze_submission,
@@ -130,16 +131,14 @@ class CanvasService:
         """Extract first name from 'Last Name, First Name' format"""
         if not full_name or not full_name.strip():
             return ""
-        
+
         # Split by comma and get the second part (first name)
-        parts = full_name.strip().split(',')
+        parts = full_name.strip().split(",")
         if len(parts) >= 2:
-            # Get the second part (first name) and strip whitespace
             first_name = parts[1].strip()
-            return first_name
         else:
-            # If no comma found, assume it's already just the first name
-            return full_name.strip()
+            first_name = full_name.strip()
+        return strip_parentheticals(first_name)
 
     def _is_browser_alive(self) -> bool:
         """Check if the browser/page is still accessible"""

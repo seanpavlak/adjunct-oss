@@ -4,6 +4,7 @@ from chcp.llm.reply_craft import (
     analyze_student_post,
     assemble_reply,
     format_display_name,
+    strip_parentheticals,
     strip_trailing_questions,
 )
 
@@ -17,6 +18,16 @@ class TestFormatDisplayName:
     def test_blank(self):
         assert format_display_name("") == ""
         assert format_display_name(None) == ""
+
+    def test_strips_pronoun_parentheticals(self):
+        assert format_display_name("Emari (She/Her)") == "Emari"
+        assert format_display_name("emari (she/her)") == "Emari"
+        assert strip_parentheticals("Smith, Emari (She/Her)") == "Smith, Emari"
+        assert assemble_reply(
+            student_name="Emari (She/Her)",
+            body="spot on about sound speed in tissue",
+            include_follow_up=False,
+        ).startswith("Emari, ")
 
 
 class TestAnalyzeStudentPost:

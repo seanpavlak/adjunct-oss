@@ -9,6 +9,7 @@ from chcp.canvas.parsers import (
     parse_rubric_total_points,
     parse_student_index,
 )
+from chcp.canvas.service import CanvasService
 
 
 class TestNormalizeDiscussionContent:
@@ -93,3 +94,10 @@ class TestParseRubricTotalPoints:
 
     def test_empty(self):
         assert parse_rubric_total_points("") is None
+
+
+class TestExtractFirstName:
+    def test_strips_pronouns_from_canvas_name(self):
+        canvas = CanvasService()
+        assert canvas._extract_first_name("Smith, Emari (She/Her)") == "Emari"
+        assert canvas._extract_first_name("Emari (they/them)") == "Emari"
