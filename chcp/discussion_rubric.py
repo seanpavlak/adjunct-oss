@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional
 GRADING_REQUIREMENTS: Dict[str, Any] = {
     "min_peer_replies": 2,
     "require_on_time": True,
-    "min_citations": 1,
+    "min_citations": 1,  # when citations are applicable (not opinion-only posts)
     "require_citation": True,
     "min_initial_post_chars": 100,
     "min_comprehension_richness_signals": 2,

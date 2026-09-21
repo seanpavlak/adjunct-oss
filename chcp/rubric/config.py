@@ -16,7 +16,7 @@ class GradingRequirements(BaseModel):
 
     min_peer_replies: int = 2
     require_on_time: bool = True
-    min_citations: int = 1
+    min_citations: int = 1  # enforced only when citations are applicable
     require_citation: bool = True
     min_initial_post_chars: int = 100
     min_peer_reply_chars: int = 40

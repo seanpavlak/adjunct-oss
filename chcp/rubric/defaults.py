@@ -59,11 +59,8 @@ DEFAULT_CRITERION_GRADING_POLICIES: Dict[str, Dict[str, Any]] = {
     },
     "Writing": {
         "llm_guidance": (
-            "Assess clarity and citation practice. Exceeds: easily understood writing "
-            "plus at least one real source — URL, APA reference list, or textbook/journal "
-            "line (e.g. Author, I. I. (2024). Title (10th ed.). Publisher). Meets: clear "
-            "writing with no source, or weak citation attempts only. Do not use below for "
-            "writing quality alone."
+            "Assess clarity and concision. Follow the packet Writing note for citations; "
+            "do not re-derive citation policy. Do not use below for writing quality alone."
         ),
         "lenient": True,
         "enforcement": {
@@ -73,6 +70,7 @@ DEFAULT_CRITERION_GRADING_POLICIES: Dict[str, Dict[str, Any]] = {
             "level_when_zero": "meets",
             "level_when_insufficient": "meets",
             "promote_meets_to_exceeds_when_cited": True,
+            "promote_meets_to_exceeds_when_citations_not_applicable": True,
         },
     },
 }
@@ -84,7 +82,8 @@ RUBRIC_GRADING_DEFAULTS: Dict[str, Any] = {
         "You receive an AUTOMATED PRE-GRADE CHECKLIST — treat it as ground truth for "
         "counts (peer replies, citations, lateness) unless the student text clearly "
         "contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) "
-        "within those facts. LENIENCY: When the work clearly fits one level, keep it. "
+        "within those facts. For Writing citations, follow the packet Writing note. "
+        "LENIENCY: When the work clearly fits one level, keep it. "
         "When genuinely torn between adjacent levels only (1↔2 or 3↔4), set "
         "borderline=true. For Comprehension, prefer exceeds over meets when torn. "
         "For other criteria, pick the lower level; post-processing may bump one step. "

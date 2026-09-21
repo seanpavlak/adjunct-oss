@@ -63,8 +63,21 @@ class GradingRequirementsSchema(BaseModel):
 
     min_peer_replies: int = Field(default=2, ge=0)
     require_on_time: bool = Field(default=True)
-    min_citations: int = Field(default=1, ge=0)
-    require_citation: bool = Field(default=True)
+    min_citations: int = Field(
+        default=1,
+        ge=0,
+        description=(
+            "Minimum sources required when the post needs a citation. "
+            "Opinion/experience-only posts do not use this minimum."
+        ),
+    )
+    require_citation: bool = Field(
+        default=True,
+        description=(
+            "When true, enforce the citation minimum only if the post is not "
+            "opinion/experience only."
+        ),
+    )
     min_initial_post_chars: int = Field(default=100, ge=0)
     min_peer_reply_chars: int = Field(default=40, ge=0)
     min_comprehension_richness_signals: int = Field(

@@ -84,6 +84,21 @@ def format_grading_brief(
         for url in sub.link_urls:
             lines.append(url)
 
+    if analysis.citation_report.has_quality_source:
+        writing_instruction = (
+            "4. Writing: A source is already listed — citation bar met. Grade clarity only. "
+            "Exceeds if writing is clear. Do not classify opinion vs required citations."
+        )
+    else:
+        writing_instruction = (
+            "4. Writing: No source detected. Read the initial post. If it is opinion or "
+            "personal experience only, citations are not required — exceeds when writing is "
+            "clear (set citations_applicable=false). If the post makes claims that should be "
+            "sourced, exceeds needs at least one real source (URL, References list, or "
+            "Author (Year). Title (ed.). Publisher); clear writing with a needed source "
+            "missing is meets (set citations_applicable=true)."
+        )
+
     lines.extend(
         [
             "",
@@ -94,12 +109,25 @@ def format_grading_brief(
             "2. Timeliness: Use the timeliness note above; do not assign exceeds for timeliness.",
             "3. Engagement: Judge EACH peer reply. Exceeds when two replies greet a classmate and "
             "discuss the topic/field (see exceeds-quality flags). Meets for two thinner replies; zero → below.",
-            "4. Writing: Clarity and grammar. Exceeds when writing is clear and a real source is cited "
-            "(URL, References list, or Author (Year). Title (ed.). Publisher). Meets when clear but no source.",
+            writing_instruction,
             "Reference the checklist in each criterion reason when your level differs from a hint.",
         ]
     )
     return "\n".join(lines)
+
+
+CITATION_CHECK_INSTRUCTION = (
+    "Also set citations_applicable: false if the initial post is opinion or personal "
+    "experience only (no source required); true if the post makes claims that "
+    "should be sourced.\n"
+)
+
+
+def citation_check_instruction(analysis: SubmissionAnalysis) -> str:
+    """Prompt add-on used only when no quality source was detected."""
+    if analysis.source_satisfies_citation_bar:
+        return ""
+    return CITATION_CHECK_INSTRUCTION
 
 
 def format_submission_for_prompt(submission: DiscussionSubmission) -> str:

@@ -5,7 +5,7 @@ These models define the exact JSON shape returned by the LLM and are used with
 LangChain's with_structured_output() for validated parsing.
 """
 
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Type
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -40,8 +40,8 @@ class CriterionGrade(BaseModel):
     )
 
 
-class RubricAssessment(BaseModel):
-    """Complete rubric assessment returned by the LLM."""
+class RubricGradePayload(BaseModel):
+    """Core LLM grade payload (no citation-applicability check)."""
 
     criteria: List[CriterionGrade] = Field(
         ...,
@@ -82,6 +82,24 @@ class RubricAssessment(BaseModel):
     def borderline_by_criterion(self) -> dict[str, bool]:
         """Map criterion name to whether the LLM was torn between adjacent levels."""
         return {c.criterion: c.borderline for c in self.criteria}
+
+
+class RubricAssessment(RubricGradePayload):
+    """Full assessment, including citation applicability when no source was detected."""
+
+    citations_applicable: Optional[bool] = Field(
+        default=None,
+        description=(
+            "Set only when no source was detected. False if the post is opinion or "
+            "personal experience only; true if a source is needed. Omit when a source "
+            "is already listed."
+        ),
+    )
+
+
+def llm_assessment_model(*, source_found: bool) -> Type[BaseModel]:
+    """Use the smaller schema when a source already meets the citation bar."""
+    return RubricGradePayload if source_found else RubricAssessment
 
 
 def assessment_to_levels(

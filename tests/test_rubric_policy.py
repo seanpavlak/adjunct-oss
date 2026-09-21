@@ -80,6 +80,26 @@ class TestApplyRubricPolicies:
         )
         assert levels["Writing"] == "meets"
 
+    def test_opinion_only_writing_full_credit_without_citation(self):
+        from chcp.grading.analysis import analyze_submission
+        from chcp.grading.fixtures import OPINION_ONLY_INITIAL
+
+        sub = DiscussionSubmission(
+            initial_post=OPINION_ONLY_INITIAL,
+            peer_replies=["Hi Sue, " + "x" * 50, "Hi Bob, " + "y" * 50],
+        )
+        analysis = analyze_submission(sub)
+        analysis.citations_applicable = False
+        levels = apply_rubric_policies(
+            {n: "exceeds" for n in CRITERION_ORDER},
+            sub,
+            merge_criterion_grading_policies(
+                [{"name": n} for n in CRITERION_ORDER]
+            ),
+            analysis=analysis,
+        )
+        assert levels["Writing"] == "exceeds"
+
 
 class TestBoundaryLeniency:
     def test_borderline_below_bumps_to_needs(self):
@@ -138,3 +158,4 @@ class TestPromptBuilding:
         assert "borderline" in text.lower() or "LENIENCY" in text
         assert "Engagement:" in text
         assert "prefer exceeds over meets" in text.lower()
+        assert "packet Writing note" in text

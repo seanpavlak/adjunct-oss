@@ -68,6 +68,14 @@ LESLEY_ADEQUATE_INITIAL = (
     "to be able to get a clearer image of where we neeed to scan."
 )
 
+# Personal experience / reflection — citations are not applicable.
+OPINION_ONLY_INITIAL = (
+    "This week I felt more confident in clinic because I slowed down with the patient. "
+    "I used to rush through introductions, and I could tell people were tense. "
+    "Taking a minute to explain what I am doing helped me stay calm too. "
+    "I want to keep practicing that next week."
+)
+
 # Two organized paragraphs, no citations — should clear the eased exceeds bar.
 SOLID_TWO_PARAGRAPH_INITIAL = (
     "The metric system is easier to use in science because units scale by tens. "

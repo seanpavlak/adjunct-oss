@@ -94,11 +94,20 @@ def _apply_min_citations(ctx: EnforcementContext) -> RubricLevel:
     """
     Writing citation enforcement:
 
-    - No quality source → cap at meets (not exceeds).
+    - Opinion/experience-only posts (citations not applicable) → do not cap; may
+      promote meets → exceeds (citations N/A is full credit).
+    - When a source is warranted: no quality source → cap at meets (not exceeds).
     - Clear writing with URL, APA list, or book/journal line (e.g. Author (2024). Title)
       → may promote meets to exceeds when the LLM was conservative.
     """
     if not ctx.params.get("require_citation", True):
+        return ctx.level
+
+    if ctx.analysis is not None and ctx.analysis.citations_applicable is False:
+        if ctx.level == "meets" and ctx.params.get(
+            "promote_meets_to_exceeds_when_citations_not_applicable", True
+        ):
+            return "exceeds"
         return ctx.level
 
     from chcp.grading.citations import build_citation_report

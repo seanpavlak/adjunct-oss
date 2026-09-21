@@ -92,7 +92,10 @@ def run_speed_grader_action(
     print(f"    - Min substantive peer replies: {grading_requirements.get('min_peer_replies', 2)}")
     print(f"    - Comprehension richness signals: {grading_requirements.get('min_comprehension_richness_signals', 2)}")
     print(f"    - On time required: {grading_requirements.get('require_on_time', True)}")
-    print(f"    - Min citations: {grading_requirements.get('min_citations', 1)}")
+    print(
+        f"    - Min citations when applicable: {grading_requirements.get('min_citations', 1)} "
+        "(opinion/experience-only posts do not require a source)"
+    )
     if dry_run:
         print("  Mode: dry-run (logs full LLM I/O for student on screen; no saves)")
 

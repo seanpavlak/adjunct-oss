@@ -174,7 +174,7 @@ If Canvas changes rubric button IDs, update `rubric_ratings` in the course `disc
 | Meaningful peer replies | ≥2 at 40+ chars each |
 | Substantive peer replies | ≥2 that add detail (not agreement-only) |
 | On time | Canvas `days-late-input` or preview |
-| Citations | URLs, APA/refs, or citation attempts |
+| Citations | ≥1 (URL/APA/attempt) only when the post needs a source; opinion/experience-only posts get full Writing credit without a citation |
 | Comprehension exceeds | 2+ richness signals (not 120 chars alone) |
 
 ```bash

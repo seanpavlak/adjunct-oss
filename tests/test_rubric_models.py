@@ -86,3 +86,25 @@ class TestRubricAssessment:
     def test_model_json_schema_has_criteria(self):
         schema = RubricAssessment.model_json_schema()
         assert "criteria" in schema["properties"]
+        assert "citations_applicable" in schema["properties"]
+
+    def test_citations_applicable_defaults_unset(self):
+        assessment = RubricAssessment(criteria=self._four_criteria())
+        assert assessment.citations_applicable is None
+
+    def test_citations_applicable_false_for_opinion_posts(self):
+        assessment = RubricAssessment(
+            criteria=self._four_criteria(),
+            citations_applicable=False,
+        )
+        assert assessment.citations_applicable is False
+
+    def test_source_found_schema_omits_citation_check(self):
+        from chcp.rubric_models import RubricGradePayload, llm_assessment_model
+
+        cited = llm_assessment_model(source_found=True)
+        missing = llm_assessment_model(source_found=False)
+        assert cited is RubricGradePayload
+        assert missing is RubricAssessment
+        assert "citations_applicable" not in cited.model_json_schema()["properties"]
+        assert "citations_applicable" in missing.model_json_schema()["properties"]

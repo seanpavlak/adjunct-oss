@@ -143,6 +143,82 @@ class TestPostProcessor:
         )
         assert levels["Writing"] == "meets"
 
+    def test_opinion_only_writing_keeps_exceeds_without_citation(self):
+        from chcp.grading.analysis import analyze_submission
+        from chcp.grading.fixtures import OPINION_ONLY_INITIAL
+
+        sub = DiscussionSubmission(
+            initial_post=OPINION_ONLY_INITIAL,
+            peer_replies=["Hi Sue, " + "x" * 50, "Hi Bob, " + "y" * 50],
+        )
+        analysis = analyze_submission(sub)
+        analysis.citations_applicable = False
+        processor, _ = _processor()
+        levels = processor.apply(
+            {n: "exceeds" for n in CRITERION_ORDER},
+            sub,
+            analysis=analysis,
+        )
+        assert levels["Writing"] == "exceeds"
+
+    def test_opinion_only_writing_promotes_meets_to_exceeds(self):
+        from chcp.grading.analysis import analyze_submission
+        from chcp.grading.fixtures import OPINION_ONLY_INITIAL
+
+        sub = DiscussionSubmission(
+            initial_post=OPINION_ONLY_INITIAL,
+            peer_replies=["Hi Sue, " + "x" * 50, "Hi Bob, " + "y" * 50],
+        )
+        analysis = analyze_submission(sub)
+        analysis.citations_applicable = False
+        processor, _ = _processor()
+        levels = processor.apply(
+            {
+                "Comprehension": "meets",
+                "Timeliness": "meets",
+                "Engagement": "meets",
+                "Writing": "meets",
+            },
+            sub,
+            analysis=analysis,
+        )
+        assert levels["Writing"] == "exceeds"
+
+    def test_opinion_only_does_not_raise_needs_writing(self):
+        from chcp.grading.analysis import analyze_submission
+        from chcp.grading.fixtures import OPINION_ONLY_INITIAL
+
+        sub = DiscussionSubmission(initial_post=OPINION_ONLY_INITIAL)
+        analysis = analyze_submission(sub)
+        analysis.citations_applicable = False
+        processor, _ = _processor()
+        levels = processor.apply(
+            {
+                "Writing": "needs",
+                "Comprehension": "meets",
+                "Timeliness": "meets",
+                "Engagement": "meets",
+            },
+            sub,
+            analysis=analysis,
+        )
+        assert levels["Writing"] == "needs"
+
+    def test_citations_applicable_without_source_still_capped(self):
+        from chcp.grading.analysis import analyze_submission
+        from chcp.grading.fixtures import LESLEY_ADEQUATE_INITIAL
+
+        sub = DiscussionSubmission(initial_post=LESLEY_ADEQUATE_INITIAL)
+        analysis = analyze_submission(sub)
+        analysis.citations_applicable = True
+        processor, _ = _processor()
+        levels = processor.apply(
+            {n: "exceeds" for n in CRITERION_ORDER},
+            sub,
+            analysis=analysis,
+        )
+        assert levels["Writing"] == "meets"
+
     def test_rich_initial_post_bumps_comprehension_meets_to_exceeds(self):
         from chcp.grading.fixtures import BRITO_RICH_INITIAL
 

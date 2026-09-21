@@ -138,3 +138,23 @@ class TestGradingBrief:
         assert "AUTOMATED PRE-GRADE CHECKLIST" in brief
         assert "INITIAL POST" in brief
         assert "Prefer exceeds" in brief
+        assert "opinion or personal experience" in brief.lower()
+
+    def test_source_found_skips_opinion_classification(self):
+        from chcp.grading.brief import citation_check_instruction
+        from chcp.grading.fixtures import BRITO_RICH_INITIAL
+
+        sub = DiscussionSubmission(initial_post=BRITO_RICH_INITIAL)
+        analysis = analyze_submission(sub)
+        assert analysis.source_satisfies_citation_bar
+        brief = format_grading_brief(analysis, "Week 3: Explain the metric system.")
+        assert "citation bar already met" in brief.lower() or "citation bar met" in brief.lower()
+        assert "set citations_applicable" not in brief
+        assert citation_check_instruction(analysis) == ""
+        assert "do not classify" in analysis.writing_summary.lower()
+
+    def test_writing_summary_does_not_hard_require_citation(self):
+        sub = DiscussionSubmission(initial_post="I think physics is interesting.")
+        analysis = analyze_submission(sub)
+        assert "opinion or personal" in analysis.writing_summary.lower()
+        assert "cannot exceed meets unless you find a source" not in analysis.writing_summary

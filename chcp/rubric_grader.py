@@ -22,7 +22,7 @@ from chcp.discussion_rubric import (
     build_rubric_ratings_for_levels,
 )
 from chcp.grading.analysis import SubmissionAnalysis, analyze_submission
-from chcp.grading.brief import format_grading_brief
+from chcp.grading.brief import citation_check_instruction, format_grading_brief
 from chcp.grading.parse import detect_late_submission
 from chcp.grading.scoring import grade_points_from_levels
 from chcp.rubric import (
@@ -33,7 +33,12 @@ from chcp.rubric import (
     format_rubric_for_prompt,
 )
 from chcp.rubric.types import RubricLevel
-from chcp.rubric_models import RubricAssessment, assessment_to_levels
+from chcp.rubric_models import (
+    RubricAssessment,
+    RubricGradePayload,
+    assessment_to_levels,
+    llm_assessment_model,
+)
 from chcp.submission_models import DiscussionSubmission, SubmissionEvaluation
 
 def format_submission_for_prompt(
@@ -88,7 +93,6 @@ class RubricGrader:
 
         self._processor = RubricPostProcessor(self._config)
         self.llm = self._initialize_llm(openai_key, anthropic_key, deepseek_key)
-        self.structured_llm = self.llm.with_structured_output(RubricAssessment)
 
         criteria_names = ", ".join(self._config.criterion_order)
         self.prompt = PromptTemplate(
@@ -99,13 +103,14 @@ class RubricGrader:
                 f"with exactly one entry per criterion ({criteria_names}). "
                 "Each entry: level (exceeds, meets, needs, below), reason citing specific "
                 "evidence from the initial post and/or peer replies, and borderline (true "
-                "only when torn between adjacent levels 1↔2 or 3↔4).\n\n"
+                "only when torn between adjacent levels 1↔2 or 3↔4).\n"
+                "{citation_check_instruction}\n"
                 "{rubric_text}\n\n"
                 "{submission_text}\n\n"
                 "Course-specific grading guidance:\n"
                 "{grading_instructions}\n"
             ),
-            input_variables=["submission_text"],
+            input_variables=["submission_text", "citation_check_instruction"],
             partial_variables={
                 "rubric_text": format_rubric_for_prompt(
                     self._config.criteria,
@@ -156,17 +161,40 @@ class RubricGrader:
             submission, self._config.grading_requirements.model_dump()
         )
         brief = format_grading_brief(analysis, discussion_prompt)
+        source_found = analysis.source_satisfies_citation_bar
+        schema_name = "RubricGradePayload" if source_found else "RubricAssessment"
         schema_hint = (
-            "\n\n[Structured output: RubricAssessment with criteria: "
+            f"\n\n[Structured output: {schema_name} with criteria: "
             f"List[CriterionGrade] — one per {', '.join(self._config.criterion_order)}]"
         )
-        return self.prompt.format(submission_text=brief) + schema_hint
+        return (
+            self.prompt.format(
+                submission_text=brief,
+                citation_check_instruction=citation_check_instruction(analysis),
+            )
+            + schema_hint
+        )
 
-    def _invoke_assessment(self, submission_text: str) -> RubricAssessment:
-        chain = self.prompt | self.structured_llm
-        result = chain.invoke({"submission_text": submission_text})
+    def _invoke_assessment(
+        self,
+        submission_text: str,
+        *,
+        source_found: bool = False,
+        citation_check: str = "",
+    ) -> RubricAssessment:
+        schema = llm_assessment_model(source_found=source_found)
+        structured = self.llm.with_structured_output(schema)
+        chain = self.prompt | structured
+        result = chain.invoke(
+            {
+                "submission_text": submission_text,
+                "citation_check_instruction": citation_check,
+            }
+        )
         if isinstance(result, RubricAssessment):
             return result
+        if isinstance(result, RubricGradePayload):
+            return RubricAssessment.model_validate(result.model_dump())
         return RubricAssessment.model_validate(result)
 
     def _resolve_config(
@@ -217,9 +245,12 @@ class RubricGrader:
 
         req_dict = config.grading_requirements.model_dump()
         analysis = analyze_submission(submission, req_dict)
+        source_found = analysis.source_satisfies_citation_bar
+        citation_check = citation_check_instruction(analysis)
         submission_text = format_grading_brief(analysis, discussion_prompt)
         processor = RubricPostProcessor(config)
         criterion_order = config.criterion_order
+        assessment_schema = llm_assessment_model(source_found=source_found)
 
         if dry_run:
             _print_section("DRY RUN — Discussion prompt", discussion_prompt)
@@ -229,13 +260,24 @@ class RubricGrader:
                 "DRY RUN — Full LLM prompt",
                 self.format_full_prompt(discussion_prompt, submission),
             )
-            _print_section(
-                "DRY RUN — Expected Pydantic schema",
-                json.dumps(RubricAssessment.model_json_schema(), indent=2),
+            schema_note = (
+                "source found — citation check skipped"
+                if source_found
+                else "no source — classify citations_applicable"
             )
-            print("\nCalling LLM (structured output → RubricAssessment)...\n")
+            _print_section(
+                f"DRY RUN — Expected Pydantic schema ({schema_note})",
+                json.dumps(assessment_schema.model_json_schema(), indent=2),
+            )
+            print("\nCalling LLM (structured output)...\n")
 
-        assessment = self._invoke_assessment(submission_text)
+        assessment = self._invoke_assessment(
+            submission_text,
+            source_found=source_found,
+            citation_check=citation_check,
+        )
+        if not source_found:
+            analysis.citations_applicable = assessment.citations_applicable
         levels = assessment_to_levels(assessment, criterion_order)
         levels_before_policy = dict(levels)
         borderline = assessment.borderline_by_criterion()
@@ -249,6 +291,12 @@ class RubricGrader:
             for name in criterion_order:
                 bl = " [borderline]" if borderline.get(name) else ""
                 lines.append(f"  {name}: {levels_before_policy.get(name, '?')}{bl}")
+            if source_found:
+                lines.append("  citations_applicable: skipped (source already found)")
+            elif analysis.citations_applicable is False:
+                lines.append("  citations_applicable: no (opinion/experience only)")
+            else:
+                lines.append("  citations_applicable: yes")
             _print_section("DRY RUN — Rubric levels (LLM only)", "\n".join(lines))
 
         use_lenient = self.lenient and bool(

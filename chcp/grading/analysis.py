@@ -143,6 +143,12 @@ class SubmissionAnalysis:
 
     citation_report: CitationReport = field(default_factory=CitationReport)
     citation_count: int = 0
+    citations_applicable: Optional[bool] = None
+
+    @property
+    def source_satisfies_citation_bar(self) -> bool:
+        """True when a quality source already meets the Writing citation requirement."""
+        return self.citation_report.has_quality_source
 
     days_late: Optional[float] = None
     on_time: bool = True
@@ -307,10 +313,20 @@ def analyze_submission(
         f"(≥{min_peer_chars} chars), {substantive} substantive (on-topic, not agreement-only). "
         f"Required: {min_peer} meaningful replies to classmates."
     )
-    checklist.append(
-        f"Citations: {citation_count} signal(s), {len(citation_report.urls)} URL(s). "
-        f"Required: ≥{min_citations} (URLs, formatted refs, or citation attempts all count)."
-    )
+    if citation_report.has_quality_source:
+        checklist.append(
+            f"Citations: {citation_count} signal(s), {len(citation_report.urls)} URL(s). "
+            "Source found — citation bar already met. Do not classify opinion vs required "
+            "citations."
+        )
+    else:
+        checklist.append(
+            f"Citations: {citation_count} signal(s), {len(citation_report.urls)} URL(s). "
+            "No quality source. Read the post: if it is opinion or personal experience only, "
+            "citations are not required (full Writing credit when writing is clear). If the "
+            "post asserts facts, data, readings, or technical claims that should be sourced, "
+            f"required: ≥{min_citations} (URLs, formatted refs, or citation attempts all count)."
+        )
     checklist.append(f"Timeliness: {timeliness_summary}")
 
     if engagement_qualifies_for_exceeds:
@@ -337,16 +353,23 @@ def analyze_submission(
 
     if citation_report.has_quality_source:
         writing_summary = (
-            "Quality source cited (URL, reference list, or book/journal line) — "
-            "if the post is clear and understandable, Writing should be exceeds."
+            "Quality source cited — citation bar met. Grade writing clarity only; "
+            "if the post is clear, Writing should be exceeds. Do not classify whether "
+            "citations apply."
         )
     elif citation_report.has_any_citation:
         writing_summary = (
-            "Weak citation attempt only — Writing is typically meets unless the source is clear."
+            "Weak citation attempt only. If citations are applicable, Writing is typically "
+            "meets unless the source is clear. If the post is opinion/experience only, "
+            "citations are not required — Writing can be exceeds when writing is clear."
         )
     else:
         writing_summary = (
-            "No citation signals detected — Writing cannot exceed meets unless you find a source in the text."
+            "No citation signals detected. Read the post: if it is opinion or personal "
+            "experience only, citations are not applicable — Writing can be exceeds when "
+            "the writing is clear. If the post asserts facts, data, or course concepts "
+            "that should be sourced, at least 1 citation is required and Writing cannot "
+            "exceed meets without a source."
         )
 
     if initial_richness.qualifies_for_exceeds:
@@ -384,6 +407,7 @@ def analyze_submission(
         engagement_qualifies_for_exceeds=engagement_qualifies_for_exceeds,
         citation_report=citation_report,
         citation_count=citation_count,
+        citations_applicable=None,
         days_late=days_late,
         on_time=on_time,
         timeliness_level_hint=timeliness_hint,
