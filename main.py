@@ -191,7 +191,11 @@ def get_course_selector():
     # Build mapping of display names to course keys
     display_to_key = {}
     course_options = []
-    
+
+    all_label = "ALL - Every course, each in its own Chromium window"
+    display_to_key[all_label] = "ALL"
+    course_options.append(all_label)
+
     for key, course in courses.items():
         course_id = course.get("course_id", "N/A")
         name = course.get("name", "Unnamed Course")
@@ -305,6 +309,7 @@ def run_discussion_action(args=None):
         course_selector = args.course
         week_id = args.week
         llm_provider = args.provider
+        window_slot = args.window_slot
     else:
         # Interactive mode
         console.print(Panel.fit("[bold blue]Discussion Action Setup[/bold blue]"))
@@ -316,6 +321,18 @@ def run_discussion_action(args=None):
         llm_provider = get_llm_provider()
         if not llm_provider:
             return
+        window_slot = None
+
+    if str(course_selector).upper() == "ALL":
+        run_discussion_action(
+            email=creds.username,
+            password=creds.password,
+            course_selector=course_selector,
+            week_id=week_id,
+            llm_provider=llm_provider,
+            otp_provider=creds.get_otp if creds.has_otp_provider else None,
+        )
+        return
 
     # Start browser monitoring thread
     browser_monitor = threading.Thread(target=monitor_browser_window, daemon=True)
@@ -333,6 +350,7 @@ def run_discussion_action(args=None):
             week_id=week_id,
             llm_provider=llm_provider,
             otp_provider=creds.get_otp if creds.has_otp_provider else None,
+            window_slot=window_slot,
         )
     except Exception as e:
         if not browser_closed:
@@ -354,6 +372,7 @@ def run_speed_grader_action_cli(args=None):
         max_students = args.max_students
         dry_run = args.dry_run
         llm_provider = getattr(args, "provider", None)
+        window_slot = getattr(args, "window_slot", None)
     else:
         console.print(Panel.fit("[bold blue]Speed Grader Setup[/bold blue]"))
         course_selector = get_course_selector()
@@ -373,6 +392,21 @@ def run_speed_grader_action_cli(args=None):
             == "y"
         )
         llm_provider = None
+        window_slot = None
+
+    if str(course_selector).upper() == "ALL":
+        run_speed_grader_action(
+            email=creds.username,
+            password=creds.password,
+            course_selector=course_selector,
+            week_id=week_id,
+            grade_override=grade_override,
+            max_students=max_students,
+            dry_run=dry_run,
+            llm_provider=llm_provider,
+            otp_provider=creds.get_otp if creds.has_otp_provider else None,
+        )
+        return
 
     browser_monitor = threading.Thread(target=monitor_browser_window, daemon=True)
     browser_monitor.start()
@@ -391,6 +425,7 @@ def run_speed_grader_action_cli(args=None):
             dry_run=dry_run,
             llm_provider=llm_provider,
             otp_provider=creds.get_otp if creds.has_otp_provider else None,
+            window_slot=window_slot,
         )
     except Exception as e:
         if not browser_closed:
@@ -583,11 +618,20 @@ Examples:
             choices=["openai", "anthropic", "deepseek"],
             help="LLM provider to use (auto-detected if not specified)",
         )
-        discussion_parser.add_argument("--course", default="A", help="Course selector (default: A)")
+        discussion_parser.add_argument(
+            "--course",
+            default="A",
+            help="Course key, Canvas course id, or ALL for every course (default: A)",
+        )
         discussion_parser.add_argument(
             "--week",
             type=int,
             help="Week ID override (default: current calendar week from course start)",
+        )
+        discussion_parser.add_argument(
+            "--window-slot",
+            type=int,
+            help="Chromium window slot for one course inside an ALL batch",
         )
 
         plagiarism_parser = subparsers.add_parser(
@@ -626,7 +670,11 @@ Examples:
         grade_parser = subparsers.add_parser(
             "grade", help="Auto-grade discussion posts in Speed Grader"
         )
-        grade_parser.add_argument("--course", default="A", help="Course selector (default: A)")
+        grade_parser.add_argument(
+            "--course",
+            default="A",
+            help="Course key, Canvas course id, or ALL for every course (default: A)",
+        )
         grade_parser.add_argument(
             "--week", type=int, help="Week ID (auto-calculated if not specified)"
         )
@@ -647,6 +695,11 @@ Examples:
             "--provider",
             choices=["openai", "anthropic", "deepseek"],
             help="LLM provider for rubric grading (auto-detected if not specified)",
+        )
+        grade_parser.add_argument(
+            "--window-slot",
+            type=int,
+            help="Chromium window slot for one course inside an ALL batch",
         )
         args = parser.parse_args()
 

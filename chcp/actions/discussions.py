@@ -8,13 +8,17 @@ import time
 from dotenv import load_dotenv
 
 from chcp.canvas.service import CanvasService
-from chcp.core.pause_control import get_pause_controller
-from chcp.core.course_utils import (
-    calculate_current_week,
-    get_week_prompt,
-    load_courses_config,
-    resolve_course_and_topic,
+from chcp.canvas.session import discard_session_file, establish_canvas_session
+from chcp.core.course_binding import (
+    CourseIsolationError,
+    assert_worker_course,
+    bind_course,
+    is_all_courses,
+    resolve_window_slot,
 )
+from chcp.core.course_utils import calculate_current_week, load_courses_config, resolve_course
+from chcp.core.parallel_courses import install_parallel_log_prefix, run_courses_in_parallel
+from chcp.core.pause_control import get_pause_controller
 
 # Load environment variables
 load_dotenv()
@@ -55,8 +59,34 @@ def run_discussion_action(
     week_id: int = None,
     llm_provider: str = None,
     otp_provider=None,
+    window_slot: int = None,
 ) -> None:
     """Main function to run discussion scraping and response generation"""
+    install_parallel_log_prefix()
+    if is_all_courses(course_selector):
+        if os.environ.get("CHCP_PARALLEL") == "1":
+            raise CourseIsolationError(
+                "A course worker cannot fan out to ALL. "
+                "ALL is only allowed in the parent process."
+            )
+        if not email or not password:
+            print("Email and password must be provided")
+            return
+        print(
+            "Signing in once. Canvas accepts the MFA code a single time, "
+            "and each course window reuses that session."
+        )
+        session_path = establish_canvas_session(email, password, otp_provider)
+        try:
+            run_courses_in_parallel(
+                "discussion",
+                week=week_id,
+                provider=llm_provider,
+                storage_state_path=session_path,
+            )
+        finally:
+            discard_session_file(session_path)
+        return
     if not email or not password:
         print("Email and password must be provided")
         return
@@ -64,18 +94,10 @@ def run_discussion_action(
         print("Course selector (course key or course_id) must be provided")
         return
 
+    assert_worker_course(course_selector)
+    window_slot = resolve_window_slot(window_slot)
     config = load_courses_config()
-
-    courses = config.get("courses", {})
-    if course_selector in courses:
-        course = courses[course_selector]
-    else:
-        course = next(
-            (c for c in courses.values() if c.get("course_id") == str(course_selector)), None
-        )
-
-    if not course:
-        raise ValueError(f"Course '{course_selector}' not found in courses.json")
+    course = resolve_course(course_selector, config)
 
     if week_id is None:
         course_start_date = course.get("course_start_date")
@@ -89,10 +111,16 @@ def run_discussion_action(
     else:
         print(f"Using manually specified week: {week_id}")
 
-    course_id, topic_id = resolve_course_and_topic(course_selector, week_id, config)
-
-    dq_prompt = get_week_prompt(course_selector, week_id, config)
-    print(f"\nWeek {week_id} prompt:\n{dq_prompt}\n")
+    binding = bind_course(course_selector, week_id, config)
+    course_id = binding.course_id
+    topic_id = binding.topic_id
+    if not topic_id:
+        raise ValueError(f"Missing topic_id for week {week_id} in course {binding.course_key}")
+    print(
+        f"\nCourse {binding.course_key} ({binding.course_name}) "
+        f"id={binding.course_id} week={binding.week_id}"
+    )
+    print(f"Week {week_id} prompt:\n{binding.discussion_prompt}\n")
 
     # Get and validate API keys
     openai_key = os.getenv("OPENAI_API_KEY", "")
@@ -127,17 +155,33 @@ def run_discussion_action(
         "deepseek_key": deepseek_key,
     }
 
+    parallel = os.environ.get("CHCP_PARALLEL") == "1"
+    storage_state_path = os.environ.get("CHCP_STORAGE_STATE") or None
     pause = get_pause_controller()
-    pause.enable()
+    if not parallel:
+        pause.enable()
     try:
-        with CanvasService(headless=False) as canvas:
-            canvas.login(email, password, otp_provider=otp_provider)
+        with CanvasService(
+            headless=False,
+            window_slot=window_slot,
+            course_label=binding.course_key,
+            storage_state_path=storage_state_path,
+        ) as canvas:
+            canvas.bound_course_id = binding.course_id
+            canvas.course_binding = binding
+            canvas.ensure_logged_in(email, password, otp_provider=otp_provider)
             canvas.navigate_to_discussion(course_id, topic_id)
             # Collapse nested peer replies so we only reply to top-level posts.
             canvas.collapse_discussion_if_needed()
-            canvas.run_discussion_loop(week_id, llm_config, course_selector)
+            canvas.run_discussion_loop(
+                week_id,
+                llm_config,
+                binding.course_key,
+                interactive=not parallel,
+            )
     finally:
-        pause.disable()
+        if not parallel:
+            pause.disable()
 
 
 def main():
@@ -153,8 +197,17 @@ def main():
         choices=["openai", "anthropic", "deepseek"],
         help="LLM provider to use (auto-detected if not specified)",
     )
-    parser.add_argument("--course", default="A", help="Course selector (default: A)")
+    parser.add_argument(
+        "--course",
+        default="A",
+        help="Course key, Canvas course id, or ALL (default: A)",
+    )
     parser.add_argument("--week", type=int, help="Week ID (auto-calculated if not specified)")
+    parser.add_argument(
+        "--window-slot",
+        type=int,
+        help="Chromium window slot when running one course of an ALL batch",
+    )
 
     args = parser.parse_args()
 
@@ -168,6 +221,7 @@ def main():
         week_id=args.week,
         llm_provider=args.provider,
         otp_provider=creds.get_otp if creds.has_otp_provider else None,
+        window_slot=args.window_slot,
     )
 
 

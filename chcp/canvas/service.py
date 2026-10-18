@@ -25,6 +25,12 @@ from chcp.grading import (
     is_citable_url,
     parse_discussion_submission,
 )
+from chcp.canvas.session import url_needs_canvas_login
+from chcp.core.course_binding import (
+    CourseIsolationError,
+    chromium_launch_args,
+    url_is_course,
+)
 from chcp.core.pause_control import get_pause_controller
 from chcp.plagiarism.checker import DiscussionPost
 from chcp.submission_models import DiscussionSubmission, SubmissionEvaluation
@@ -33,8 +39,19 @@ from chcp.submission_models import DiscussionSubmission, SubmissionEvaluation
 class CanvasService:
     """Service class for Canvas LMS operations"""
 
-    def __init__(self, headless: bool = False):
+    def __init__(
+        self,
+        headless: bool = False,
+        window_slot: Optional[int] = None,
+        course_label: Optional[str] = None,
+        storage_state_path: Optional[str] = None,
+    ):
         self.headless = headless
+        self.window_slot = window_slot
+        self.course_label = course_label
+        self.storage_state_path = storage_state_path or None
+        self.bound_course_id: Optional[str] = None
+        self.course_binding = None
         self.playwright = None
         self.browser = None
         self.context = None
@@ -43,9 +60,16 @@ class CanvasService:
     def __enter__(self):
         """Context manager entry"""
         self.playwright = sync_playwright().start()
-        self.browser = self.playwright.chromium.launch(headless=self.headless)
-        self.context = self.browser.new_context()
+        self.browser = self.playwright.chromium.launch(
+            headless=self.headless,
+            args=chromium_launch_args(self.window_slot),
+        )
+        context_options = {}
+        if self.storage_state_path:
+            context_options["storage_state"] = self.storage_state_path
+        self.context = self.browser.new_context(**context_options)
         self.page = self.context.new_page()
+        self._install_course_title()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -56,6 +80,101 @@ class CanvasService:
             self.browser.close()
         if self.playwright:
             self.playwright.stop()
+
+    def _install_course_title(self) -> None:
+        """Keep the window title prefixed so three courses stay distinguishable."""
+        if not self.course_label or self.page is None:
+            return
+        import json
+
+        label = json.dumps(self.course_label)
+        self.page.add_init_script(
+            f"""
+            (() => {{
+              const label = {label};
+              const apply = () => {{
+                const prefix = '[' + label + '] ';
+                const bare = document.title.replace(/^\\[[^\\]]+\\] /, '');
+                if (!document.title.startsWith(prefix)) {{
+                  document.title = prefix + bare;
+                }}
+              }};
+              apply();
+              const hook = () => {{
+                const title = document.querySelector('title');
+                if (!title || title.dataset.chcpHooked) return;
+                title.dataset.chcpHooked = '1';
+                new MutationObserver(apply).observe(title, {{
+                  childList: true, characterData: true, subtree: true
+                }});
+              }};
+              hook();
+              document.addEventListener('DOMContentLoaded', () => {{ hook(); apply(); }});
+            }})();
+            """
+        )
+
+    def _assert_on_bound_course(self) -> None:
+        """Stop before typing or grading if this window left its course."""
+        if not self.bound_course_id or self.page is None:
+            return
+        url = ""
+        try:
+            url = self.page.url or ""
+        except Exception as exc:
+            raise CourseIsolationError(
+                f"Course {self.course_label or self.bound_course_id} browser is gone"
+            ) from exc
+        if not url_is_course(url, self.bound_course_id):
+            raise CourseIsolationError(
+                f"Refusing to continue course {self.course_label or self.bound_course_id}: "
+                f"browser is on {url}, expected /courses/{self.bound_course_id}/"
+            )
+
+    def has_authenticated_session(self) -> bool:
+        """True when this window is past Canvas login and MFA."""
+        if self.page is None or url_needs_canvas_login(self.page.url or ""):
+            return False
+        for selector in (canvas_config.OTP_SELECTOR, canvas_config.USERNAME_SELECTOR):
+            field = self.page.locator(selector)
+            try:
+                if field.count() and field.first.is_visible():
+                    return False
+            except Exception:
+                return False
+        return "instructure.com" in (self.page.url or "")
+
+    def restore_shared_session(self) -> bool:
+        """Open Canvas with cookies from the single ALL login. Never submits MFA."""
+        if not self.storage_state_path:
+            return False
+        self.page.goto(canvas_config.BASE_URL, wait_until="domcontentloaded")
+        try:
+            self.page.wait_for_function(
+                "() => !location.pathname.includes('/login')",
+                timeout=canvas_config.DEFAULT_TIMEOUT,
+            )
+        except PlaywrightTimeoutError:
+            return False
+        return self.has_authenticated_session()
+
+    def ensure_logged_in(
+        self,
+        email: str,
+        password: str,
+        otp_provider: Optional[Callable[[], Optional[str]]] = None,
+    ) -> None:
+        """Log in, or reuse the shared ALL session without a second MFA code."""
+        if not self.storage_state_path:
+            self.login(email, password, otp_provider=otp_provider)
+            return
+        if self.restore_shared_session():
+            print("Signed in with the shared Canvas session")
+            return
+        raise RuntimeError(
+            "This window did not accept the shared Canvas session. "
+            "It will not submit another MFA code."
+        )
 
     def login(
         self,
@@ -166,6 +285,7 @@ class CanvasService:
             openai_key=llm_config.get("openai_key", ""),
             anthropic_key=llm_config.get("anthropic_key", ""),
             deepseek_key=llm_config.get("deepseek_key", ""),
+            binding=self.course_binding,
         )
 
         pause = get_pause_controller()
@@ -201,6 +321,7 @@ class CanvasService:
                 reply_button.click()
                 time.sleep(2)
 
+                self._assert_on_bound_course()
                 response = generator.reply(content, student_name=first_name)
                 if not response or not str(response).strip():
                     print(
@@ -214,7 +335,10 @@ class CanvasService:
                         pass
                     continue
 
+                self._assert_on_bound_course()
                 self.page.keyboard.type(response)
+            except CourseIsolationError:
+                raise
             except Exception as e:
                 if "Target page, context or browser has been closed" in str(e):
                     # Browser was closed, return False to signal this
@@ -225,19 +349,35 @@ class CanvasService:
         return True
 
     def run_discussion_loop(
-        self, week_id: int, llm_config: dict, course_selector: str = "A"
+        self,
+        week_id: int,
+        llm_config: dict,
+        course_selector: str = "A",
+        interactive: bool = True,
     ) -> None:
-        """Run the main discussion processing loop"""
+        """Run the main discussion processing loop.
+
+        Parallel runs do one pass per window and then wait until that window
+        closes. They do not read stdin, so one course cannot steal another's prompt.
+        """
+        if not interactive:
+            self._run_discussion_pass(week_id, llm_config, course_selector)
+            if self._is_browser_alive():
+                print(
+                    "Pass complete for this course. Close this window when you are done. "
+                    "The other course windows keep running."
+                )
+                while self._is_browser_alive():
+                    time.sleep(1)
+            return
+
         pause = get_pause_controller()
 
         while True:
             try:
                 pause.wait_if_paused()
 
-                authors = self.page.query_selector_all("[data-authorid]")
-                success = self.process_discussion_authors(
-                    authors, week_id, llm_config, course_selector
-                )
+                success = self._run_discussion_pass(week_id, llm_config, course_selector)
 
                 # Only show the browser closed message at the natural stopping point
                 if not success or not self._is_browser_alive():
@@ -252,6 +392,8 @@ class CanvasService:
                     ).lower()
                 if stop == "y":
                     break
+            except CourseIsolationError:
+                raise
             except Exception as e:
                 if "Target page, context or browser has been closed" in str(e):
                     print("Browser window closed, stopping processing...")
@@ -260,12 +402,27 @@ class CanvasService:
                     print(f"Error in discussion loop: {e}")
                     break
 
+    def _run_discussion_pass(
+        self, week_id: int, llm_config: dict, course_selector: str
+    ) -> bool:
+        self._assert_on_bound_course()
+        authors = self.page.query_selector_all("[data-authorid]")
+        return self.process_discussion_authors(
+            authors, week_id, llm_config, course_selector
+        )
+
     def navigate_to_discussion(self, course_id: str, topic_id: str) -> None:
         """Navigate to a specific discussion topic"""
         discussion_url = (
             f"https://chcp.instructure.com/courses/{course_id}/discussion_topics/{topic_id}"
         )
+        if self.bound_course_id and str(course_id) != str(self.bound_course_id):
+            raise CourseIsolationError(
+                f"Refusing to open course {course_id} in the window sealed to "
+                f"{self.bound_course_id}"
+            )
         self.page.goto(discussion_url)
+        self._assert_on_bound_course()
         try:
             self.page.wait_for_selector(
                 canvas_config.CONTENT_SELECTOR,
@@ -423,7 +580,13 @@ class CanvasService:
             f"{canvas_config.BASE_URL}/courses/{course_id}/gradebook/speed_grader"
             f"?assignment_id={assignment_id}"
         )
+        if self.bound_course_id and str(course_id) != str(self.bound_course_id):
+            raise CourseIsolationError(
+                f"Refusing to open Speed Grader for course {course_id} in the window "
+                f"sealed to {self.bound_course_id}"
+            )
         self.page.goto(url)
+        self._assert_on_bound_course()
         time.sleep(canvas_config.SPEED_GRADER_WAIT_TIME)
         self._wait_for_speed_grader_ready()
 
@@ -615,6 +778,7 @@ class CanvasService:
     ) -> bool:
         """Apply rubric selections, read Canvas rubric total, and set grade-input."""
         try:
+            self._assert_on_bound_course()
             self._focus_submission_preview()
             time.sleep(canvas_config.GRADE_INPUT_WAIT)
 
@@ -648,6 +812,8 @@ class CanvasService:
             grade_input.press("Enter")
             time.sleep(canvas_config.AFTER_GRADE_SAVE_WAIT)
             return True
+        except CourseIsolationError:
+            raise
         except Exception as e:
             print(f"Failed to grade submission: {e}")
             return False
@@ -726,6 +892,8 @@ class CanvasService:
             if not self._is_browser_alive():
                 print("Browser window closed, stopping speed grader...")
                 break
+
+            self._assert_on_bound_course()
 
             if not dry_run:
                 student_index += 1

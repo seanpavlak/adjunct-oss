@@ -15,6 +15,7 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 
+from chcp.core.course_binding import CourseIsolationError
 from chcp.discussion_rubric import (
     CRITERION_ORDER,
     DISCUSSION_RUBRIC_2021,
@@ -74,9 +75,13 @@ class RubricGrader:
         grading_defaults: Optional[Dict[str, Any]] = None,
         rubric_name: Optional[str] = None,
         rubric_grading_config: Optional[Dict[str, Any]] = None,
+        sealed_course_key: Optional[str] = None,
+        sealed_discussion_prompt: Optional[str] = None,
     ):
         self.provider = provider
         self.lenient = lenient
+        self.sealed_course_key = sealed_course_key
+        self.sealed_discussion_prompt = sealed_discussion_prompt
         self.rubric_name = rubric_name or DISCUSSION_RUBRIC_2021["name"]
 
         if rubric_grading_config:
@@ -153,6 +158,17 @@ class RubricGrader:
                 base_url="https://api.deepseek.com/v1",
             )
         raise ValueError(f"Unsupported provider: {self.provider}")
+
+    def _assert_sealed_prompt(self, discussion_prompt: str) -> None:
+        """Refuse a prompt that is not the course this grader was built for."""
+        if (
+            self.sealed_discussion_prompt is not None
+            and discussion_prompt != self.sealed_discussion_prompt
+        ):
+            course = self.sealed_course_key or "this course"
+            raise CourseIsolationError(
+                f"Refusing to grade: prompt does not match the prompt sealed to course {course}"
+            )
 
     def format_full_prompt(
         self, discussion_prompt: str, submission: DiscussionSubmission
@@ -231,6 +247,7 @@ class RubricGrader:
         dry_run: bool = False,
     ) -> SubmissionEvaluation:
         """Grade a submission and return rubric ratings for Canvas Speed Grader."""
+        self._assert_sealed_prompt(discussion_prompt)
         rubric_rating_levels = rubric_rating_levels or RUBRIC_RATING_LEVELS
         requirements = requirements or {}
 

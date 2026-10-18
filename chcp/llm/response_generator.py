@@ -13,7 +13,7 @@ Pipeline (prompt + code):
 from __future__ import annotations
 
 import difflib
-import json
+import os
 import random
 from dataclasses import dataclass, field
 from typing import List, Literal, Optional, Tuple
@@ -24,9 +24,10 @@ from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field
 
 from chcp.canvas.parsers import is_usable_student_post
+from chcp.core.course_binding import CourseBinding, CourseIsolationError, bind_course
+from chcp.core.course_utils import load_courses_config
 from chcp.llm.humanize import (
     humanize_body,
-    load_voice_profile,
     needs_rewrite,
     prefer_authentic_examples,
 )
@@ -38,7 +39,6 @@ from chcp.llm.reply_craft import (
     format_anchors_for_prompt,
     format_display_name,
 )
-from chcp.paths import courses_config_path
 from chcp.settings import llm_config
 
 
@@ -72,6 +72,7 @@ class ResponseGenerator:
     anthropic_key: str = field(init=True, repr=False, default="")
     deepseek_key: str = field(init=True, repr=False, default="")
     student_name: str = field(init=True, repr=False, default="")
+    binding: Optional[CourseBinding] = field(init=True, repr=False, default=None)
     llm: BaseChatModel = field(init=False)
     humanize_llm: Optional[BaseChatModel] = field(init=False, default=None)
     parser: JsonOutputParser = field(init=False, default=None)
@@ -79,43 +80,6 @@ class ResponseGenerator:
     voice_profile: str = field(init=False, default="")
     subject: str = field(init=False, default="physics")
     prompt: ChatPromptTemplate = field(init=False, default=None)
-
-    def _load_courses(self) -> dict:
-        courses_path = courses_config_path()
-        if not courses_path.exists():
-            raise FileNotFoundError(f"courses.json not found: {courses_path}")
-        with open(courses_path, encoding="utf-8") as f:
-            config = json.load(f)
-        courses = config.get("courses", {})
-        if not courses:
-            raise ValueError("No courses found in courses.json")
-        return courses
-
-    def _resolve_course(self, courses: dict) -> dict:
-        if self.course_selector in courses:
-            return courses[self.course_selector]
-        course = next(
-            (c for c in courses.values() if c.get("course_id") == str(self.course_selector)),
-            None,
-        )
-        if not course:
-            raise ValueError(f"Course '{self.course_selector}' not found in courses.json")
-        return course
-
-    def _get_week_data(self) -> dict:
-        course = self._resolve_course(self._load_courses())
-        week_data = course.get("weeks", {}).get(str(self.week))
-        if not week_data:
-            raise ValueError(f"Week {self.week} data not found in course {self.course_selector}")
-        return week_data
-
-    def _get_week_prompt(self) -> str:
-        prompt = self._get_week_data().get("discussion_prompt")
-        if not prompt:
-            raise ValueError(
-                f"No discussion prompt found for week {self.week} in course {self.course_selector}"
-            )
-        return prompt
 
     def _subject_copy(self) -> tuple[str, str, str]:
         """Course label, extra-step instruction, and follow-up noun for prompts."""
@@ -141,10 +105,33 @@ class ResponseGenerator:
         }.get(self.provider, "")
         self.llm = LLMManager.create_llm(self.provider, api_key)
         self.parser = JsonOutputParser(pydantic_object=ProfessorReplyDraft)
-        course = self._resolve_course(self._load_courses())
-        self.subject = (course.get("subject") or "physics").strip()
-        self.dq_prompt = self._get_week_prompt()
-        self.voice_profile = load_voice_profile(course.get("voice") or "VOICE.md")
+        if self.binding is None:
+            self.binding = bind_course(
+                self.course_selector, int(self.week), load_courses_config()
+            )
+        elif (
+            self.binding.course_key != self.course_selector
+            and self.binding.course_id != str(self.course_selector)
+        ):
+            raise CourseIsolationError(
+                f"Response generator for {self.course_selector} was given "
+                f"course {self.binding.course_key}'s binding"
+            )
+        if self.binding.week_id != int(self.week):
+            raise CourseIsolationError(
+                f"Course {self.binding.course_key} binding is week {self.binding.week_id}, "
+                f"not week {self.week}"
+            )
+        sealed = os.environ.get("CHCP_COURSE_KEY")
+        if sealed and sealed != self.binding.course_key:
+            raise CourseIsolationError(
+                f"This process is sealed to course {sealed} and cannot "
+                f"generate replies for {self.binding.course_key}"
+            )
+        self.course_selector = self.binding.course_key
+        self.subject = self.binding.subject
+        self.dq_prompt = self.binding.discussion_prompt
+        self.voice_profile = self.binding.voice_profile
         max_words = llm_config.MAX_RESPONSE_WORDS
         course_label, extra_step, follow_up_noun = self._subject_copy()
 
@@ -214,25 +201,11 @@ class ResponseGenerator:
             )
         return self.humanize_llm
 
-    def _pairs_from_discussion_data(self, discussion_data: list) -> List[Tuple[str, str]]:
-        examples: List[Tuple[str, str]] = []
-        for item in discussion_data:
-            post = item.get("post", "").strip()
-            response = item.get("response", "").strip()
-            if post and response:
-                examples.append((post, response))
-        return examples
-
     def _load_discussion_examples(self) -> List[Tuple[str, str]]:
-        week_data = self._get_week_data()
-        return self._pairs_from_discussion_data(week_data.get("discussion_data", []))
+        return list(self.binding.week_examples)
 
     def _load_course_examples(self) -> List[Tuple[str, str]]:
-        course = self._resolve_course(self._load_courses())
-        examples: List[Tuple[str, str]] = []
-        for week_data in course.get("weeks", {}).values():
-            examples.extend(self._pairs_from_discussion_data(week_data.get("discussion_data", [])))
-        return examples
+        return list(self.binding.course_examples)
 
     def _select_few_shots(
         self, content: str, examples: List[Tuple[str, str]], k: int = 3
@@ -284,20 +257,36 @@ class ResponseGenerator:
         examples = self._load_discussion_examples()
         few_shots = self._select_few_shots(content, examples, k=llm_config.FEW_SHOT_K)
         examples_text = self._format_examples(few_shots)
-
         include_follow_up = random.random() < llm_config.FOLLOW_UP_QUESTION_PROBABILITY
         follow_up_mode = "ON" if include_follow_up else "OFF"
+        payload = {
+            "content": content,
+            "examples": examples_text,
+            "anchors": format_anchors_for_prompt(anchors),
+            "student_name": display_name,
+            "follow_up_mode": follow_up_mode,
+        }
+        messages = self.prompt.format_messages(**payload)
+        outbound = "\n".join(str(getattr(message, "content", message)) for message in messages)
+        self.binding.assert_outbound(
+            discussion_prompt=self.dq_prompt,
+            voice_profile=self.voice_profile,
+            subject=self.subject,
+            few_shots=few_shots,
+            outbound_text=outbound,
+        )
+        partials = getattr(self.prompt, "partial_variables", {}) or {}
+        if partials.get("dq_prompt") != self.binding.discussion_prompt:
+            raise CourseIsolationError(
+                f"Course {self.binding.course_key} prompt template drifted from its binding"
+            )
+        if partials.get("voice") != self.binding.voice_profile:
+            raise CourseIsolationError(
+                f"Course {self.binding.course_key} voice template drifted from its binding"
+            )
 
         chain = self.prompt | self.llm | self.parser
-        draft = chain.invoke(
-            {
-                "content": content,
-                "examples": examples_text,
-                "anchors": format_anchors_for_prompt(anchors),
-                "student_name": display_name,
-                "follow_up_mode": follow_up_mode,
-            }
-        )
+        draft = chain.invoke(payload)
 
         # JsonOutputParser may return dict or model depending on version
         if isinstance(draft, ProfessorReplyDraft):
@@ -312,6 +301,10 @@ class ResponseGenerator:
             return None
 
         body = str(body)
+        if self.voice_profile != self.binding.voice_profile:
+            raise CourseIsolationError(
+                f"Course {self.binding.course_key} humanize pass lost its voice profile"
+            )
         if needs_rewrite(body):
             body = humanize_body(
                 self._get_humanize_llm(),

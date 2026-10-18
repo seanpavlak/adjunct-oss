@@ -8,15 +8,23 @@ import os
 from dotenv import load_dotenv
 
 from chcp.canvas.service import CanvasService
+from chcp.canvas.session import discard_session_file, establish_canvas_session
+from chcp.core.course_binding import (
+    CourseIsolationError,
+    assert_worker_course,
+    bind_course,
+    is_all_courses,
+    resolve_window_slot,
+)
 from chcp.core.course_utils import (
     calculate_current_week,
     calculate_grading_week,
     get_speed_grader_config,
-    get_week_prompt,
     load_courses_config,
     resolve_course,
     resolve_course_and_assignment,
 )
+from chcp.core.parallel_courses import install_parallel_log_prefix, run_courses_in_parallel
 
 load_dotenv()
 
@@ -31,8 +39,42 @@ def run_speed_grader_action(
     dry_run: bool = False,
     llm_provider: str = None,
     otp_provider=None,
+    window_slot: int = None,
 ) -> None:
     """Log in to Canvas and auto-grade discussion submissions in Speed Grader"""
+    install_parallel_log_prefix()
+    if is_all_courses(course_selector):
+        if os.environ.get("CHCP_PARALLEL") == "1":
+            raise CourseIsolationError(
+                "A course worker cannot fan out to ALL. "
+                "ALL is only allowed in the parent process."
+            )
+        extra_args: list[str] = []
+        if grade_override:
+            extra_args.extend(["--grade", str(grade_override)])
+        if max_students is not None:
+            extra_args.extend(["--max-students", str(max_students)])
+        if dry_run:
+            extra_args.append("--dry-run")
+        if not email or not password:
+            print("Email and password must be provided")
+            return
+        print(
+            "Signing in once. Canvas accepts the MFA code a single time, "
+            "and each course window reuses that session."
+        )
+        session_path = establish_canvas_session(email, password, otp_provider)
+        try:
+            run_courses_in_parallel(
+                "grade",
+                week=week_id,
+                provider=llm_provider,
+                extra_args=extra_args,
+                storage_state_path=session_path,
+            )
+        finally:
+            discard_session_file(session_path)
+        return
     if not email or not password:
         print("Email and password must be provided")
         return
@@ -40,6 +82,8 @@ def run_speed_grader_action(
         print("Course selector must be provided")
         return
 
+    assert_worker_course(course_selector)
+    window_slot = resolve_window_slot(window_slot)
     config = load_courses_config()
     course = resolve_course(course_selector, config)
     course_start_date = course.get("course_start_date")
@@ -99,7 +143,16 @@ def run_speed_grader_action(
     if dry_run:
         print("  Mode: dry-run (logs full LLM I/O for student on screen; no saves)")
 
-    discussion_prompt = get_week_prompt(course_selector, week_id, config)
+    binding = bind_course(course_selector, week_id, config)
+    if binding.course_id != str(course_id):
+        raise ValueError(
+            f"Course {binding.course_key} id {binding.course_id} does not match {course_id}"
+        )
+    discussion_prompt = binding.discussion_prompt
+    print(
+        f"  Sealed to course {binding.course_key} "
+        f"({binding.course_name}) id={binding.course_id}"
+    )
 
     openai_key = os.getenv("OPENAI_API_KEY", "")
     anthropic_key = os.getenv("ANTHROPIC_API_KEY", "")
@@ -122,11 +175,21 @@ def run_speed_grader_action(
         grading_defaults=speed_grader_config.get("grading_defaults"),
         rubric_name=speed_grader_config.get("rubric_name"),
         rubric_grading_config=speed_grader_config.get("rubric_grading_config"),
+        sealed_course_key=binding.course_key,
+        sealed_discussion_prompt=binding.discussion_prompt,
     )
     print(f"  LLM provider: {llm_provider} (lenient rubric grading)")
 
-    with CanvasService(headless=False) as canvas:
-        canvas.login(email, password, otp_provider=otp_provider)
+    storage_state_path = os.environ.get("CHCP_STORAGE_STATE") or None
+    with CanvasService(
+        headless=False,
+        window_slot=window_slot,
+        course_label=binding.course_key,
+        storage_state_path=storage_state_path,
+    ) as canvas:
+        canvas.bound_course_id = binding.course_id
+        canvas.course_binding = binding
+        canvas.ensure_logged_in(email, password, otp_provider=otp_provider)
         canvas.navigate_to_speed_grader(course_id, assignment_id)
 
         graded, failed = canvas.run_speed_grader_loop(
@@ -150,7 +213,11 @@ def main():
         description="Canvas Speed Grader - Auto-grade discussion submissions",
         epilog="💡 Find this helpful? https://buymeacoffee.com/seanpavlak",
     )
-    parser.add_argument("--course", default="A", help="Course selector (default: A)")
+    parser.add_argument(
+        "--course",
+        default="A",
+        help="Course key, Canvas course id, or ALL (default: A)",
+    )
     parser.add_argument(
         "--week",
         type=int,
@@ -172,6 +239,11 @@ def main():
         choices=["openai", "anthropic", "deepseek"],
         help="LLM provider for rubric grading (auto-detected if not specified)",
     )
+    parser.add_argument(
+        "--window-slot",
+        type=int,
+        help="Chromium window slot when running one course of an ALL batch",
+    )
     args = parser.parse_args()
 
     from chcp.core.credentials import resolve_canvas_credentials
@@ -187,6 +259,7 @@ def main():
         dry_run=args.dry_run,
         llm_provider=args.provider,
         otp_provider=creds.get_otp if creds.has_otp_provider else None,
+        window_slot=args.window_slot,
     )
 
 
