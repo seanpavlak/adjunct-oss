@@ -17,7 +17,7 @@ from chcp.core.course_binding import (
     resolve_window_slot,
 )
 from chcp.core.course_utils import (
-    calculate_current_week,
+    calendar_week_number,
     calculate_grading_week,
     get_speed_grader_config,
     load_courses_config,
@@ -93,7 +93,7 @@ def run_speed_grader_action(
     course_id = course.get("course_id")
 
     if week_id is None:
-        calendar_week = calculate_current_week(course_start_date)
+        calendar_week = calendar_week_number(course_start_date)
         week_id = calculate_grading_week(course_start_date)
         print(
             f"Auto-selected grading week: {week_id} "

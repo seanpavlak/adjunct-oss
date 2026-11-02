@@ -130,19 +130,15 @@ def resolve_course(course_selector: str, config: Dict[str, Any]) -> Dict[str, An
     return course
 
 
-def calculate_current_week(course_start_date: str) -> int:
-    """
-    Calculate the current week number based on course start date.
-    Week boundaries are Monday-Sunday, so any day within a week counts as that week.
+def calendar_week_number(
+    course_start_date: str, *, on_date: Optional[datetime] = None
+) -> int:
+    """Monday-Sunday week number for a course. Not capped at week 8.
 
-    Args:
-        course_start_date: Course start date in YYYY-MM-DD format
-
-    Returns:
-        Current week number (1-8)
+    Week 1 is the Monday-Sunday span that contains the course start date.
     """
     start_date = datetime.strptime(course_start_date, course_config.DATE_FORMAT)
-    current_date = datetime.now()
+    current_date = on_date or datetime.now()
 
     start_monday = start_date - timedelta(days=start_date.weekday())
 
@@ -152,10 +148,24 @@ def calculate_current_week(course_start_date: str) -> int:
         current_week_monday = current_date - timedelta(days=current_date.weekday())
 
     weeks_elapsed = (current_week_monday - start_monday).days // 7
+    return weeks_elapsed + 1
 
-    current_week = weeks_elapsed + 1
 
-    # Clamp to valid range
+def calculate_current_week(
+    course_start_date: str, *, on_date: Optional[datetime] = None
+) -> int:
+    """
+    Calculate the current week number based on course start date.
+    Week boundaries are Monday-Sunday, so any day within a week counts as that week.
+
+    Args:
+        course_start_date: Course start date in YYYY-MM-DD format
+        on_date: Date to treat as today. Defaults to the local date.
+
+    Returns:
+        Current week number (1-8)
+    """
+    current_week = calendar_week_number(course_start_date, on_date=on_date)
     current_week = max(course_config.MIN_WEEK, min(current_week, course_config.MAX_WEEK))
 
     logger.debug(f"Calculated week {current_week} from start date {course_start_date}")
@@ -163,16 +173,23 @@ def calculate_current_week(course_start_date: str) -> int:
     return current_week
 
 
-def calculate_grading_week(course_start_date: str) -> int:
+def calculate_grading_week(
+    course_start_date: str, *, on_date: Optional[datetime] = None
+) -> int:
     """
-    Week to grade in Speed Grader: always the previous calendar week (N - 1).
+    Week to grade in Speed Grader: the previous calendar week (N - 1).
 
-    During calendar week 2, grade week 1 discussions. Clamped to MIN_WEEK (1).
+    Subtract before capping. The Monday after week 8 is calendar week 9, so it
+    grades week 8. Capping first would turn that Monday into week 8 and then
+    grade week 7. Results are clamped to weeks 1-8.
     """
-    current_week = calculate_current_week(course_start_date)
-    grading_week = max(course_config.MIN_WEEK, current_week - 1)
+    calendar_week = calendar_week_number(course_start_date, on_date=on_date)
+    grading_week = max(
+        course_config.MIN_WEEK,
+        min(calendar_week - 1, course_config.MAX_WEEK),
+    )
     logger.debug(
-        f"Grading week {grading_week} (calendar week {current_week} minus 1)"
+        f"Grading week {grading_week} (calendar week {calendar_week} minus 1)"
     )
     return grading_week
 

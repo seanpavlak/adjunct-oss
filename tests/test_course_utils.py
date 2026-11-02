@@ -11,6 +11,7 @@ from chcp.core.course_utils import (
     calculate_announcement_dates,
     calculate_current_week,
     calculate_grading_week,
+    calendar_week_number,
     get_speed_grader_config,
     get_week_prompt,
     resolve_course,
@@ -45,19 +46,29 @@ class TestCalculateCurrentWeek:
 
 
 class TestCalculateGradingWeek:
-    def test_calendar_week_two_grades_week_one(self):
-        """When calendar week is 2, grade week 1 (N-1)."""
-        from unittest.mock import patch
+    """Course start 2026-09-08. Week 8 is Mon Oct 26 through Sun Nov 1."""
 
-        with patch("chcp.core.course_utils.calculate_current_week", return_value=2):
-            assert calculate_grading_week("2026-05-11") == 1
+    def test_calendar_week_two_grades_week_one(self):
+        """Monday Sept 14 is calendar week 2, so grade week 1."""
+        assert calculate_grading_week("2026-09-08", on_date=datetime(2026, 9, 14)) == 1
 
     def test_calendar_week_one_stays_week_one(self):
         """Week 1 clamps to 1 (no week 0)."""
-        from unittest.mock import patch
+        assert calculate_grading_week("2026-09-08", on_date=datetime(2026, 9, 8)) == 1
 
-        with patch("chcp.core.course_utils.calculate_current_week", return_value=1):
-            assert calculate_grading_week("2026-05-11") == 1
+    def test_during_week_8_grades_week_7(self):
+        """Sunday Nov 1 is still week 8, so the previous week is 7."""
+        assert calendar_week_number("2026-09-08", on_date=datetime(2026, 11, 1)) == 8
+        assert calculate_grading_week("2026-09-08", on_date=datetime(2026, 11, 1)) == 7
+
+    def test_monday_after_week_8_grades_week_8(self):
+        """Monday Nov 2 is calendar week 9. Grade the week that just ended."""
+        assert calendar_week_number("2026-09-08", on_date=datetime(2026, 11, 2, 8, 12)) == 9
+        assert calculate_current_week("2026-09-08", on_date=datetime(2026, 11, 2, 8, 12)) == 8
+        assert calculate_grading_week("2026-09-08", on_date=datetime(2026, 11, 2, 8, 12)) == 8
+
+    def test_long_after_the_course_still_grades_week_8(self):
+        assert calculate_grading_week("2026-09-08", on_date=datetime(2026, 12, 1)) == 8
 
 
 class TestCalculateAnnouncementDates:
