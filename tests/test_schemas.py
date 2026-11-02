@@ -70,6 +70,20 @@ class TestCourseSchema:
         course = CourseSchema(**data)
         assert course.course_id == "12345"
         assert course.name == "Test Course"
+        assert course.active is True
+
+    def test_active_can_be_false(self):
+        """Soft-dropped courses stay valid and stay hidden."""
+        data = {
+            "course_id": "12345",
+            "course_start_date": "2025-09-02",
+            "active": False,
+            "weeks": {
+                "1": {"topic_id": "67890", "discussion_prompt": "Test", "discussion_data": []}
+            },
+        }
+        course = CourseSchema(**data)
+        assert course.active is False
 
     def test_invalid_date_format(self):
         """Test rejection of invalid date format"""
@@ -119,11 +133,7 @@ class TestAnnouncementsConfig:
     def test_valid_per_course_announcements(self):
         data = {
             "courses": {
-                "A": {
-                    "announcements": [
-                        {"week": 1, "title": "Welcome", "content": "<p>Hi</p>"}
-                    ]
-                }
+                "A": {"announcements": [{"week": 1, "title": "Welcome", "content": "<p>Hi</p>"}]}
             }
         }
         config = AnnouncementsConfig(**data)

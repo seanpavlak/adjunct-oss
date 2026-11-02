@@ -175,7 +175,7 @@ def select_from_list(options, title="Select an option", default=0):
 
 def get_course_selector():
     """Get course selector from user via interactive selection"""
-    from chcp.core.course_utils import load_courses_config
+    from chcp.core.course_utils import active_course_keys, load_courses_config
 
     try:
         config = load_courses_config()
@@ -188,6 +188,11 @@ def get_course_selector():
         console.print("[red]No courses found in courses.json[/red]")
         return None
 
+    visible_keys = active_course_keys(config)
+    if not visible_keys:
+        console.print("[red]No active courses found in courses.json[/red]")
+        return None
+
     # Build mapping of display names to course keys
     display_to_key = {}
     course_options = []
@@ -196,7 +201,8 @@ def get_course_selector():
     display_to_key[all_label] = "ALL"
     course_options.append(all_label)
 
-    for key, course in courses.items():
+    for key in visible_keys:
+        course = courses[key]
         course_id = course.get("course_id", "N/A")
         name = course.get("name", "Unnamed Course")
         display_name = f"{key} - {name} (ID: {course_id})"
@@ -383,13 +389,10 @@ def run_speed_grader_action_cli(args=None):
             "Override grade points (press Enter to use courses.json)", default=""
         )
         grade_override = grade_override.strip() or None
-        max_students_input = Prompt.ask(
-            "Max students to grade (press Enter for all)", default=""
-        )
+        max_students_input = Prompt.ask("Max students to grade (press Enter for all)", default="")
         max_students = int(max_students_input) if max_students_input.strip() else None
         dry_run = (
-            Prompt.ask("Dry run? (preview only, no saves)", choices=["y", "n"], default="n")
-            == "y"
+            Prompt.ask("Dry run? (preview only, no saves)", choices=["y", "n"], default="n") == "y"
         )
         llm_provider = None
         window_slot = None
@@ -514,6 +517,109 @@ def run_announcement_action(args=None):
             console.print("[green]Goodbye![/green]")
 
 
+def get_drop_targets():
+    """Arrow-key pick of one active course, or every active course."""
+    from chcp.core.course_utils import active_course_keys, load_courses_config
+
+    try:
+        config = load_courses_config()
+    except Exception as e:
+        console.print(f"[red]Error loading courses config: {e}[/red]")
+        return None
+
+    courses = config.get("courses") or {}
+    visible = active_course_keys(config)
+    if not visible:
+        console.print("[yellow]No active courses to drop[/yellow]")
+        return None
+
+    all_label = "ALL - Every active course"
+    options = [all_label]
+    mapping = {all_label: list(visible)}
+    for key in visible:
+        course = courses[key]
+        label = (
+            f"{key} - {course.get('name', 'Unnamed Course')} "
+            f"(ID: {course.get('course_id', 'N/A')})"
+        )
+        options.append(label)
+        mapping[label] = [key]
+
+    selected = select_from_list(options, "Soft-drop a course")
+    if not selected:
+        return None
+    return mapping[selected]
+
+
+def run_term_menu():
+    """Choose soft-drop or add-by-id from the interactive menu."""
+    options = [
+        "drop - Soft-drop a course so it no longer appears",
+        "add - Add a course from a Canvas course id",
+    ]
+    selected = select_from_list(options, "Term setup")
+    if not selected:
+        return
+    if selected.startswith("drop"):
+        keys = get_drop_targets()
+        if not keys:
+            return
+        from chcp.actions.term import run_term_drop
+
+        run_term_drop(keys, confirmed=True)
+        return
+
+    from chcp.actions.term import run_term_add
+    from chcp.core.credentials import resolve_canvas_credentials
+
+    creds = resolve_canvas_credentials()
+    run_term_add(
+        creds.username,
+        creds.password,
+        otp_provider=creds.get_otp if creds.has_otp_provider else None,
+    )
+
+
+def run_term_command(args):
+    """Route `term drop` and `term add`."""
+    from chcp.actions.term import run_term_add, run_term_drop
+    from chcp.core.course_utils import active_course_keys, load_courses_config
+    from chcp.core.credentials import resolve_canvas_credentials
+
+    command = getattr(args, "term_command", None)
+    if command == "drop":
+        if args.all and args.course:
+            console.print("[red]Use either --all or --course, not both[/red]")
+            return
+        if args.all:
+            keys = active_course_keys(load_courses_config())
+            if not keys:
+                console.print("[yellow]No active courses to drop[/yellow]")
+                return
+            run_term_drop(keys)
+            return
+        if args.course:
+            run_term_drop([args.course])
+            return
+        keys = get_drop_targets()
+        if keys:
+            run_term_drop(keys, confirmed=True)
+        return
+
+    if command == "add":
+        creds = resolve_canvas_credentials()
+        run_term_add(
+            creds.username,
+            creds.password,
+            course_id=args.course_id,
+            dry_run=args.dry_run,
+            otp_provider=creds.get_otp if creds.has_otp_provider else None,
+        )
+        return
+
+    run_term_menu()
+
+
 def show_main_menu():
     """Show the main interactive menu"""
     try:
@@ -531,6 +637,7 @@ def show_main_menu():
             "plagiarism - Compare student posts for plagiarism (many-to-many)",
             "grade - Auto-grade discussion posts in Speed Grader",
             "announcement - Schedule course announcements",
+            "term - Drop a course or add one by Canvas id",
             "donate - Support the project ☕",
             "exit - Exit the application",
         ]
@@ -552,6 +659,8 @@ def show_main_menu():
                 run_speed_grader_action_cli()
             elif action == "announcement":
                 run_announcement_action()
+            elif action == "term":
+                run_term_menu()
             elif action == "donate":
                 console.print()
                 console.print(
@@ -593,12 +702,17 @@ Available actions:
   plagiarism    - Compare student discussion posts for plagiarism
   grade         - Auto-grade discussion posts in Speed Grader
   announcement  - Schedule course announcements
+  term          - Soft-drop a course or add one from a Canvas course id
 
 Examples:
   python main.py discussion --course A --week 3
   python main.py plagiarism --course A --week 3
   python main.py grade --course A --week 1
   python main.py announcement --course B
+  python main.py term drop --all
+  python main.py term drop --course A
+  python main.py term add --course-id 100352
+  python main.py term add --course-id 100352 --dry-run
   python main.py  (interactive mode)
 
 ---
@@ -638,9 +752,7 @@ Examples:
             "plagiarism",
             help="Compare all student discussion posts for plagiarism",
         )
-        plagiarism_parser.add_argument(
-            "--course", default="A", help="Course selector (default: A)"
-        )
+        plagiarism_parser.add_argument("--course", default="A", help="Course selector (default: A)")
         plagiarism_parser.add_argument(
             "--week",
             type=int,
@@ -701,6 +813,27 @@ Examples:
             type=int,
             help="Chromium window slot for one course inside an ALL batch",
         )
+
+        term_parser = subparsers.add_parser(
+            "term", help="Soft-drop a course or add one from a Canvas course id"
+        )
+        term_sub = term_parser.add_subparsers(dest="term_command", required=False)
+        drop_parser = term_sub.add_parser(
+            "drop", help="Hide a course from menus and ALL without deleting it"
+        )
+        drop_parser.add_argument("--course", help="Course key to soft-drop")
+        drop_parser.add_argument(
+            "--all",
+            action="store_true",
+            help="Soft-drop every course that is still active",
+        )
+        add_parser = term_sub.add_parser("add", help="Add a course by Canvas course id")
+        add_parser.add_argument("--course-id", help="Canvas course id or course URL")
+        add_parser.add_argument(
+            "--dry-run",
+            action="store_true",
+            help="Print the mapped course and do not write config files",
+        )
         args = parser.parse_args()
 
         # If no arguments provided, show interactive menu
@@ -717,6 +850,8 @@ Examples:
             run_speed_grader_action_cli(args)
         elif args.action == "announcement":
             run_announcement_action(args)
+        elif args.action == "term":
+            run_term_command(args)
         else:
             parser.print_help()
 

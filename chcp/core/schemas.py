@@ -117,7 +117,9 @@ class DiscussionRubricSchema(BaseModel):
 class SpeedGraderConfig(BaseModel):
     """Schema for Speed Grader automation on a discussion assignment"""
 
-    assignment_id: str = Field(..., min_length=1, description="Canvas assignment ID for Speed Grader")
+    assignment_id: str = Field(
+        ..., min_length=1, description="Canvas assignment ID for Speed Grader"
+    )
     grade: str = Field(default="100", description="Points to assign each submission")
     rubric_ratings: List[str] = Field(
         default_factory=list,
@@ -166,6 +168,10 @@ class CourseSchema(BaseModel):
     course_id: str = Field(..., min_length=1, description="Canvas course ID")
     course_start_date: str = Field(..., description="Course start date in YYYY-MM-DD format")
     name: Optional[str] = Field(default="Unnamed Course", description="Course display name")
+    active: bool = Field(
+        default=True,
+        description="When false, menus and ALL skip this course. Explicit --course still runs it.",
+    )
     subject: Optional[str] = Field(
         default=None,
         description="Course subject for reply generation (physics, critical_thinking)",

@@ -298,7 +298,8 @@
           "lenient": true,
           "global_llm_guidance": "Rubric levels (1–4): 1=below, 2=needs, 3=meets, 4=exceeds. You receive an AUTOMATED PRE-GRADE CHECKLIST — treat it as ground truth for counts (peer replies, citations, lateness) unless the student text clearly contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) within those facts. For Writing citations, follow the packet Writing note. LENIENCY: When the work clearly fits one level, keep it. When genuinely torn between adjacent levels only (1↔2 or 3↔4), set borderline=true. For Comprehension, prefer exceeds over meets when torn. For other criteria, pick the lower level; post-processing may bump one step. Reserve below for missing or clearly inadequate work."
         }
-      }
+      },
+      "active": false
     },
     "B": {
       "name": "OL CRT 100 Critical Thinking-C260908AHybridPavlak",
@@ -456,7 +457,8 @@
           "lenient": true,
           "global_llm_guidance": "Rubric levels (1–4): 1=below, 2=needs, 3=meets, 4=exceeds. You receive an AUTOMATED PRE-GRADE CHECKLIST — treat it as ground truth for counts (peer replies, citations, lateness) unless the student text clearly contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) within those facts. For Writing citations, follow the packet Writing note. LENIENCY: When the work clearly fits one level, keep it. When genuinely torn between adjacent levels only (1↔2 or 3↔4), set borderline=true. For Comprehension, prefer exceeds over meets when torn. For other criteria, pick the lower level; post-processing may bump one step. Reserve below for missing or clearly inadequate work."
         }
-      }
+      },
+      "active": false
     },
     "C": {
       "name": "OL CRT 100 Critical Thinking-C260908BHybridPavlak",
@@ -614,7 +616,8 @@
           "lenient": true,
           "global_llm_guidance": "Rubric levels (1–4): 1=below, 2=needs, 3=meets, 4=exceeds. You receive an AUTOMATED PRE-GRADE CHECKLIST — treat it as ground truth for counts (peer replies, citations, lateness) unless the student text clearly contradicts it. Your job is to judge quality (depth, on-topic, dialogue value) within those facts. For Writing citations, follow the packet Writing note. LENIENCY: When the work clearly fits one level, keep it. When genuinely torn between adjacent levels only (1↔2 or 3↔4), set borderline=true. For Comprehension, prefer exceeds over meets when torn. For other criteria, pick the lower level; post-processing may bump one step. Reserve below for missing or clearly inadequate work."
         }
-      }
+      },
+      "active": false
     }
   }
 }

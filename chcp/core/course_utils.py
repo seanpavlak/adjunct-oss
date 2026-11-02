@@ -3,11 +3,11 @@ Course and date utilities for Canvas automation
 """
 
 import json
-import os
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Tuple
 
-from chcp.settings import course_config
+from chcp.core.logger import logger
+from chcp.core.schemas import validate_announcements_config, validate_courses_config
 from chcp.discussion_rubric import (
     DEFAULT_RUBRIC_RATINGS,
     DISCUSSION_RUBRIC_2021,
@@ -15,11 +15,10 @@ from chcp.discussion_rubric import (
     RUBRIC_GRADING_DEFAULTS,
     RUBRIC_RATING_LEVELS,
 )
+from chcp.paths import announcements_config_path, courses_config_path
 from chcp.rubric import build_rubric_grading_config
 from chcp.rubric.config import config_to_legacy_dict
-from chcp.core.logger import logger
-from chcp.core.schemas import validate_announcements_config, validate_courses_config
-from chcp.paths import announcements_config_path, courses_config_path
+from chcp.settings import course_config
 
 
 def load_courses_config(config_path: Optional[str] = None, validate: bool = True) -> Dict[str, Any]:
@@ -81,8 +80,7 @@ def load_announcements_config(
         validate_announcements_config(config)
 
     total = sum(
-        len(course.get("announcements", []))
-        for course in (config.get("courses") or {}).values()
+        len(course.get("announcements", [])) for course in (config.get("courses") or {}).values()
     )
     logger.info(f"Loaded {total} announcement(s) across {len(config.get('courses', {}))} course(s)")
     return config
@@ -116,6 +114,35 @@ def announcements_for_course(
     raise ValueError(f"No announcements configured for course {course_selector}")
 
 
+def course_is_active(course: Dict[str, Any]) -> bool:
+    """Missing active means the course still appears in menus and ALL."""
+    return course.get("active", True) is not False
+
+
+def active_course_keys(config: Dict[str, Any]) -> list[str]:
+    """Course keys that should appear in menus and ALL, in file order."""
+    courses = config.get("courses") or {}
+    return [key for key, course in courses.items() if course_is_active(course)]
+
+
+def save_courses_config(config: Dict[str, Any], config_path: Optional[str] = None) -> None:
+    """Validate and write courses.json without dropping fields the schema ignores."""
+    validate_courses_config(config)
+    _write_json(config_path or str(courses_config_path()), config)
+
+
+def save_announcements_config(config: Dict[str, Any], config_path: Optional[str] = None) -> None:
+    """Validate and write announcements.json."""
+    validate_announcements_config(config)
+    _write_json(config_path or str(announcements_config_path()), config)
+
+
+def _write_json(path: str, config: Dict[str, Any]) -> None:
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(config, handle, indent=2, ensure_ascii=False)
+        handle.write("\n")
+
+
 def resolve_course(course_selector: str, config: Dict[str, Any]) -> Dict[str, Any]:
     """Resolve course selector to course configuration"""
     courses = config.get("courses", {})
@@ -130,9 +157,7 @@ def resolve_course(course_selector: str, config: Dict[str, Any]) -> Dict[str, An
     return course
 
 
-def calendar_week_number(
-    course_start_date: str, *, on_date: Optional[datetime] = None
-) -> int:
+def calendar_week_number(course_start_date: str, *, on_date: Optional[datetime] = None) -> int:
     """Monday-Sunday week number for a course. Not capped at week 8.
 
     Week 1 is the Monday-Sunday span that contains the course start date.
@@ -151,9 +176,7 @@ def calendar_week_number(
     return weeks_elapsed + 1
 
 
-def calculate_current_week(
-    course_start_date: str, *, on_date: Optional[datetime] = None
-) -> int:
+def calculate_current_week(course_start_date: str, *, on_date: Optional[datetime] = None) -> int:
     """
     Calculate the current week number based on course start date.
     Week boundaries are Monday-Sunday, so any day within a week counts as that week.
@@ -173,9 +196,7 @@ def calculate_current_week(
     return current_week
 
 
-def calculate_grading_week(
-    course_start_date: str, *, on_date: Optional[datetime] = None
-) -> int:
+def calculate_grading_week(course_start_date: str, *, on_date: Optional[datetime] = None) -> int:
     """
     Week to grade in Speed Grader: the previous calendar week (N - 1).
 
@@ -188,9 +209,7 @@ def calculate_grading_week(
         course_config.MIN_WEEK,
         min(calendar_week - 1, course_config.MAX_WEEK),
     )
-    logger.debug(
-        f"Grading week {grading_week} (calendar week {calendar_week} minus 1)"
-    )
+    logger.debug(f"Grading week {grading_week} (calendar week {calendar_week} minus 1)")
     return grading_week
 
 
@@ -269,9 +288,7 @@ def get_speed_grader_config(
     if not merged.get("grade"):
         merged["grade"] = course_rubric.get("grade", DISCUSSION_RUBRIC_2021["grade"])
     if merged.get("use_rubric") is None:
-        merged["use_rubric"] = course_rubric.get(
-            "use_rubric", DISCUSSION_RUBRIC_2021["use_rubric"]
-        )
+        merged["use_rubric"] = course_rubric.get("use_rubric", DISCUSSION_RUBRIC_2021["use_rubric"])
     if not merged.get("rubric_ratings"):
         merged["rubric_ratings"] = course_rubric.get("rubric_ratings") or list(
             DEFAULT_RUBRIC_RATINGS
@@ -298,9 +315,7 @@ def get_speed_grader_config(
     merged["rubric_grading_config"] = rubric_grading
     merged["grading_defaults"] = rubric_grading["grading_defaults"]
     merged["rubric_config"] = rubric_config
-    merged["rubric_rating_levels"] = course_rubric.get(
-        "rubric_rating_levels", RUBRIC_RATING_LEVELS
-    )
+    merged["rubric_rating_levels"] = course_rubric.get("rubric_rating_levels", RUBRIC_RATING_LEVELS)
 
     return merged
 
@@ -314,9 +329,7 @@ def resolve_course_and_assignment(
     speed_grader = get_speed_grader_config(course_selector, week_id, config)
     assignment_id = speed_grader.get("assignment_id")
     if not assignment_id or assignment_id == "FILL_ME":
-        raise ValueError(
-            f"Missing assignment_id for week {week_id} in course {course_selector}"
-        )
+        raise ValueError(f"Missing assignment_id for week {week_id} in course {course_selector}")
     return course_id, assignment_id
 
 

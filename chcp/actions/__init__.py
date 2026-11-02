@@ -1,1 +1,1 @@
-"""CLI action entry points (discussion, grading, announcements, plagiarism)."""
+"""CLI action entry points (discussion, grading, announcements, plagiarism, term)."""

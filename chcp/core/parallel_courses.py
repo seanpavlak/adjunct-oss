@@ -13,7 +13,7 @@ import sys
 import time
 from typing import Optional, Sequence
 
-from chcp.core.course_utils import load_courses_config
+from chcp.core.course_utils import active_course_keys, load_courses_config
 from chcp.paths import REPO_ROOT
 
 # Keep window launches from stacking on the same tick. MFA is not per window.
@@ -72,9 +72,12 @@ def install_parallel_log_prefix() -> None:
 
 def course_keys(config: Optional[dict] = None) -> list[str]:
     loaded = config if config is not None else load_courses_config()
-    keys = list((loaded.get("courses") or {}).keys())
-    if not keys:
+    courses = loaded.get("courses") or {}
+    if not courses:
         raise ValueError("No courses found in courses.json")
+    keys = active_course_keys(loaded)
+    if not keys:
+        raise ValueError("No active courses found in courses.json")
     return keys
 
 
